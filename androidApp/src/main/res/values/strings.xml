@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Gym Manager</string>
+    <string name="morning_update_channel">Morning update</string>
 </resources>

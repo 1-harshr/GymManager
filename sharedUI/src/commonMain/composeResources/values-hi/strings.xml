@@ -219,6 +219,20 @@
     <string name="section_data">डेटा</string>
     <string name="data_title">सिर्फ़ इसी फ़ोन में सेव</string>
     <string name="data_body">सारा डेटा इसी फ़ोन में रहता है। नियमित रूप से बैकअप फ़ाइल सेव करें, जैसे Google Drive में, ताकि फ़ोन खोने या खराब होने पर जिम का रिकॉर्ड न खोए।</string>
+    <string name="section_notifications">सूचनाएँ</string>
+    <string name="morning_update">सुबह की अपडेट</string>
+    <string name="morning_update_body">हर सुबह: आज किसकी सदस्यता खत्म हो रही है, बकाया, और इस महीने कितना मिला।</string>
+    <string name="morning_update_time">समय</string>
+    <string name="morning_update_set_time">समय चुनें</string>
+    <string name="morning_update_denied">इस ऐप की सूचनाएँ बंद हैं। फ़ोन की सेटिंग में इन्हें चालू करें।</string>
+    <string name="time_am">%1$d:%2$s AM</string>
+    <string name="time_pm">%1$d:%2$s PM</string>
+    <string name="morning_title">सुप्रभात, %1$s</string>
+    <string name="morning_ending_today">आज खत्म: %1$s</string>
+    <string name="morning_ended_yesterday">कल खत्म हुई: %1$s</string>
+    <string name="morning_more_names">%1$s और %2$d अन्य</string>
+    <string name="morning_no_dues">कुछ बकाया नहीं</string>
+    <string name="morning_collected">इस महीने %1$s मिला</string>
     <string name="section_about">जानकारी</string>
     <string name="version">वर्ज़न %1$s</string>
     <string name="credits">musa_fir ने ❤️ से बनाया · कोई अधिकार सुरक्षित नहीं</string>
@@ -425,5 +439,13 @@
     <plurals name="payments_count">
         <item quantity="one">%1$d भुगतान</item>
         <item quantity="other">%1$d भुगतान</item>
+    </plurals>
+    <plurals name="morning_ending_soon">
+        <item quantity="one">अगले %2$d दिनों में %1$d सदस्यता खत्म होगी</item>
+        <item quantity="other">अगले %2$d दिनों में %1$d सदस्यताएँ खत्म होंगी</item>
+    </plurals>
+    <plurals name="morning_dues">
+        <item quantity="one">%2$d सदस्य पर %1$s बकाया</item>
+        <item quantity="other">%2$d सदस्यों पर %1$s बकाया</item>
     </plurals>
 </resources>

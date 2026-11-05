@@ -13,6 +13,7 @@ import com.harsh.gymmanager.data.settings.DataStoreSettingsRepository
 import com.harsh.gymmanager.domain.assistant.GymAssistant
 import com.harsh.gymmanager.domain.backup.BackupUseCases
 import com.harsh.gymmanager.domain.backup.StoredFiles
+import com.harsh.gymmanager.domain.digest.MorningDigestUseCase
 import com.harsh.gymmanager.domain.messaging.MessagingUseCases
 import com.harsh.gymmanager.domain.usecase.BulkRenewUseCase
 import com.harsh.gymmanager.domain.usecase.ImportMembersUseCase
@@ -23,17 +24,19 @@ import com.harsh.gymmanager.domain.usecase.ObserveMemberDetailUseCase
 import com.harsh.gymmanager.domain.usecase.PaymentUseCases
 import com.harsh.gymmanager.domain.usecase.PlanUseCases
 import com.harsh.gymmanager.domain.usecase.SettingsUseCases
+import com.harsh.gymmanager.ui.notifications.MorningUpdateScheduler
 import kotlinx.datetime.TimeZone
 import kotlin.time.Clock
 
 /**
  * App-wide singletons for both platforms, created lazily on first use. Each platform supplies
- * only how to open its database and settings file.
+ * how to open its database and settings file, and how it schedules the morning update.
  */
 class DefaultAppDependencies(
     openDatabase: () -> GymDatabase,
     openSettings: () -> DataStore<Preferences>,
     private val storedFiles: StoredFiles,
+    private val createMorningUpdates: (MorningDigestUseCase) -> MorningUpdateScheduler,
     private val clock: Clock = Clock.System,
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
 ) : AppDependencies {
@@ -67,4 +70,6 @@ class DefaultAppDependencies(
     override val assistant by lazy {
         GymAssistant(memberUseCases, planUseCases, membershipUseCases, paymentUseCases, observeDashboard)
     }
+    override val morningDigest by lazy { MorningDigestUseCase(memberRepository, paymentRepository) }
+    override val morningUpdates by lazy { createMorningUpdates(morningDigest) }
 }

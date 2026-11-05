@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.platform
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
@@ -14,6 +15,7 @@ import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.WindowCompat
 import java.io.File
 import java.util.Locale
@@ -199,6 +201,25 @@ actual fun SystemBarsFor(darkTheme: Boolean) {
         WindowCompat.getInsetsController(window, view).apply {
             isAppearanceLightStatusBars = !darkTheme
             isAppearanceLightNavigationBars = !darkTheme
+        }
+    }
+}
+
+@Composable
+actual fun rememberNotificationPermission(onResult: (granted: Boolean) -> Unit): () -> Unit {
+    val context = LocalContext.current
+    val currentOnResult by rememberUpdatedState(onResult)
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        currentOnResult(granted)
+    }
+    return remember(launcher) {
+        {
+            when {
+                NotificationManagerCompat.from(context).areNotificationsEnabled() -> currentOnResult(true)
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                // Before Android 13 there is no prompt; they were turned off in the phone's settings.
+                else -> currentOnResult(false)
+            }
         }
     }
 }

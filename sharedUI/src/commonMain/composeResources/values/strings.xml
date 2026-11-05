@@ -219,6 +219,20 @@
     <string name="section_data">Data</string>
     <string name="data_title">Stored on this phone only</string>
     <string name="data_body">Everything is stored on this phone. Save a backup file regularly, for example to Google Drive, so a lost or broken phone doesn’t lose the gym’s records.</string>
+    <string name="section_notifications">Notifications</string>
+    <string name="morning_update">Morning update</string>
+    <string name="morning_update_body">Every morning: whose membership ends today, dues, and this month’s collection.</string>
+    <string name="morning_update_time">Time</string>
+    <string name="morning_update_set_time">Set time</string>
+    <string name="morning_update_denied">Notifications are off for this app. Turn them on in your phone’s settings.</string>
+    <string name="time_am">%1$d:%2$s AM</string>
+    <string name="time_pm">%1$d:%2$s PM</string>
+    <string name="morning_title">Good morning, %1$s</string>
+    <string name="morning_ending_today">Ends today: %1$s</string>
+    <string name="morning_ended_yesterday">Ended yesterday: %1$s</string>
+    <string name="morning_more_names">%1$s and %2$d more</string>
+    <string name="morning_no_dues">Nothing due</string>
+    <string name="morning_collected">%1$s collected this month</string>
     <string name="section_about">About</string>
     <string name="version">Version %1$s</string>
     <string name="credits">Created by musa_fir ❤️ · No rights reserved</string>
@@ -425,5 +439,13 @@
     <plurals name="payments_count">
         <item quantity="one">%1$d payment</item>
         <item quantity="other">%1$d payments</item>
+    </plurals>
+    <plurals name="morning_ending_soon">
+        <item quantity="one">%1$d membership ends in the next %2$d days</item>
+        <item quantity="other">%1$d memberships end in the next %2$d days</item>
+    </plurals>
+    <plurals name="morning_dues">
+        <item quantity="one">%1$s due from %2$d member</item>
+        <item quantity="other">%1$s due from %2$d members</item>
     </plurals>
 </resources>

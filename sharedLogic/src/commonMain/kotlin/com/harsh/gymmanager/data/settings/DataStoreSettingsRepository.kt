@@ -3,12 +3,15 @@ package com.harsh.gymmanager.data.settings
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.harsh.gymmanager.domain.model.AppLanguage
 import com.harsh.gymmanager.domain.model.AppSettings
 import com.harsh.gymmanager.domain.model.GymProfile
+import com.harsh.gymmanager.domain.model.MorningUpdate
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -31,6 +34,8 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
         val theme = stringPreferencesKey("theme")
         val language = stringPreferencesKey("language")
         val lastBackupAt = longPreferencesKey("last_backup_at")
+        val morningUpdateEnabled = booleanPreferencesKey("morning_update_enabled")
+        val morningUpdateMinute = intPreferencesKey("morning_update_minute")
     }
 
     override fun observe(): Flow<AppSettings> = store.data.map { prefs ->
@@ -41,6 +46,11 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
             theme = prefs[Keys.theme]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM,
             language = prefs[Keys.language]?.let { runCatching { AppLanguage.valueOf(it) }.getOrNull() } ?: AppLanguage.SYSTEM,
             lastBackupAt = prefs[Keys.lastBackupAt]?.let(Instant::fromEpochMilliseconds),
+            morningUpdate = MorningUpdate(
+                enabled = prefs[Keys.morningUpdateEnabled] ?: false,
+                minuteOfDay = prefs[Keys.morningUpdateMinute]
+                    ?.takeIf { it in 0 until MorningUpdate.MINUTES_PER_DAY } ?: MorningUpdate.DEFAULT_MINUTE_OF_DAY,
+            ),
         )
     }.distinctUntilChanged()
 
@@ -62,5 +72,12 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
 
     override suspend fun setLastBackupAt(at: Instant) {
         store.edit { it[Keys.lastBackupAt] = at.toEpochMilliseconds() }
+    }
+
+    override suspend fun setMorningUpdate(update: MorningUpdate) {
+        store.edit {
+            it[Keys.morningUpdateEnabled] = update.enabled
+            it[Keys.morningUpdateMinute] = update.minuteOfDay
+        }
     }
 }

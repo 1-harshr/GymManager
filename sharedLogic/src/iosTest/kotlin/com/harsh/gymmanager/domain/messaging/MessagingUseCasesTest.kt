@@ -12,6 +12,7 @@ import com.harsh.gymmanager.domain.model.AppLanguage
 import com.harsh.gymmanager.domain.model.AppSettings
 import com.harsh.gymmanager.domain.model.DurationUnit
 import com.harsh.gymmanager.domain.model.GymProfile
+import com.harsh.gymmanager.domain.model.MorningUpdate
 import com.harsh.gymmanager.domain.model.PaymentMode
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.domain.repository.SettingsRepository
@@ -51,6 +52,7 @@ class MessagingUseCasesTest {
         override suspend fun setTheme(theme: ThemeMode) {}
         override suspend fun setLanguage(language: AppLanguage) {}
         override suspend fun setLastBackupAt(at: Instant) {}
+        override suspend fun setMorningUpdate(update: MorningUpdate) {}
     }
 
     private lateinit var db: GymDatabase
