@@ -1,35 +1,73 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# GymManager
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+**GymManager is an offline-first app for running a gym’s everyday membership operations.** Gym owners and staff can keep member records, manage plans and memberships, record payments, follow up on dues, and see upcoming expirations—all from one place. The app is built for Android and iOS, with shared Kotlin business logic and UI.
 
-* [/sharedLogic](./sharedLogic/src) is for the code that will be shared between app targets in the project.
-  The most important subfolder is [commonMain](./sharedLogic/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+## Product overview
 
-* [/sharedUI](./sharedUI/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./sharedUI/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./sharedUI/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./sharedUI/src/jvmMain/kotlin)
-    folder is the appropriate location.
+### Keep member information organized
+Create and update member profiles with contact details, notes, photos, and membership history. Import member records from CSV to make onboarding easier.
 
-### Running the apps
+### Manage plans, memberships, and payments
+Set up gym plans, sell memberships, record payments, and review outstanding dues. Renew memberships individually or use bulk renewal for multiple members.
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+### Know what needs attention
+The dashboard highlights active, expiring-soon, expired, and owing members, along with monthly collections and amounts due. Use these summaries to prioritize renewals and follow-ups.
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+### Follow up with members
+The app provides WhatsApp-style message and reminder flows for membership renewals and payment follow-ups.
 
-### Running tests
+### Work offline
+GymManager stores operational data locally, so its core gym-management workflows do not depend on a hosted backend or an active internet connection.
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+## Platforms and technology
 
-- Android tests: `./gradlew :sharedUI:testAndroidHostTest :sharedLogic:testAndroidHostTest`
-- iOS tests: `./gradlew :sharedLogic:iosSimulatorArm64Test`
+- **Android and iOS** apps
+- **Kotlin Multiplatform** for shared business logic
+- **Compose Multiplatform** for shared UI
+- **Room** for local database persistence
+- **DataStore** for app settings
 
----
+## Developer guide
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+### Repository layout
+
+- `androidApp/` — Android application entry point and platform configuration
+- `iosApp/` — Xcode project and iOS application entry point
+- `sharedLogic/` — domain models, business rules, repositories, use cases, and local data layer
+- `sharedUI/` — shared Compose screens, components, navigation, and theme
+
+### Prerequisites
+
+- Android Studio with Kotlin Multiplatform support for Android development
+- Xcode on macOS to build and run the iOS app
+- A JDK compatible with the project’s Gradle configuration
+
+The repository includes the Gradle wrapper, so use `./gradlew` rather than installing Gradle separately.
+
+### Build and run
+
+Build the Android debug app:
+
+```bash
+./gradlew :androidApp:assembleDebug
+```
+
+To run on iOS, open the `iosApp` project in Xcode, select a simulator or device, and run it.
+
+### Run tests
+
+Run the Android host tests:
+
+```bash
+./gradlew :sharedUI:testAndroidHostTest :sharedLogic:testAndroidHostTest
+```
+
+Run the iOS simulator tests:
+
+```bash
+./gradlew :sharedLogic:iosSimulatorArm64Test
+```
+
+## Project status
+
+GymManager is an actively developed cross-platform project. Features and implementation details may evolve; check the source code and tests for the current behavior.
