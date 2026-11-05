@@ -43,7 +43,7 @@ kotlin {
             api(libs.kotlinx.coroutines.core)
             api(libs.kotlinx.datetime)
             api(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.room.runtime)
+            api(libs.androidx.room.runtime)
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.androidx.datastore.preferences)
         }
