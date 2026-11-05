@@ -10,6 +10,10 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -40,7 +44,6 @@ object AkhadaMotion {
     val Settle = CubicBezierEasing(0.2f, 0.85f, 0.25f, 1f)
 
     const val PUSH_MS = 420
-    const val POP_MS = 360
     const val OPEN_MS = 400
     const val TAB_MS = 320
 
@@ -49,7 +52,13 @@ object AkhadaMotion {
     const val SPLASH_EXIT_MS = 350
 
     fun <T> push(): FiniteAnimationSpec<T> = tween(PUSH_MS, easing = Settle)
-    fun <T> pop(): FiniteAnimationSpec<T> = tween(POP_MS, easing = Settle)
+    /**
+     * Going back slides on a critically damped spring: it eases in, then settles without the
+     * lurch-then-crawl of [Settle], so the page reads as being pulled away rather than snapped off.
+     */
+    private const val BACK_STIFFNESS = 400f
+    private val backSlide = spring(Spring.DampingRatioNoBouncy, BACK_STIFFNESS, IntOffset.VisibilityThreshold)
+    private val backFade = spring(Spring.DampingRatioNoBouncy, BACK_STIFFNESS, 0.01f)
     fun <T> open(): FiniteAnimationSpec<T> = tween(OPEN_MS, easing = Settle)
 
     /** How far the screen underneath drifts, as a share of the width, and how much it dims. */
@@ -63,10 +72,10 @@ object AkhadaMotion {
         slideOutHorizontally(push()) { -it / UNDERLAY_SHIFT } + fadeOut(push(), targetAlpha = UNDERLAY_ALPHA)
     }
     val popEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
-        slideInHorizontally(pop()) { -it / UNDERLAY_SHIFT } + fadeIn(pop(), initialAlpha = UNDERLAY_ALPHA)
+        slideInHorizontally(backSlide) { -it / UNDERLAY_SHIFT } + fadeIn(backFade, initialAlpha = UNDERLAY_ALPHA)
     }
     val popExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
-        slideOutHorizontally(pop()) { it }
+        slideOutHorizontally(backSlide) { it }
     }
 
     /** A page that grows out of the list behind it. */
