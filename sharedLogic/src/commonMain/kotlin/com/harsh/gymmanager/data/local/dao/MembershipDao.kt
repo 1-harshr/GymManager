@@ -7,6 +7,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.harsh.gymmanager.data.local.entity.MembershipEntity
 import com.harsh.gymmanager.data.local.entity.MembershipWithPayments
+import com.harsh.gymmanager.data.local.entity.PaymentEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 
@@ -14,6 +15,17 @@ import kotlinx.datetime.LocalDate
 interface MembershipDao {
     @Insert
     suspend fun insert(membership: MembershipEntity): Long
+
+    @Insert
+    suspend fun insertPayment(payment: PaymentEntity): Long
+
+    /** Saves a membership and, optionally, its first payment in one transaction. */
+    @Transaction
+    suspend fun insertWithFirstPayment(membership: MembershipEntity, firstPayment: PaymentEntity?): Long {
+        val id = insert(membership)
+        if (firstPayment != null) insertPayment(firstPayment.copy(membershipId = id))
+        return id
+    }
 
     @Update
     suspend fun update(membership: MembershipEntity)

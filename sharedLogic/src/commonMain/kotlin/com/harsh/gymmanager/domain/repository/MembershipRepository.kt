@@ -1,6 +1,7 @@
 package com.harsh.gymmanager.domain.repository
 
 import com.harsh.gymmanager.domain.model.Membership
+import com.harsh.gymmanager.domain.model.Payment
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 
@@ -10,7 +11,11 @@ interface MembershipRepository {
 
     suspend fun getLatestEndDate(memberId: Long): LocalDate?
 
-    suspend fun addMembership(membership: Membership): Long
+    /**
+     * Saves [membership] and, if given, [firstPayment] together. The payment's membershipId is ignored.
+     * @throws com.harsh.gymmanager.domain.OverpaymentException if [firstPayment] is more than the amount charged.
+     */
+    suspend fun addMembership(membership: Membership, firstPayment: Payment? = null): Long
 
     suspend fun updateMembership(membership: Membership)
 
