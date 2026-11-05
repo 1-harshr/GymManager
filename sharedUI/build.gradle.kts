@@ -9,6 +9,19 @@ plugins {
 }
 
 kotlin {
+    compilerOptions {
+        // Needed for the platform LocalAppLocale object.
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64(),
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "SharedUI"
+            isStatic = true
+        }
+    }
     android {
        namespace = "com.harsh.gymmanager.sharedUI"
        compileSdk = libs.versions.android.compileSdk.get().toInt()

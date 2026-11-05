@@ -27,6 +27,12 @@ expect object LocalAppLocale {
     infix fun provides(tag: String?): ProvidedValue<*>
 }
 
+/**
+ * True where string resources only pick up a new language when the UI is rebuilt (iOS).
+ * Android re-reads them in place, so it keeps the current screen when the language changes.
+ */
+expect val rebuildUiOnLanguageChange: Boolean
+
 /** Makes the status and navigation bar icons readable on the app's own light or dark background. */
 @Composable
 expect fun SystemBarsFor(darkTheme: Boolean)

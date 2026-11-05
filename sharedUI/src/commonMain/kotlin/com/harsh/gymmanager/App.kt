@@ -12,6 +12,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -46,6 +47,7 @@ import com.harsh.gymmanager.ui.motion.Destination
 import com.harsh.gymmanager.ui.motion.LocalSharedTransitionScope
 import com.harsh.gymmanager.ui.platform.LocalAppLocale
 import com.harsh.gymmanager.ui.platform.SystemBarsFor
+import com.harsh.gymmanager.ui.platform.rebuildUiOnLanguageChange
 import com.harsh.gymmanager.ui.screens.bulkrenew.BulkRenewScreen
 import com.harsh.gymmanager.ui.screens.importmembers.ImportMembersScreen
 import com.harsh.gymmanager.ui.screens.main.MainScreen
@@ -84,12 +86,15 @@ fun App(dependencies: AppDependencies) {
     val tag = settings?.language?.tag
     val language = tag ?: Locale.current.language
     CompositionLocalProvider(LocalAppLocale provides tag, LocalLanguage provides language) {
-        AkhadaTheme(darkTheme = dark) {
-            Box(Modifier.fillMaxSize().background(AkhadaTheme.colors.bg)) {
-                // Wait for stored settings so first-run setup never flashes on later launches.
-                if (settings != null) AppContent(dependencies, settings, settingsVm)
+        val content: @Composable () -> Unit = {
+            AkhadaTheme(darkTheme = dark) {
+                Box(Modifier.fillMaxSize().background(AkhadaTheme.colors.bg)) {
+                    // Wait for stored settings so first-run setup never flashes on later launches.
+                    if (settings != null) AppContent(dependencies, settings, settingsVm)
+                }
             }
         }
+        if (rebuildUiOnLanguageChange) key(language) { content() } else content()
     }
 }
 

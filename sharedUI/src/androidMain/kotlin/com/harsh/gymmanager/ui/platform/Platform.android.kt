@@ -134,6 +134,8 @@ actual object LocalAppLocale {
     }
 }
 
+actual val rebuildUiOnLanguageChange: Boolean = false
+
 @Composable
 actual fun SystemBarsFor(darkTheme: Boolean) {
     val view = LocalView.current

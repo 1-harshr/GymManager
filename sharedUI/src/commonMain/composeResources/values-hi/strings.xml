@@ -201,6 +201,9 @@
     <string name="take_picture">फ़ोटो खींचें</string>
     <string name="switch_camera">कैमरा बदलें</string>
     <string name="use_photo">फ़ोटो लें</string>
+    <string name="camera_unavailable_title">इस डिवाइस में कैमरा नहीं है</string>
+    <string name="camera_unavailable_body">इसकी जगह फ़ोन की गैलरी से फ़ोटो चुनें।</string>
+    <string name="choose_from_photos">गैलरी से चुनें</string>
     <string name="retake">फिर से लें</string>
     <string name="section_gym">जिम</string>
     <string name="edit_gym">जिम की जानकारी बदलें</string>
