@@ -39,6 +39,7 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
         val morningUpdateMinute = intPreferencesKey("morning_update_minute")
         val aiInsights = booleanPreferencesKey("home_ai_insights")
         val collectionsChart = booleanPreferencesKey("home_collections_chart")
+        val membersAsGrid = booleanPreferencesKey("members_as_grid")
     }
 
     override fun observe(): Flow<AppSettings> = store.data.map { prefs ->
@@ -58,6 +59,7 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
                 aiInsights = prefs[Keys.aiInsights] ?: false,
                 collectionsChart = prefs[Keys.collectionsChart] ?: false,
             ),
+            membersAsGrid = prefs[Keys.membersAsGrid] ?: false,
         )
     }.distinctUntilChanged()
 
@@ -93,5 +95,9 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
             it[Keys.aiInsights] = features.aiInsights
             it[Keys.collectionsChart] = features.collectionsChart
         }
+    }
+
+    override suspend fun setMembersAsGrid(grid: Boolean) {
+        store.edit { it[Keys.membersAsGrid] = grid }
     }
 }

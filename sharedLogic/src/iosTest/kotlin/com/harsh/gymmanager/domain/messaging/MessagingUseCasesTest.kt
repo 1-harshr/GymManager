@@ -55,6 +55,7 @@ class MessagingUseCasesTest {
         override suspend fun setLastBackupAt(at: Instant) {}
         override suspend fun setMorningUpdate(update: MorningUpdate) {}
         override suspend fun setHomeFeatures(features: HomeFeatures) {}
+        override suspend fun setMembersAsGrid(grid: Boolean) {}
     }
 
     private lateinit var db: GymDatabase

@@ -24,4 +24,6 @@ class SettingsUseCases(private val repository: SettingsRepository) {
     suspend fun setMorningUpdate(update: MorningUpdate): Result<Unit> = resultOf { repository.setMorningUpdate(update) }
 
     suspend fun setHomeFeatures(features: HomeFeatures): Result<Unit> = resultOf { repository.setHomeFeatures(features) }
+
+    suspend fun setMembersAsGrid(grid: Boolean): Result<Unit> = resultOf { repository.setMembersAsGrid(grid) }
 }

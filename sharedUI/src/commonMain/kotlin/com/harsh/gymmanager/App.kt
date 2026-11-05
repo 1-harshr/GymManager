@@ -167,6 +167,8 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                                     onOpenReminders = { nav.navigate(RemindersRoute) },
                                     onOpenInbox = { nav.navigate(InboxRoute) },
                                     homeFeatures = settings.homeFeatures,
+                                    membersAsGrid = settings.membersAsGrid,
+                                    onMembersAsGridChange = settingsVm::onMembersAsGridChange,
                                 )
                             }
                         }

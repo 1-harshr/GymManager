@@ -1,5 +1,9 @@
 package com.harsh.gymmanager.ui.components
 
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
@@ -108,14 +112,79 @@ fun MemberRow(
 
 /** The tick that replaces a photo on a selected row. */
 @Composable
-fun SelectedMark(modifier: Modifier = Modifier) {
+fun SelectedMark(modifier: Modifier = Modifier, size: Dp = AkhadaSize.avatar) {
     val colors = AkhadaTheme.colors
-    Box(modifier.size(AkhadaSize.avatar).background(colors.ink, CircleShape), contentAlignment = Alignment.Center) {
+    Box(modifier.size(size).background(colors.ink, CircleShape), contentAlignment = Alignment.Center) {
         Icon(AkhadaIcons.Check, contentDescription = stringResource(Res.string.selected), Modifier.size(22.dp), tint = colors.onInk)
     }
 }
 
-/** A number with its label in the Home grid; tapping opens the matching member list. */
+/**
+ * One member as a tile in the members grid: photo, name, when their membership ends, and their
+ * badges. Selecting works as in [MemberRow]: a ticked tile turns `accent-soft` with a check for a photo.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun MemberTile(
+    member: MemberSummary,
+    today: LocalDate,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    selected: Boolean = false,
+    onLongClick: (() -> Unit)? = null,
+) {
+    val colors = AkhadaTheme.colors
+    val ends = member.latestEndDate?.let {
+        if (it >= today) stringResource(Res.string.ends_on, it.formatDayMonth()) else stringResource(Res.string.ended_on, it.formatDayMonth())
+    }?.replaceFirstChar { it.uppercase() } ?: stringResource(Res.string.no_membership_yet)
+    Surface(
+        modifier = modifier
+            .clip(AkhadaRadius.cardShape)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick, onLongClickLabel = stringResource(Res.string.select))
+            .semantics { this.selected = selected },
+        shape = AkhadaRadius.cardShape,
+        color = if (selected) colors.accentSoft else colors.surface,
+    ) {
+        Column(
+            Modifier.fillMaxWidth().padding(AkhadaSpace.lg),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm),
+        ) {
+            if (selected) {
+                SelectedMark(size = TILE_PHOTO)
+            } else {
+                Avatar(member.name, member.photoPath, Modifier.sharedElement(SharedKeys.memberPhoto(member.memberId)), size = TILE_PHOTO)
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    member.name,
+                    Modifier.sharedElement(SharedKeys.memberName(member.memberId)),
+                    style = AkhadaTheme.typography.title,
+                    color = if (selected) colors.onAccentSoft else colors.ink,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                )
+                Text(ends, style = AkhadaTheme.typography.caption, color = if (selected) colors.onAccentSoft else colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.xs, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs),
+            ) {
+                if (member.isArchived) {
+                    Badge(stringResource(Res.string.archived), BadgeTone.Expired)
+                } else {
+                    Badge(statusShortLabel(member.status, member.latestEndDate, today), member.status.tone())
+                }
+                if (member.amountDue > 0) Badge(formatRupees(member.amountDue), BadgeTone.Due)
+            }
+        }
+    }
+}
+
+private val TILE_PHOTO = 64.dp
+
+/** A number with its label in the Home grid. */
 @Composable
 fun StatTile(label: String, value: String, tone: BadgeTone, modifier: Modifier = Modifier) {
     val colors = AkhadaTheme.colors

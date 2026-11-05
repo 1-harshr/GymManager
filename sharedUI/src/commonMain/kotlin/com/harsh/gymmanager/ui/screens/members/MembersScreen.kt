@@ -1,5 +1,13 @@
 package com.harsh.gymmanager.ui.screens.members
 
+import com.harsh.gymmanager.ui.components.MemberTile
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.BoxWithConstraints
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.pluralStringResource
@@ -62,9 +70,13 @@ fun MembersScreen(
     onSelectAll: () -> Unit,
     onClearSelection: () -> Unit,
     onImport: () -> Unit,
-) {
+    asGrid: Boolean,
+    onAsGridChange: (Boolean) -> Unit,
+) = BoxWithConstraints(Modifier.fillMaxSize()) {
     val today = rememberToday()
     val subtitle = if (state.isLoading) null else pluralStringResource(Res.plurals.members_count, state.members.size, state.members.size)
+    // As many tiles across as fit at their smallest; never fewer than two.
+    val columns = ((maxWidth - AkhadaSpace.gutter * 2 + AkhadaSpace.md) / (TILE_MIN_WIDTH + AkhadaSpace.md)).toInt().coerceAtLeast(2)
     LazyColumn(
         Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = AkhadaSize.contentBottomClearance),
@@ -81,6 +93,12 @@ fun MembersScreen(
                             MenuAction(stringResource(Res.string.import_from_file), onClick = onImport),
                         ),
                         contentDescription = stringResource(Res.string.more_member_actions),
+                    )
+                    // Shows the view it switches to.
+                    AkhadaIconButton(
+                        if (asGrid) AkhadaIcons.List else AkhadaIcons.LayoutGrid,
+                        stringResource(if (asGrid) Res.string.show_as_list else Res.string.show_as_grid),
+                        { onAsGridChange(!asGrid) },
                     )
                     AkhadaIconButton(AkhadaIcons.Settings, stringResource(Res.string.settings), onOpenSettings)
                 }
@@ -104,16 +122,37 @@ fun MembersScreen(
                 }
             }
         }
-        items(state.members, key = { it.memberId }) { member ->
-            val selected = member.memberId in state.selectedIds
-            MemberRow(
-                member,
-                today,
-                onClick = { if (state.isSelecting) onToggleSelection(member) else onOpenMember(member) },
-                modifier = Modifier.screenGutter(),
-                selected = selected,
-                onLongClick = { onToggleSelection(member) },
-            )
+        if (asGrid) {
+            items(state.members.chunked(columns), key = { row -> "row-${row.first().memberId}" }) { row ->
+                Row(Modifier.screenGutter().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+                    row.forEach { member ->
+                        MemberTile(
+                            member,
+                            today,
+                            onClick = { if (state.isSelecting) onToggleSelection(member) else onOpenMember(member) },
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            selected = member.memberId in state.selectedIds,
+                            onLongClick = { onToggleSelection(member) },
+                        )
+                    }
+                    // Keep a short last row's tiles the same width as the rest.
+                    repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        } else {
+            items(state.members, key = { it.memberId }) { member ->
+                MemberRow(
+                    member,
+                    today,
+                    onClick = { if (state.isSelecting) onToggleSelection(member) else onOpenMember(member) },
+                    modifier = Modifier.screenGutter(),
+                    selected = member.memberId in state.selectedIds,
+                    onLongClick = { onToggleSelection(member) },
+                )
+            }
         }
     }
 }
+
+/** A grid tile is never narrower than this; wider screens fit more across. */
+private val TILE_MIN_WIDTH = 150.dp

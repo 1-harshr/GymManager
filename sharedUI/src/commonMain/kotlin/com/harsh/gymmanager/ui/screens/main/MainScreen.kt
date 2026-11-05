@@ -87,6 +87,8 @@ fun MainScreen(
     onOpenReminders: () -> Unit,
     onOpenInbox: () -> Unit,
     homeFeatures: HomeFeatures,
+    membersAsGrid: Boolean,
+    onMembersAsGridChange: (Boolean) -> Unit,
 ) {
     val deps = LocalAppDependencies.current
     val snackbar = LocalSnackbar.current
@@ -163,6 +165,8 @@ fun MainScreen(
                     onSelectAll = membersVm::selectAll,
                     onClearSelection = membersVm::clearSelection,
                     onImport = onImportMembers,
+                    asGrid = membersAsGrid,
+                    onAsGridChange = onMembersAsGridChange,
                 )
                 else -> PlansScreen(
                     state = plansState,

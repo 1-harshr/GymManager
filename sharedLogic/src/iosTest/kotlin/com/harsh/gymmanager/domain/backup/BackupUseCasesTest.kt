@@ -54,6 +54,7 @@ class BackupUseCasesTest {
         override suspend fun setLastBackupAt(at: Instant) { state.value = state.value.copy(lastBackupAt = at) }
         override suspend fun setMorningUpdate(update: MorningUpdate) { state.value = state.value.copy(morningUpdate = update) }
         override suspend fun setHomeFeatures(features: HomeFeatures) { state.value = state.value.copy(homeFeatures = features) }
+        override suspend fun setMembersAsGrid(grid: Boolean) { state.value = state.value.copy(membersAsGrid = grid) }
     }
 
     /** An in-memory folder tree standing in for app storage. */

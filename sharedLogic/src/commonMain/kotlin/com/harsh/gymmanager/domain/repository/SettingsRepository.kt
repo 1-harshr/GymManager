@@ -23,4 +23,6 @@ interface SettingsRepository {
     suspend fun setMorningUpdate(update: MorningUpdate)
 
     suspend fun setHomeFeatures(features: HomeFeatures)
+
+    suspend fun setMembersAsGrid(grid: Boolean)
 }

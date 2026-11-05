@@ -33,4 +33,8 @@ class SettingsViewModel(private val settings: SettingsUseCases) : ViewModel() {
     fun onHomeFeaturesChange(features: HomeFeatures) {
         viewModelScope.launch { settings.setHomeFeatures(features) }
     }
+
+    fun onMembersAsGridChange(grid: Boolean) {
+        viewModelScope.launch { settings.setMembersAsGrid(grid) }
+    }
 }

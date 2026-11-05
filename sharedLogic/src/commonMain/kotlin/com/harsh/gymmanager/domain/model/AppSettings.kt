@@ -53,4 +53,6 @@ data class AppSettings(
     val lastBackupAt: Instant? = null,
     val morningUpdate: MorningUpdate = MorningUpdate(),
     val homeFeatures: HomeFeatures = HomeFeatures(),
+    /** Members shown as a grid of tiles rather than a list. */
+    val membersAsGrid: Boolean = false,
 )
