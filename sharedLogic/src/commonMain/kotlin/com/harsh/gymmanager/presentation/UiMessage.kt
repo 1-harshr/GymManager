@@ -3,6 +3,8 @@ package com.harsh.gymmanager.presentation
 import com.harsh.gymmanager.domain.OverpaymentException
 import com.harsh.gymmanager.domain.ValidationError
 import com.harsh.gymmanager.domain.ValidationException
+import com.harsh.gymmanager.domain.backup.BackupException
+import com.harsh.gymmanager.domain.backup.BackupProblem
 import com.harsh.gymmanager.domain.importing.ImportFileException
 import com.harsh.gymmanager.domain.importing.ImportFileProblem
 
@@ -43,6 +45,11 @@ sealed interface UiMessage {
     // Import
     data class FileUnreadable(val fileName: String) : UiMessage
     data class BadImportFile(val problem: ImportFileProblem) : UiMessage
+
+    // Backup
+    data object BackupSaved : UiMessage
+    data object BackupRestored : UiMessage
+    data class BadBackup(val problem: BackupProblem) : UiMessage
 }
 
 /** Known failures become their own message; anything unexpected gets a generic one. */
@@ -50,5 +57,6 @@ fun Throwable.toUiMessage(): UiMessage = when (this) {
     is OverpaymentException -> UiMessage.Overpayment(amountDue)
     is ValidationException -> UiMessage.Invalid(error)
     is ImportFileException -> UiMessage.BadImportFile(problem)
+    is BackupException -> UiMessage.BadBackup(problem)
     else -> UiMessage.SomethingWentWrong
 }

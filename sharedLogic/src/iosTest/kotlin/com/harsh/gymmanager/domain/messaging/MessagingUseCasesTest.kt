@@ -50,6 +50,7 @@ class MessagingUseCasesTest {
         override suspend fun setGym(profile: GymProfile) { state.value = state.value.copy(gym = profile) }
         override suspend fun setTheme(theme: ThemeMode) {}
         override suspend fun setLanguage(language: AppLanguage) {}
+        override suspend fun setLastBackupAt(at: Instant) {}
     }
 
     private lateinit var db: GymDatabase

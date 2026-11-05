@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.harsh.gymmanager.data.local.dao.BackupDao
 import com.harsh.gymmanager.data.local.dao.MemberDao
 import com.harsh.gymmanager.data.local.dao.MembershipDao
 import com.harsh.gymmanager.data.local.dao.MessageLogDao
@@ -38,6 +39,7 @@ abstract class GymDatabase : RoomDatabase() {
     abstract fun membershipDao(): MembershipDao
     abstract fun paymentDao(): PaymentDao
     abstract fun messageLogDao(): MessageLogDao
+    abstract fun backupDao(): BackupDao
 }
 
 // Room generates the actual implementations.

@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidxRoom)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -46,6 +47,7 @@ kotlin {
             api(libs.androidx.room.runtime)
             implementation(libs.androidx.sqlite.bundled)
             api(libs.androidx.datastore.preferences)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

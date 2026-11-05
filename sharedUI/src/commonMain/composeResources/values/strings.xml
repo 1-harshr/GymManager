@@ -218,7 +218,7 @@
     <string name="language_hindi">हिन्दी</string>
     <string name="section_data">Data</string>
     <string name="data_title">Stored on this phone only</string>
-    <string name="data_body">Members, plans and payments never leave this phone. Keep Google backup turned on in the phone’s settings until export and restore arrive in the app.</string>
+    <string name="data_body">Everything is stored on this phone. Save a backup file regularly, for example to Google Drive, so a lost or broken phone doesn’t lose the gym’s records.</string>
     <string name="section_about">About</string>
     <string name="version">Version %1$s</string>
     <string name="credits">Created by musa_fir ❤️ · No rights reserved</string>
@@ -309,6 +309,19 @@
     <string name="length_days">Days</string>
     <string name="sale_customised">Changed for this sale. The membership is still called “%1$s”.</string>
     <string name="reset_to_plan">Reset to plan</string>
+    <string name="last_backup">Last backup: %1$s</string>
+    <string name="never_backed_up">No backup saved yet</string>
+    <string name="back_up_now">Back up now</string>
+    <string name="backing_up">Preparing backup…</string>
+    <string name="restore_backup">Restore from a backup</string>
+    <string name="restore_title">Restore this backup?</string>
+    <string name="restore_body">Saved on %1$s for %2$s, with %3$s, %4$s and %5$s.\n\nIt replaces everything on this phone now. This can’t be undone.</string>
+    <string name="restore_confirm">Replace and restore</string>
+    <string name="restoring">Restoring…</string>
+    <string name="msg_backup_saved">Backup saved</string>
+    <string name="msg_backup_restored">Backup restored</string>
+    <string name="err_not_backup">This file isn’t a Gym Manager backup</string>
+    <string name="err_backup_newer">This backup is from a newer version of the app. Update the app, then try again.</string>
     <plurals name="members_count">
         <item quantity="one">%1$d member</item>
         <item quantity="other">%1$d members</item>
@@ -408,5 +421,9 @@
     <plurals name="sent_days_ago">
         <item quantity="one">Reminded %1$d day ago</item>
         <item quantity="other">Reminded %1$d days ago</item>
+    </plurals>
+    <plurals name="payments_count">
+        <item quantity="one">%1$d payment</item>
+        <item quantity="other">%1$d payments</item>
     </plurals>
 </resources>

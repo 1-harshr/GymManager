@@ -218,7 +218,7 @@
     <string name="language_hindi">हिन्दी</string>
     <string name="section_data">डेटा</string>
     <string name="data_title">सिर्फ़ इसी फ़ोन में सेव</string>
-    <string name="data_body">सदस्य, प्लान और भुगतान इसी फ़ोन में रहते हैं। जब तक ऐप में एक्सपोर्ट और रीस्टोर नहीं आता, फ़ोन की सेटिंग्स में Google बैकअप चालू रखें।</string>
+    <string name="data_body">सारा डेटा इसी फ़ोन में रहता है। नियमित रूप से बैकअप फ़ाइल सेव करें, जैसे Google Drive में, ताकि फ़ोन खोने या खराब होने पर जिम का रिकॉर्ड न खोए।</string>
     <string name="section_about">जानकारी</string>
     <string name="version">वर्ज़न %1$s</string>
     <string name="credits">musa_fir ने ❤️ से बनाया · कोई अधिकार सुरक्षित नहीं</string>
@@ -309,6 +309,19 @@
     <string name="length_days">दिन</string>
     <string name="sale_customised">इस बिक्री के लिए बदला गया। मेंबरशिप का नाम “%1$s” ही रहेगा।</string>
     <string name="reset_to_plan">प्लान जैसा करें</string>
+    <string name="last_backup">पिछला बैकअप: %1$s</string>
+    <string name="never_backed_up">अभी तक कोई बैकअप सेव नहीं हुआ</string>
+    <string name="back_up_now">अभी बैकअप लें</string>
+    <string name="backing_up">बैकअप तैयार हो रहा है…</string>
+    <string name="restore_backup">बैकअप से रीस्टोर करें</string>
+    <string name="restore_title">यह बैकअप रीस्टोर करें?</string>
+    <string name="restore_body">%1$s को %2$s के लिए सेव किया गया, इसमें %3$s, %4$s और %5$s हैं।\n\nइस फ़ोन का मौजूदा सारा डेटा इससे बदल जाएगा। इसे वापस नहीं किया जा सकता।</string>
+    <string name="restore_confirm">बदलें और रीस्टोर करें</string>
+    <string name="restoring">रीस्टोर हो रहा है…</string>
+    <string name="msg_backup_saved">बैकअप सेव हो गया</string>
+    <string name="msg_backup_restored">बैकअप रीस्टोर हो गया</string>
+    <string name="err_not_backup">यह फ़ाइल Gym Manager का बैकअप नहीं है</string>
+    <string name="err_backup_newer">यह बैकअप ऐप के नए वर्ज़न का है। ऐप अपडेट करके फिर कोशिश करें।</string>
     <plurals name="members_count">
         <item quantity="one">%1$d सदस्य</item>
         <item quantity="other">%1$d सदस्य</item>
@@ -408,5 +421,9 @@
     <plurals name="sent_days_ago">
         <item quantity="one">%1$d दिन पहले याद दिलाया</item>
         <item quantity="other">%1$d दिन पहले याद दिलाया</item>
+    </plurals>
+    <plurals name="payments_count">
+        <item quantity="one">%1$d भुगतान</item>
+        <item quantity="other">%1$d भुगतान</item>
     </plurals>
 </resources>

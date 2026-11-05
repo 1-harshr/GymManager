@@ -3,12 +3,15 @@ package com.harsh.gymmanager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.harsh.gymmanager.data.local.GymDatabase
+import com.harsh.gymmanager.data.repository.BackupRepositoryImpl
 import com.harsh.gymmanager.data.repository.MemberRepositoryImpl
 import com.harsh.gymmanager.data.repository.MembershipRepositoryImpl
 import com.harsh.gymmanager.data.repository.MessageLogRepositoryImpl
 import com.harsh.gymmanager.data.repository.PaymentRepositoryImpl
 import com.harsh.gymmanager.data.repository.PlanRepositoryImpl
 import com.harsh.gymmanager.data.settings.DataStoreSettingsRepository
+import com.harsh.gymmanager.domain.backup.BackupUseCases
+import com.harsh.gymmanager.domain.backup.StoredFiles
 import com.harsh.gymmanager.domain.messaging.MessagingUseCases
 import com.harsh.gymmanager.domain.usecase.BulkRenewUseCase
 import com.harsh.gymmanager.domain.usecase.ImportMembersUseCase
@@ -29,6 +32,7 @@ import kotlin.time.Clock
 class DefaultAppDependencies(
     openDatabase: () -> GymDatabase,
     openSettings: () -> DataStore<Preferences>,
+    private val storedFiles: StoredFiles,
     private val clock: Clock = Clock.System,
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
 ) : AppDependencies {
@@ -53,6 +57,9 @@ class DefaultAppDependencies(
     override val importMembers by lazy { ImportMembersUseCase(memberRepository, clock, timeZone) }
     override val settingsUseCases by lazy { SettingsUseCases(settingsRepository) }
     override val observeDashboard by lazy { ObserveDashboardUseCase(memberRepository, paymentRepository, clock, timeZone) }
+    override val backup by lazy {
+        BackupUseCases(BackupRepositoryImpl(database.backupDao()), settingsRepository, storedFiles, clock, timeZone)
+    }
     override val messaging by lazy {
         MessagingUseCases(memberRepository, membershipRepository, settingsRepository, messageLogRepository, clock, timeZone)
     }

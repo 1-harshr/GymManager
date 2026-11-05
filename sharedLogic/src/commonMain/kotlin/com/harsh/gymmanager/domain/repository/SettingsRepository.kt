@@ -5,6 +5,7 @@ import com.harsh.gymmanager.domain.model.AppSettings
 import com.harsh.gymmanager.domain.model.GymProfile
 import com.harsh.gymmanager.domain.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
+import kotlin.time.Instant
 
 interface SettingsRepository {
     fun observe(): Flow<AppSettings>
@@ -14,4 +15,6 @@ interface SettingsRepository {
     suspend fun setTheme(theme: ThemeMode)
 
     suspend fun setLanguage(language: AppLanguage)
+
+    suspend fun setLastBackupAt(at: Instant)
 }

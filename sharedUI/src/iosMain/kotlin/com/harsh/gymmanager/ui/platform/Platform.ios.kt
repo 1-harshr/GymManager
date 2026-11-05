@@ -33,6 +33,10 @@ import platform.UIKit.setStatusBarStyle
 import platform.UniformTypeIdentifiers.UTTypeCommaSeparatedText
 import platform.UniformTypeIdentifiers.UTTypePlainText
 import platform.UniformTypeIdentifiers.UTTypeText
+import platform.Foundation.NSTemporaryDirectory
+import platform.Foundation.writeToFile
+import platform.UniformTypeIdentifiers.UTTypeJSON
+import platform.UniformTypeIdentifiers.UTTypeData
 import platform.darwin.NSObject
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
@@ -65,6 +69,54 @@ private class DocumentDelegate(private val onPicked: (String, String?) -> Unit) 
         val data = NSData.dataWithContentsOfURL(url)
         val text = data?.takeIf { it.length <= MAX_IMPORT_BYTES }?.let { NSString.create(data = it, encoding = NSUTF8StringEncoding) as String? }
         onPicked(url.lastPathComponent ?: "file.csv", text)
+    }
+
+    override fun documentPickerWasCancelled(controller: UIDocumentPickerViewController) = Unit
+}
+
+/** Far above any real backup (photos are about 100 KB each); guards against picking a video. */
+private const val MAX_BACKUP_BYTES = 209_715_200uL
+
+@Composable
+actual fun rememberBackupSaver(onDone: (saved: Boolean) -> Unit): (fileName: String, bytes: ByteArray) -> Unit {
+    val host = LocalUIViewController.current
+    val callback by rememberUpdatedState(onDone)
+    val delegate = remember { ExportDelegate { saved -> callback(saved) } }
+    return { fileName, bytes ->
+        // The export sheet copies from a real file, so stage it in the temporary folder first.
+        val path = NSTemporaryDirectory() + fileName
+        if (!bytes.toNSData().writeToFile(path, atomically = true)) {
+            callback(false)
+        } else {
+            val picker = UIDocumentPickerViewController(forExportingURLs = listOf(NSURL.fileURLWithPath(path)), asCopy = true)
+            picker.delegate = delegate
+            host.presentViewController(picker, animated = true, completion = null)
+        }
+    }
+}
+
+private class ExportDelegate(private val onDone: (Boolean) -> Unit) : NSObject(), UIDocumentPickerDelegateProtocol {
+    override fun documentPicker(controller: UIDocumentPickerViewController, didPickDocumentsAtURLs: List<*>) = onDone(true)
+    override fun documentPickerWasCancelled(controller: UIDocumentPickerViewController) = onDone(false)
+}
+
+@Composable
+actual fun rememberBackupPicker(onPicked: (name: String, bytes: ByteArray?) -> Unit): () -> Unit {
+    val host = LocalUIViewController.current
+    val callback by rememberUpdatedState(onPicked)
+    val delegate = remember { BackupOpenDelegate { name, bytes -> callback(name, bytes) } }
+    return {
+        val picker = UIDocumentPickerViewController(forOpeningContentTypes = listOf(UTTypeJSON, UTTypeData), asCopy = true)
+        picker.delegate = delegate
+        host.presentViewController(picker, animated = true, completion = null)
+    }
+}
+
+private class BackupOpenDelegate(private val onPicked: (String, ByteArray?) -> Unit) : NSObject(), UIDocumentPickerDelegateProtocol {
+    override fun documentPicker(controller: UIDocumentPickerViewController, didPickDocumentsAtURLs: List<*>) {
+        val url = didPickDocumentsAtURLs.firstOrNull() as? NSURL ?: return
+        val data = NSData.dataWithContentsOfURL(url)
+        onPicked(url.lastPathComponent ?: "backup.json", data?.takeIf { it.length <= MAX_BACKUP_BYTES }?.toByteArray())
     }
 
     override fun documentPickerWasCancelled(controller: UIDocumentPickerViewController) = Unit

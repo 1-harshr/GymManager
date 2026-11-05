@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.harsh.gymmanager.domain.model.AppLanguage
 import com.harsh.gymmanager.domain.model.AppSettings
@@ -11,6 +12,7 @@ import com.harsh.gymmanager.domain.model.GymProfile
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import okio.Path.Companion.toPath
@@ -28,6 +30,7 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
         val gymLogo = stringPreferencesKey("gym_logo_path")
         val theme = stringPreferencesKey("theme")
         val language = stringPreferencesKey("language")
+        val lastBackupAt = longPreferencesKey("last_backup_at")
     }
 
     override fun observe(): Flow<AppSettings> = store.data.map { prefs ->
@@ -37,6 +40,7 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
             },
             theme = prefs[Keys.theme]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM,
             language = prefs[Keys.language]?.let { runCatching { AppLanguage.valueOf(it) }.getOrNull() } ?: AppLanguage.SYSTEM,
+            lastBackupAt = prefs[Keys.lastBackupAt]?.let(Instant::fromEpochMilliseconds),
         )
     }.distinctUntilChanged()
 
@@ -54,5 +58,9 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
 
     override suspend fun setLanguage(language: AppLanguage) {
         store.edit { it[Keys.language] = language.name }
+    }
+
+    override suspend fun setLastBackupAt(at: Instant) {
+        store.edit { it[Keys.lastBackupAt] = at.toEpochMilliseconds() }
     }
 }

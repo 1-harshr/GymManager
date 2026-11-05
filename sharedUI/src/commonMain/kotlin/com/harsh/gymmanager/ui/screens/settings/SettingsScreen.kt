@@ -13,6 +13,23 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.harsh.gymmanager.LocalAppDependencies
+import com.harsh.gymmanager.presentation.backup.BackupEvent
+import com.harsh.gymmanager.presentation.backup.BackupViewModel
+import com.harsh.gymmanager.ui.LocalSnackbar
+import com.harsh.gymmanager.ui.components.ConfirmSheet
+import com.harsh.gymmanager.ui.format.formatFull
+import com.harsh.gymmanager.ui.format.resolve
+import com.harsh.gymmanager.ui.platform.rememberBackupPicker
+import com.harsh.gymmanager.ui.platform.rememberBackupSaver
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
+import org.jetbrains.compose.resources.pluralStringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.harsh.gymmanager.domain.model.AppLanguage
@@ -79,10 +96,7 @@ fun SettingsScreen(
             }
 
             SectionHeader(stringResource(Res.string.section_data), Modifier.padding(top = AkhadaSpace.md))
-            AkhadaCard {
-                Text(stringResource(Res.string.data_title), style = typography.bodyStrong)
-                Text(stringResource(Res.string.data_body), style = typography.body, color = colors.inkMuted)
-            }
+            BackupCard(settings)
 
             SectionHeader(stringResource(Res.string.section_about), Modifier.padding(top = AkhadaSpace.md))
             AkhadaCard {
@@ -96,5 +110,65 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth().padding(top = AkhadaSpace.sm),
             )
         }
+    }
+}
+
+/** Saving a backup file and restoring one; restoring asks first, since it replaces everything. */
+@Composable
+private fun BackupCard(settings: AppSettings) {
+    val colors = AkhadaTheme.colors
+    val typography = AkhadaTheme.typography
+    val deps = LocalAppDependencies.current
+    val snackbar = LocalSnackbar.current
+    val vm = viewModel { BackupViewModel(deps.backup) }
+    val state by vm.state.collectAsStateWithLifecycle()
+    val save = rememberBackupSaver(vm::onSaved)
+    val pick = rememberBackupPicker(vm::onPicked)
+
+    LaunchedEffect(vm) {
+        vm.events.collect { event ->
+            when (event) {
+                is BackupEvent.SaveFile -> save(event.fileName, event.bytes)
+                is BackupEvent.ShowMessage -> snackbar.showSnackbar(event.message.resolve())
+            }
+        }
+    }
+
+    AkhadaCard {
+        Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+            Text(stringResource(Res.string.data_title), style = typography.bodyStrong)
+            Text(stringResource(Res.string.data_body), style = typography.body, color = colors.inkMuted)
+        }
+        val last = settings.lastBackupAt?.toLocalDateTime(TimeZone.currentSystemDefault())?.date
+        Text(
+            if (last != null) stringResource(Res.string.last_backup, last.formatFull()) else stringResource(Res.string.never_backed_up),
+            style = typography.caption,
+            color = if (last != null) colors.statusActive else colors.statusExpiring,
+        )
+        AkhadaButton(
+            if (state.isWorking && state.pendingRestore == null) stringResource(Res.string.backing_up) else stringResource(Res.string.back_up_now),
+            vm::backUp,
+            Modifier.fillMaxWidth(),
+            enabled = !state.isWorking,
+        )
+        AkhadaButton(stringResource(Res.string.restore_backup), pick, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary, enabled = !state.isWorking)
+    }
+
+    state.pendingRestore?.let { backup ->
+        val savedOn = Instant.fromEpochMilliseconds(backup.createdAt).toLocalDateTime(TimeZone.currentSystemDefault()).date
+        ConfirmSheet(
+            title = stringResource(Res.string.restore_title),
+            body = stringResource(
+                Res.string.restore_body,
+                savedOn.formatFull(),
+                backup.gym?.name.orEmpty(),
+                pluralStringResource(Res.plurals.members_count, backup.members.size, backup.members.size),
+                pluralStringResource(Res.plurals.plans_count, backup.plans.size, backup.plans.size),
+                pluralStringResource(Res.plurals.payments_count, backup.payments.size, backup.payments.size),
+            ),
+            confirmLabel = if (state.isWorking) stringResource(Res.string.restoring) else stringResource(Res.string.restore_confirm),
+            onConfirm = vm::confirmRestore,
+            onDismiss = { if (!state.isWorking) vm.cancelRestore() },
+        )
     }
 }

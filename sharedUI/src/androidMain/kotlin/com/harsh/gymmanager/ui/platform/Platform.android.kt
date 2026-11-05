@@ -22,6 +22,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
@@ -61,15 +64,66 @@ actual fun rememberTextFilePicker(onPicked: (name: String, text: String?) -> Uni
     }
 }
 
-/** Reads at most [MAX_IMPORT_BYTES]; null if the file is bigger. */
-private fun readCapped(input: java.io.InputStream): ByteArray? {
+/** Far above any real backup (photos are about 100 KB each); guards against picking a video. */
+private const val MAX_BACKUP_BYTES = 200 * 1024 * 1024
+
+@Composable
+actual fun rememberBackupSaver(onDone: (saved: Boolean) -> Unit): (fileName: String, bytes: ByteArray) -> Unit {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val callback by rememberUpdatedState(onDone)
+    var pending by remember { mutableStateOf<ByteArray?>(null) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri: Uri? ->
+        val bytes = pending
+        pending = null
+        if (uri == null || bytes == null) {
+            callback(false)
+            return@rememberLauncherForActivityResult
+        }
+        scope.launch {
+            val saved = withContext(Dispatchers.IO) {
+                runCatching { context.contentResolver.openOutputStream(uri, "wt")?.use { it.write(bytes) } != null }.getOrDefault(false)
+            }
+            callback(saved)
+        }
+    }
+    return { fileName, bytes ->
+        pending = bytes
+        launcher.launch(fileName)
+    }
+}
+
+@Composable
+actual fun rememberBackupPicker(onPicked: (name: String, bytes: ByteArray?) -> Unit): () -> Unit {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val callback by rememberUpdatedState(onPicked)
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val resolver = context.contentResolver
+            val (name, bytes) = withContext(Dispatchers.IO) {
+                val name = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
+                    if (c.moveToFirst()) c.getString(0) else null
+                } ?: "backup.json"
+                name to runCatching { resolver.openInputStream(uri)?.use { readCapped(it, MAX_BACKUP_BYTES) } }.getOrNull()
+            }
+            callback(name, bytes)
+        }
+    }
+    // Drive and file managers label JSON inconsistently, so accept the usual stand-ins too.
+    return { launcher.launch(arrayOf("application/json", "application/octet-stream", "text/plain")) }
+}
+
+/** Reads at most [max] bytes; null if the file is bigger. */
+private fun readCapped(input: java.io.InputStream, max: Int = MAX_IMPORT_BYTES): ByteArray? {
     val out = java.io.ByteArrayOutputStream()
     val buffer = ByteArray(8 * 1024)
     while (true) {
         val read = input.read(buffer)
         if (read < 0) return out.toByteArray()
         out.write(buffer, 0, read)
-        if (out.size() > MAX_IMPORT_BYTES) return null
+        if (out.size() > max) return null
     }
 }
 
