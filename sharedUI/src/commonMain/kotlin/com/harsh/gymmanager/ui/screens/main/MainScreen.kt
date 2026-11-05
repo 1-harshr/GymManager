@@ -78,10 +78,11 @@ fun MainScreen(
     onOpenSettings: () -> Unit,
     onBulkRenew: (Set<Long>) -> Unit,
     onImportMembers: () -> Unit,
+    onOpenReminders: () -> Unit,
 ) {
     val deps = LocalAppDependencies.current
     val snackbar = LocalSnackbar.current
-    val dashboardVm = viewModel { DashboardViewModel(deps.observeDashboard) }
+    val dashboardVm = viewModel { DashboardViewModel(deps.observeDashboard, deps.messaging::observeRemindersToSend) }
     val membersVm = viewModel { MembersViewModel(deps.memberUseCases) }
     val plansVm = viewModel { PlansViewModel(deps.planUseCases) }
     var tab by rememberSaveable { mutableIntStateOf(HOME) }
@@ -131,6 +132,7 @@ fun MainScreen(
                     },
                     onOpenMember = { onOpenMember(it.memberId) },
                     onOpenSettings = onOpenSettings,
+                    onOpenReminders = onOpenReminders,
                 )
                 MEMBERS -> MembersScreen(
                     state = membersState,

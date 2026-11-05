@@ -36,3 +36,7 @@ data object ImportMembersRoute
 /** First-run setup and, later, editing the gym's name and logo. */
 @Serializable
 data object GymProfileRoute
+
+/** Members due a WhatsApp reminder, with a one-tap-each run through them. */
+@Serializable
+data object RemindersRoute

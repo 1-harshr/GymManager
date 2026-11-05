@@ -45,7 +45,7 @@ import com.harsh.gymmanager.ui.theme.AkhadaTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 
 @Composable
-fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: () -> Unit, onAddPlan: () -> Unit) {
+fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membershipId: Long) -> Unit, onAddPlan: () -> Unit) {
     val deps = LocalAppDependencies.current
     val vm = viewModel(key = "sell-$memberId") { SellMembershipViewModel(memberId, deps.planUseCases, deps.membershipUseCases) }
     val state by vm.state.collectAsStateWithLifecycle()
@@ -53,7 +53,7 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: () -> Unit,
     val member by memberFlow.collectAsState(null)
 
     LaunchedEffect(vm) {
-        vm.events.collect { if (it is SellMembershipEvent.Sold) onSold() }
+        vm.events.collect { if (it is SellMembershipEvent.Sold) onSold(it.membershipId) }
     }
 
     Column(Modifier.fillMaxSize().imePadding()) {

@@ -187,6 +187,7 @@ class ViewModelTest {
 
         vm.onPaymentAmountChange("600")
         vm.submitPayment()
+        assertIs<MemberDetailEvent.PaymentRecorded>(vm.events.first())
         assertEquals(MemberDetailEvent.ShowMessage(UiMessage.PaymentRecorded(600)), vm.events.first())
         val after = vm.state.first { it.detail?.totalDue == 400L }
         assertNull(after.paymentForm)

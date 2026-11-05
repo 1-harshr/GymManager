@@ -1,6 +1,7 @@
 package com.harsh.gymmanager
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.harsh.gymmanager.domain.messaging.MessagingUseCases
 import com.harsh.gymmanager.domain.usecase.BulkRenewUseCase
 import com.harsh.gymmanager.domain.usecase.ImportMembersUseCase
 import com.harsh.gymmanager.domain.usecase.MemberUseCases
@@ -22,6 +23,7 @@ interface AppDependencies {
     val bulkRenew: BulkRenewUseCase
     val importMembers: ImportMembersUseCase
     val settingsUseCases: SettingsUseCases
+    val messaging: MessagingUseCases
 }
 
 val LocalAppDependencies = staticCompositionLocalOf<AppDependencies> { error("AppDependencies not provided") }

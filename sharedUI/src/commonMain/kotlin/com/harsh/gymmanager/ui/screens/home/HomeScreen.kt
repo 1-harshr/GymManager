@@ -2,6 +2,16 @@ package com.harsh.gymmanager.ui.screens.home
 
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import com.harsh.gymmanager.ui.components.AkhadaCard
+import com.harsh.gymmanager.ui.theme.AkhadaRadius
+import org.jetbrains.compose.resources.pluralStringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,6 +50,7 @@ fun HomeScreen(
     onOpenMembers: (MemberFilter) -> Unit,
     onOpenMember: (MemberSummary) -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenReminders: () -> Unit,
 ) {
     val today = rememberToday()
     val board = state.dashboard
@@ -71,6 +82,7 @@ fun HomeScreen(
                     StatTile(stringResource(Res.string.stat_expired), board.expiredCount.toString(), BadgeTone.Expired, { onOpenMembers(MemberFilter.EXPIRED) }, Modifier.weight(1f))
                     StatTile(stringResource(Res.string.stat_dues, board.membersWithDuesCount), formatRupees(board.totalDue), BadgeTone.Due, { onOpenMembers(MemberFilter.WITH_DUES) }, Modifier.weight(1f))
                 }
+                if (state.remindersToSend > 0) RemindersTile(state.remindersToSend, onOpenReminders)
             }
         }
         item {
@@ -89,6 +101,24 @@ fun HomeScreen(
             items(board.expiringSoon, key = { it.memberId }) { member ->
                 MemberRow(member, today, onClick = { onOpenMember(member) }, modifier = Modifier.screenGutter())
             }
+        }
+    }
+}
+
+/** Leads to the WhatsApp reminder run; shown only while someone is due one. */
+@Composable
+private fun RemindersTile(count: Int, onClick: () -> Unit) {
+    val colors = AkhadaTheme.colors
+    AkhadaCard(onClick = onClick) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+            Box(Modifier.size(AkhadaSize.iconButton).background(colors.accentSoft, AkhadaRadius.pillShape), contentAlignment = Alignment.Center) {
+                Icon(AkhadaIcons.MessageCircle, contentDescription = null, tint = colors.onAccentSoft, modifier = Modifier.size(20.dp))
+            }
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(Res.string.reminders_tile), style = AkhadaTheme.typography.bodyStrong)
+                Text(pluralStringResource(Res.plurals.reminders_to_send, count, count), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+            }
+            Icon(AkhadaIcons.ChevronRight, contentDescription = null, tint = colors.inkMuted, modifier = Modifier.size(20.dp))
         }
     }
 }

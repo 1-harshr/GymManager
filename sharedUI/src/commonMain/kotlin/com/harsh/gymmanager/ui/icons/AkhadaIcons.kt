@@ -47,6 +47,7 @@ object AkhadaIcons {
             "M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z",
         )
     }
+    val MessageCircle by lazy { lucide("MessageCircle", "M7.9 20A9 9 0 1 0 4 16.1L2 22Z") }
     val Plus by lazy { lucide("Plus", "M5 12h14", "M12 5v14") }
     val Search by lazy { lucide("Search", circle(11f, 11f, 8f), "m21 21-4.3-4.3") }
     val Settings by lazy {

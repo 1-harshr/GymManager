@@ -220,8 +220,8 @@
     <string name="data_title">Stored on this phone only</string>
     <string name="data_body">Members, plans and payments never leave this phone. Keep Google backup turned on in the phone’s settings until export and restore arrive in the app.</string>
     <string name="section_about">About</string>
-    <string name="credits">Created by musa_fir ❤️ · No rights reserved</string>
     <string name="version">Version %1$s</string>
+    <string name="credits">Created by musa_fir ❤️ · No rights reserved</string>
     <string name="setup_title">Set up your gym</string>
     <string name="setup_subtitle">You can change this later in Settings</string>
     <string name="gym_details">Gym details</string>
@@ -265,6 +265,47 @@
     <string name="err_file_unreadable">Couldn’t read %1$s. Save it as CSV and try again.</string>
     <string name="err_file_empty">The file is empty.</string>
     <string name="err_no_name_column">Couldn’t find a Name column. The first row should be the column names, such as Name, Phone, Gender.</string>
+    <string name="wa_welcome">Hi %1$s, welcome to %2$s! 💪\nWe’re glad to have you. Save this number to get your receipts and renewal reminders here.</string>
+    <string name="wa_receipt_title">*%1$s · Receipt*</string>
+    <string name="wa_receipt_number">Receipt no. %1$s</string>
+    <string name="wa_receipt_greeting">Hi %1$s, thank you for your payment.</string>
+    <string name="wa_line_plan">Plan: %1$s</string>
+    <string name="wa_line_valid">Valid: %1$s to %2$s</string>
+    <string name="wa_line_price">Price: %1$s</string>
+    <string name="wa_line_discount">Discount: %1$s</string>
+    <string name="wa_line_received">Received: %1$s by %2$s on %3$s</string>
+    <string name="wa_line_paid_total">Paid so far: %1$s</string>
+    <string name="wa_line_paid">Paid: %1$s</string>
+    <string name="wa_line_due">Balance due: %1$s</string>
+    <string name="wa_line_fully_paid">Fully paid ✅</string>
+    <string name="wa_reminder_ending">Hi %1$s, your membership at %2$s ends on %3$s. Renew to keep training without a break 💪</string>
+    <string name="wa_reminder_ending_today">Hi %1$s, your membership at %2$s ends today. Renew to keep training without a break 💪</string>
+    <string name="wa_reminder_ended">Hi %1$s, your membership at %2$s ended on %3$s. We miss you! Renew any time to get back to training 💪</string>
+    <string name="wa_reminder_due">Hi %1$s, %2$s is pending for your membership at %3$s. Please clear it on your next visit. Thank you!</string>
+    <string name="wa_reminder_due_line">Pending balance: %1$s</string>
+    <string name="wa_title_welcome">Send a welcome on WhatsApp?</string>
+    <string name="wa_title_receipt">Send the receipt on WhatsApp?</string>
+    <string name="wa_title_reminder">Send a reminder on WhatsApp?</string>
+    <string name="wa_to">To %1$s · %2$s</string>
+    <string name="wa_kind_welcome">Welcome</string>
+    <string name="wa_kind_receipt">Receipt</string>
+    <string name="wa_kind_reminder">Reminder</string>
+    <string name="wa_open">Open WhatsApp</string>
+    <string name="wa_hint">WhatsApp opens with this message typed in. Tap send there.</string>
+    <string name="wa_unavailable">Couldn’t open WhatsApp</string>
+    <string name="wa_message_member">Message %1$s on WhatsApp</string>
+    <string name="reminders">Reminders</string>
+    <string name="reminders_subtitle">Ending this week, ended recently or owing money</string>
+    <string name="reminders_tile">WhatsApp reminders</string>
+    <string name="reminders_all_sent">Everyone has been reminded</string>
+    <string name="reminders_empty_title">No one to remind</string>
+    <string name="reminders_empty_body">Members ending this week, ended in the last month or owing money show up here.</string>
+    <string name="send_next">Send to %1$s · %2$d of %3$d</string>
+    <string name="send">Send</string>
+    <string name="skip">Skip</string>
+    <string name="sent_today">Reminded today</string>
+    <string name="sent_yesterday">Reminded yesterday</string>
+    <string name="no_whatsapp_number">No mobile number</string>
     <plurals name="members_count">
         <item quantity="one">%1$d member</item>
         <item quantity="other">%1$d members</item>
@@ -356,5 +397,13 @@
     <plurals name="msg_plans_restored">
         <item quantity="one">Restored %1$d plan</item>
         <item quantity="other">Restored %1$d plans</item>
+    </plurals>
+    <plurals name="reminders_to_send">
+        <item quantity="one">%1$d member to remind</item>
+        <item quantity="other">%1$d members to remind</item>
+    </plurals>
+    <plurals name="sent_days_ago">
+        <item quantity="one">Reminded %1$d day ago</item>
+        <item quantity="other">Reminded %1$d days ago</item>
     </plurals>
 </resources>

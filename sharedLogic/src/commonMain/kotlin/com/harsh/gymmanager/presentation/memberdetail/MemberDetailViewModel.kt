@@ -43,6 +43,9 @@ data class MemberDetailUiState(
 sealed interface MemberDetailEvent {
     data class ShowMessage(val message: UiMessage) : MemberDetailEvent
     data object MemberDeleted : MemberDetailEvent
+
+    /** Sent just before the payment's snackbar message, so the screen can offer a receipt. */
+    data class PaymentRecorded(val membershipId: Long, val paymentId: Long) : MemberDetailEvent
 }
 
 class MemberDetailViewModel(
@@ -92,8 +95,9 @@ class MemberDetailViewModel(
         paymentForm.update { it?.copy(isSaving = true) }
         viewModelScope.launch {
             paymentUseCases.recordPayment(form.membershipId, amount, form.mode, note = form.note)
-                .onSuccess {
+                .onSuccess { paymentId ->
                     paymentForm.value = null
+                    eventChannel.send(MemberDetailEvent.PaymentRecorded(form.membershipId, paymentId))
                     eventChannel.send(MemberDetailEvent.ShowMessage(UiMessage.PaymentRecorded(amount)))
                 }
                 .onFailure { e -> paymentForm.update { it?.copy(isSaving = false, error = e.toUiMessage()) } }

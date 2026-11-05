@@ -40,6 +40,9 @@ import com.harsh.gymmanager.presentation.memberdetail.MemberDetailEvent
 import com.harsh.gymmanager.presentation.memberdetail.MemberDetailViewModel
 import com.harsh.gymmanager.presentation.memberdetail.PaymentForm
 import com.harsh.gymmanager.ui.LocalSnackbar
+import com.harsh.gymmanager.domain.messaging.whatsAppNumber
+import com.harsh.gymmanager.ui.LocalWhatsApp
+import com.harsh.gymmanager.presentation.messaging.MessageRequest
 import com.harsh.gymmanager.ui.components.AkhadaBottomSheet
 import com.harsh.gymmanager.ui.components.AkhadaButton
 import com.harsh.gymmanager.ui.components.AkhadaCard
@@ -93,12 +96,14 @@ fun MemberDetailScreen(
     val state by vm.state.collectAsStateWithLifecycle()
     var confirm by remember { mutableStateOf<Confirm?>(null) }
     val uriHandler = LocalUriHandler.current
+    val offerWhatsApp = LocalWhatsApp.current
     val today = rememberToday()
 
     LaunchedEffect(vm) {
         vm.events.collect { event ->
             when (event) {
                 is MemberDetailEvent.ShowMessage -> snackbar.showSnackbar(event.message.resolve())
+                is MemberDetailEvent.PaymentRecorded -> offerWhatsApp(MessageRequest.Receipt(memberId, event.membershipId, event.paymentId))
                 MemberDetailEvent.MemberDeleted -> {
                     onBack()
                     snackbar.showSnackbar(getString(Res.string.member_deleted))
@@ -134,6 +139,9 @@ fun MemberDetailScreen(
                 subtitle = stringResource(Res.string.joined_on, member.joinedOn.formatFull()),
                 titleModifier = Modifier.sharedElement(SharedKeys.memberName(memberId)),
             ) {
+                if (whatsAppNumber(member.phone) != null) {
+                    AkhadaIconButton(AkhadaIcons.MessageCircle, stringResource(Res.string.wa_message_member, member.name), onClick = { offerWhatsApp(MessageRequest.AnyFor(memberId)) }, iconSize = 20.dp)
+                }
                 member.phone?.let { phone ->
                     AkhadaIconButton(AkhadaIcons.Phone, stringResource(Res.string.call_person, member.name), onClick = { uriHandler.openUri("tel:$phone") }, iconSize = 20.dp)
                 }

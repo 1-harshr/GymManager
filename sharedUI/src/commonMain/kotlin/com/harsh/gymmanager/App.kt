@@ -39,6 +39,12 @@ import com.harsh.gymmanager.navigation.PlanEditRoute
 import com.harsh.gymmanager.navigation.SellMembershipRoute
 import com.harsh.gymmanager.navigation.SettingsRoute
 import com.harsh.gymmanager.presentation.settings.SettingsViewModel
+import com.harsh.gymmanager.navigation.RemindersRoute
+import com.harsh.gymmanager.ui.screens.reminders.RemindersScreen
+import com.harsh.gymmanager.ui.messaging.WhatsAppSheet
+import com.harsh.gymmanager.ui.LocalWhatsApp
+import com.harsh.gymmanager.presentation.messaging.WhatsAppPromptViewModel
+import com.harsh.gymmanager.presentation.messaging.MessageRequest
 import com.harsh.gymmanager.ui.LocalGym
 import com.harsh.gymmanager.ui.LocalLanguage
 import com.harsh.gymmanager.ui.LocalSnackbar
@@ -109,11 +115,14 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
     fun toast(res: StringResource) = scope.launch { snackbar.showSnackbar(getString(res)) }
     fun toast(res: PluralStringResource, count: Int) = scope.launch { snackbar.showSnackbar(getPluralString(res, count, count)) }
     val startDestination: Any = remember { if (settings.gym == null) GymProfileRoute else MainRoute }
+    val whatsApp = viewModel { WhatsAppPromptViewModel(dependencies.messaging) }
+    val whatsAppPrompt by whatsApp.prompt.collectAsStateWithLifecycle()
 
     CompositionLocalProvider(
         LocalAppDependencies provides dependencies,
         LocalSnackbar provides snackbar,
         LocalGym provides (settings.gym ?: LocalGym.current),
+        LocalWhatsApp provides whatsApp::offer,
     ) {
         Box(Modifier.fillMaxSize()) {
             SharedTransitionLayout {
@@ -139,6 +148,7 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                                     onOpenSettings = { nav.navigate(SettingsRoute) },
                                     onBulkRenew = { nav.navigate(BulkRenewRoute(it)) },
                                     onImportMembers = { nav.navigate(ImportMembersRoute) },
+                                    onOpenReminders = { nav.navigate(RemindersRoute) },
                                 )
                             }
                         }
@@ -199,6 +209,7 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                                             // Go straight to the new member so a membership can be sold next.
                                             nav.navigate(MemberDetailRoute(id)) { popUpTo<MemberEditRoute> { inclusive = true } }
                                             toast(Res.string.member_added)
+                                            whatsApp.offer(MessageRequest.Welcome(id))
                                         } else {
                                             nav.popBackStack()
                                             toast(Res.string.changes_saved)
@@ -209,10 +220,15 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                         }
                         composable<SellMembershipRoute> { entry ->
                             Destination {
+                                val memberId = entry.toRoute<SellMembershipRoute>().memberId
                                 SellMembershipScreen(
-                                    memberId = entry.toRoute<SellMembershipRoute>().memberId,
+                                    memberId = memberId,
                                     onBack = { nav.popBackStack() },
-                                    onSold = { nav.popBackStack(); toast(Res.string.membership_saved) },
+                                    onSold = { membershipId ->
+                                        nav.popBackStack()
+                                        toast(Res.string.membership_saved)
+                                        whatsApp.offer(MessageRequest.Receipt(memberId, membershipId))
+                                    },
                                     onAddPlan = { nav.navigate(PlanEditRoute()) },
                                 )
                             }
@@ -224,6 +240,11 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                                     onBack = { nav.popBackStack() },
                                     onSaved = { nav.popBackStack(); toast(Res.string.plan_saved) },
                                 )
+                            }
+                        }
+                        composable<RemindersRoute> {
+                            Destination {
+                                RemindersScreen(onBack = { nav.popBackStack() }, onOpenMember = { nav.navigate(MemberDetailRoute(it)) })
                             }
                         }
                         composable<SettingsRoute> {
@@ -239,6 +260,9 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                         }
                     }
                 }
+            }
+            whatsAppPrompt?.let { prompt ->
+                WhatsAppSheet(prompt, onSelect = whatsApp::select, onSent = whatsApp::sent, onDismiss = whatsApp::dismiss)
             }
             // Sits above the floating tab bar.
             AkhadaSnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 88.dp))

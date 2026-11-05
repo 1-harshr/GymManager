@@ -5,9 +5,11 @@ import androidx.datastore.preferences.core.Preferences
 import com.harsh.gymmanager.data.local.GymDatabase
 import com.harsh.gymmanager.data.repository.MemberRepositoryImpl
 import com.harsh.gymmanager.data.repository.MembershipRepositoryImpl
+import com.harsh.gymmanager.data.repository.MessageLogRepositoryImpl
 import com.harsh.gymmanager.data.repository.PaymentRepositoryImpl
 import com.harsh.gymmanager.data.repository.PlanRepositoryImpl
 import com.harsh.gymmanager.data.settings.DataStoreSettingsRepository
+import com.harsh.gymmanager.domain.messaging.MessagingUseCases
 import com.harsh.gymmanager.domain.usecase.BulkRenewUseCase
 import com.harsh.gymmanager.domain.usecase.ImportMembersUseCase
 import com.harsh.gymmanager.domain.usecase.MemberUseCases
@@ -36,6 +38,9 @@ class DefaultAppDependencies(
     private val planRepository by lazy { PlanRepositoryImpl(database.planDao(), clock) }
     private val membershipRepository by lazy { MembershipRepositoryImpl(database.membershipDao(), clock) }
     private val paymentRepository by lazy { PaymentRepositoryImpl(database.paymentDao(), clock) }
+    private val messageLogRepository by lazy { MessageLogRepositoryImpl(database.messageLogDao(), clock) }
+    // DataStore allows one instance per file.
+    private val settingsRepository by lazy { DataStoreSettingsRepository(openSettings()) }
 
     override val memberUseCases by lazy { MemberUseCases(memberRepository, clock, timeZone) }
     override val planUseCases by lazy { PlanUseCases(planRepository) }
@@ -46,6 +51,9 @@ class DefaultAppDependencies(
     }
     override val bulkRenew by lazy { BulkRenewUseCase(memberRepository, membershipRepository, clock, timeZone) }
     override val importMembers by lazy { ImportMembersUseCase(memberRepository, clock, timeZone) }
-    override val settingsUseCases by lazy { SettingsUseCases(DataStoreSettingsRepository(openSettings())) }
+    override val settingsUseCases by lazy { SettingsUseCases(settingsRepository) }
     override val observeDashboard by lazy { ObserveDashboardUseCase(memberRepository, paymentRepository, clock, timeZone) }
+    override val messaging by lazy {
+        MessagingUseCases(memberRepository, membershipRepository, settingsRepository, messageLogRepository, clock, timeZone)
+    }
 }
