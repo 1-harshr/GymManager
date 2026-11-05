@@ -30,6 +30,8 @@ data class PlanEditUiState(
     val priceError: UiMessage? = null,
     val errorMessage: UiMessage? = null,
     val isSaving: Boolean = false,
+    /** True once the owner has edited anything, so leaving asks before throwing it away. */
+    val hasChanges: Boolean = false,
 )
 
 sealed interface PlanEditEvent {
@@ -72,14 +74,14 @@ class PlanEditViewModel(
         }
     }
 
-    fun onNameChange(value: String) = _state.update { it.copy(name = value, nameError = null, errorMessage = null) }
+    fun onNameChange(value: String) = _state.update { it.copy(name = value, nameError = null, errorMessage = null, hasChanges = true) }
 
     fun onDurationChange(value: String) =
-        _state.update { it.copy(durationText = value, durationError = null, errorMessage = null) }
+        _state.update { it.copy(durationText = value, durationError = null, errorMessage = null, hasChanges = true) }
 
-    fun onDurationUnitChange(value: DurationUnit) = _state.update { it.copy(durationUnit = value) }
+    fun onDurationUnitChange(value: DurationUnit) = _state.update { it.copy(durationUnit = value, hasChanges = true) }
 
-    fun onPriceChange(value: String) = _state.update { it.copy(priceText = value, priceError = null, errorMessage = null) }
+    fun onPriceChange(value: String) = _state.update { it.copy(priceText = value, priceError = null, errorMessage = null, hasChanges = true) }
 
     fun save() {
         val current = _state.value

@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.Preferences
 import com.harsh.gymmanager.data.local.GymDatabase
 import com.harsh.gymmanager.data.repository.BackupRepositoryImpl
 import com.harsh.gymmanager.data.repository.InboxRepositoryImpl
+import com.harsh.gymmanager.data.repository.UsageRepositoryImpl
+import com.harsh.gymmanager.domain.suggestions.SuggestionsUseCase
 import com.harsh.gymmanager.data.repository.MemberRepositoryImpl
 import com.harsh.gymmanager.data.repository.MembershipRepositoryImpl
 import com.harsh.gymmanager.data.repository.MessageLogRepositoryImpl
@@ -87,4 +89,5 @@ class DefaultAppDependencies(
     override val inbox by lazy {
         InboxUseCases(InboxRepositoryImpl(database.inboxDao()), memberRepository, membershipRepository, clock, timeZone)
     }
+    override val suggestions by lazy { SuggestionsUseCase(UsageRepositoryImpl(database.usageDao())) }
 }

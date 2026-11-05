@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -34,11 +35,21 @@ data class SellMembershipUiState(
     val priceText: String = "",
     val discountText: String = "",
     val firstPaymentText: String = "",
+    /** Until the owner edits it, the amount paid follows the price: most members pay in full at the counter. */
+    val firstPaymentEdited: Boolean = false,
     val paymentMode: PaymentMode = PaymentMode.CASH,
     val notes: String = "",
     val errorMessage: UiMessage? = null,
     val isSaving: Boolean = false,
+    /** True when the member has had a membership before, so this one is a renewal. */
+    val isRenewal: Boolean = false,
+    /** True once the owner has edited anything, so leaving asks before throwing it away. */
+    val hasChanges: Boolean = false,
 ) {
+    /** Keeps the amount paid equal to the charge while the owner hasn't typed their own. */
+    internal fun withPaidInFull(): SellMembershipUiState =
+        if (firstPaymentEdited) this else copy(firstPaymentText = amountCharged?.toString().orEmpty())
+
     private val price: Long? get() = parseRupees(priceText)
     private val discount: Long? get() = if (discountText.isBlank()) 0 else parseRupees(discountText)
     private val firstPayment: Long? get() = if (firstPaymentText.isBlank()) 0 else parseRupees(firstPaymentText)
@@ -83,7 +94,7 @@ sealed interface SellMembershipEvent {
     data class Sold(val membershipId: Long) : SellMembershipEvent
 }
 
-/** Sells a new membership or renews one; the form is pre-filled from the chosen plan. */
+/** Sells a new membership or renews one; the form is pre-filled from the chosen plan, a renewal's from the last one. */
 class SellMembershipViewModel(
     private val memberId: Long,
     private val planUseCases: PlanUseCases,
@@ -97,18 +108,29 @@ class SellMembershipViewModel(
 
     init {
         viewModelScope.launch {
+            // Newest first, so a renewal starts on the plan the member is on now.
+            val history = membershipUseCases.observeMemberships(memberId).first()
+            val currentPlanId = history.firstOrNull()?.planId
+            _state.update { it.copy(isRenewal = history.isNotEmpty()) }
             var known: Set<Long>? = null
             planUseCases.observePlans().collect { plans ->
                 _state.update { it.copy(isLoading = false, plans = plans) }
-                // A plan added from this screen comes back selected, ready to sell.
-                val added = known?.let { ids -> plans.filter { it.id !in ids } }.orEmpty()
-                if (added.size == 1) onPlanSelect(added.single())
+                if (known == null) {
+                    plans.firstOrNull { it.id == currentPlanId }?.let { selectPlan(it, byOwner = false) }
+                } else {
+                    // A plan added from this screen comes back selected, ready to sell.
+                    val added = plans.filter { it.id !in known.orEmpty() }
+                    if (added.size == 1) selectPlan(added.single(), byOwner = true)
+                }
                 known = plans.map { it.id }.toSet()
             }
         }
     }
 
-    fun onPlanSelect(plan: Plan) {
+    fun onPlanSelect(plan: Plan) = selectPlan(plan, byOwner = true)
+
+    /** [byOwner] is false when the form picks the plan itself, which isn't a change worth asking about. */
+    private fun selectPlan(plan: Plan, byOwner: Boolean) {
         viewModelScope.launch {
             val quote = membershipUseCases.quoteMembership(memberId, plan)
             _state.update {
@@ -120,7 +142,8 @@ class SellMembershipViewModel(
                     priceText = quote.price.toString(),
                     discountText = "",
                     errorMessage = null,
-                )
+                    hasChanges = it.hasChanges || byOwner,
+                ).withPaidInFull()
             }
         }
     }
@@ -139,12 +162,12 @@ class SellMembershipViewModel(
             days != null -> date.plus(days - 1, DateTimeUnit.DAY)
             else -> it.endDate
         }
-        it.copy(startDate = date, endDate = end, daysText = end?.let { e -> lengthInDays(date, e).toString() } ?: it.daysText, errorMessage = null)
+        it.copy(startDate = date, endDate = end, daysText = end?.let { e -> lengthInDays(date, e).toString() } ?: it.daysText, errorMessage = null, hasChanges = true)
     }
 
     fun onEndDateChange(date: LocalDate) = _state.update {
         val start = it.startDate
-        it.copy(endDate = date, daysText = start?.let { s -> lengthInDays(s, date).toString() } ?: it.daysText, errorMessage = null)
+        it.copy(endDate = date, daysText = start?.let { s -> lengthInDays(s, date).toString() } ?: it.daysText, errorMessage = null, hasChanges = true)
     }
 
     /** Typing a length moves the end date; an unusable number waits until it is fixed. */
@@ -156,6 +179,7 @@ class SellMembershipViewModel(
             daysText = digits,
             endDate = if (days != null && start != null) start.plus(days - 1, DateTimeUnit.DAY) else it.endDate,
             errorMessage = null,
+            hasChanges = true,
         )
     }
 
@@ -165,14 +189,16 @@ class SellMembershipViewModel(
         _state.update {
             val start = it.startDate ?: return@update it
             val end = plan.endDateFor(start)
-            it.copy(endDate = end, daysText = lengthInDays(start, end).toString(), priceText = plan.defaultPrice.toString(), discountText = "", errorMessage = null)
+            it.copy(endDate = end, daysText = lengthInDays(start, end).toString(), priceText = plan.defaultPrice.toString(), discountText = "", errorMessage = null, hasChanges = true)
+                .withPaidInFull()
         }
     }
-    fun onPriceChange(text: String) = _state.update { it.copy(priceText = text, errorMessage = null) }
-    fun onDiscountChange(text: String) = _state.update { it.copy(discountText = text, errorMessage = null) }
-    fun onFirstPaymentChange(text: String) = _state.update { it.copy(firstPaymentText = text, errorMessage = null) }
-    fun onPaymentModeChange(mode: PaymentMode) = _state.update { it.copy(paymentMode = mode) }
-    fun onNotesChange(text: String) = _state.update { it.copy(notes = text) }
+    fun onPriceChange(text: String) = _state.update { it.copy(priceText = text, errorMessage = null, hasChanges = true).withPaidInFull() }
+    fun onDiscountChange(text: String) = _state.update { it.copy(discountText = text, errorMessage = null, hasChanges = true).withPaidInFull() }
+    fun onFirstPaymentChange(text: String) =
+        _state.update { it.copy(firstPaymentText = text, firstPaymentEdited = true, errorMessage = null, hasChanges = true) }
+    fun onPaymentModeChange(mode: PaymentMode) = _state.update { it.copy(paymentMode = mode, hasChanges = true) }
+    fun onNotesChange(text: String) = _state.update { it.copy(notes = text, hasChanges = true) }
 
     fun save() {
         val current = _state.value

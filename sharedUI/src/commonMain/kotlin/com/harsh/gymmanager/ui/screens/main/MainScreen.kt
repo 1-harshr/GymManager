@@ -128,6 +128,8 @@ fun MainScreen(
         membersVm.clearSelection()
         plansVm.clearSelection()
     }
+    // Back from another tab returns Home before it leaves the app.
+    SystemBackHandler(enabled = !selecting && tab != HOME) { tab = HOME }
 
     Box(Modifier.fillMaxSize()) {
         AnimatedContent(

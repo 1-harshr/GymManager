@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.components
 
+import com.harsh.gymmanager.ui.platform.SystemBackHandler
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
@@ -129,4 +130,27 @@ fun AkhadaSnackbarHost(state: SnackbarHostState, modifier: Modifier = Modifier) 
             }
         }
     }
+}
+
+/**
+ * Back for a form: leaves straight away, or first asks whether to discard when [hasChanges]. Also
+ * catches the system back gesture. Returns what the screen's own back button should call.
+ */
+@Composable
+fun rememberDiscardGuard(hasChanges: Boolean, onBack: () -> Unit): () -> Unit {
+    var asking by remember { mutableStateOf(false) }
+    SystemBackHandler(enabled = hasChanges) { asking = true }
+    if (asking) {
+        ConfirmSheet(
+            title = stringResource(Res.string.discard_title),
+            body = stringResource(Res.string.discard_body),
+            confirmLabel = stringResource(Res.string.discard_confirm),
+            onConfirm = {
+                asking = false
+                onBack()
+            },
+            onDismiss = { asking = false },
+        )
+    }
+    return { if (hasChanges) asking = true else onBack() }
 }

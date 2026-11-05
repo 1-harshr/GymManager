@@ -21,6 +21,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
+import kotlin.time.Clock
 
 /** The "record payment" sheet for one membership. */
 data class PaymentForm(
@@ -28,6 +32,8 @@ data class PaymentForm(
     val amountDue: Long,
     val amountText: String,
     val mode: PaymentMode = PaymentMode.CASH,
+    /** Today unless the owner is entering a payment taken earlier. */
+    val paidOn: LocalDate,
     val note: String = "",
     val error: UiMessage? = null,
     val isSaving: Boolean = false,
@@ -54,6 +60,8 @@ class MemberDetailViewModel(
     private val memberUseCases: MemberUseCases,
     private val membershipUseCases: MembershipUseCases,
     private val paymentUseCases: PaymentUseCases,
+    private val clock: Clock = Clock.System,
+    private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
 ) : ViewModel() {
     private val paymentForm = MutableStateFlow<PaymentForm?>(null)
     private val eventChannel = Channel<MemberDetailEvent>(Channel.BUFFERED)
@@ -71,12 +79,15 @@ class MemberDetailViewModel(
             membershipId = membershipId,
             amountDue = membership.amountDue,
             amountText = membership.amountDue.takeIf { it > 0 }?.toString().orEmpty(),
+            paidOn = clock.todayIn(timeZone),
         )
     }
 
     fun onPaymentAmountChange(text: String) = paymentForm.update { it?.copy(amountText = text, error = null) }
 
     fun onPaymentModeChange(mode: PaymentMode) = paymentForm.update { it?.copy(mode = mode) }
+
+    fun onPaymentDateChange(date: LocalDate) = paymentForm.update { it?.copy(paidOn = date) }
 
     fun onPaymentNoteChange(note: String) = paymentForm.update { it?.copy(note = note) }
 
@@ -94,7 +105,7 @@ class MemberDetailViewModel(
         }
         paymentForm.update { it?.copy(isSaving = true) }
         viewModelScope.launch {
-            paymentUseCases.recordPayment(form.membershipId, amount, form.mode, note = form.note)
+            paymentUseCases.recordPayment(form.membershipId, amount, form.mode, paidOn = form.paidOn, note = form.note)
                 .onSuccess { paymentId ->
                     paymentForm.value = null
                     eventChannel.send(MemberDetailEvent.PaymentRecorded(form.membershipId, paymentId))

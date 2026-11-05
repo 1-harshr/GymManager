@@ -1,5 +1,9 @@
 package com.harsh.gymmanager.ui.screens.planedit
 
+import com.harsh.gymmanager.ui.format.durationLabel
+import com.harsh.gymmanager.domain.suggestions.PLAN_LENGTHS
+import com.harsh.gymmanager.ui.components.SuggestionChips
+import com.harsh.gymmanager.ui.components.rememberDiscardGuard
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +46,7 @@ fun PlanEditScreen(planId: Long?, onBack: () -> Unit, onSaved: () -> Unit) {
     val deps = LocalAppDependencies.current
     val vm = viewModel(key = "plan-edit-$planId") { PlanEditViewModel(planId, deps.planUseCases) }
     val state by vm.state.collectAsStateWithLifecycle()
+    val back = rememberDiscardGuard(state.hasChanges, onBack)
 
     LaunchedEffect(vm) {
         vm.events.collect { event ->
@@ -53,7 +58,7 @@ fun PlanEditScreen(planId: Long?, onBack: () -> Unit, onSaved: () -> Unit) {
     }
 
     Column(Modifier.fillMaxSize().imePadding()) {
-        PushedHeader(if (state.isEditing) stringResource(Res.string.edit_plan) else stringResource(Res.string.new_plan), onBack)
+        PushedHeader(if (state.isEditing) stringResource(Res.string.edit_plan) else stringResource(Res.string.new_plan), back)
         Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter(),
             verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg),
@@ -74,6 +79,15 @@ fun PlanEditScreen(planId: Long?, onBack: () -> Unit, onSaved: () -> Unit) {
                     Modifier.weight(1.2f).padding(bottom = if (state.durationError != null) 24.dp else 6.dp),
                 )
             }
+            SuggestionChips(
+                PLAN_LENGTHS.map { (value, unit) -> durationLabel(value, unit) },
+                selected = PLAN_LENGTHS.indexOfFirst { (value, unit) -> state.durationText == value.toString() && state.durationUnit == unit }.takeIf { it >= 0 },
+                onPick = { i ->
+                    val (value, unit) = PLAN_LENGTHS[i]
+                    vm.onDurationChange(value.toString())
+                    vm.onDurationUnitChange(unit)
+                },
+            )
             AkhadaTextField(
                 state.priceText, vm::onPriceChange, stringResource(Res.string.price),
                 error = state.priceError?.asString(), prefix = "₹", keyboardType = KeyboardType.Number,

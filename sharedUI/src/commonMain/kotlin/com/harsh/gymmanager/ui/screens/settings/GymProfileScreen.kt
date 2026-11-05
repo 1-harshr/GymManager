@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.settings
 
+import com.harsh.gymmanager.ui.components.rememberDiscardGuard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,6 +50,7 @@ fun GymProfileScreen(onBack: () -> Unit, onSaved: (firstRun: Boolean) -> Unit) {
     val deps = LocalAppDependencies.current
     val vm = viewModel { GymProfileViewModel(deps.settingsUseCases) }
     val state by vm.state.collectAsStateWithLifecycle()
+    val back = rememberDiscardGuard(state.hasChanges, onBack)
     var logoFailed by remember { mutableStateOf(false) }
     val pickLogo = rememberLogoPicker { path ->
         logoFailed = path == null
@@ -63,7 +65,7 @@ fun GymProfileScreen(onBack: () -> Unit, onSaved: (firstRun: Boolean) -> Unit) {
                 Text(stringResource(Res.string.setup_subtitle), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
             }
         } else {
-            PushedHeader(stringResource(Res.string.gym_details), onBack)
+            PushedHeader(stringResource(Res.string.gym_details), back)
         }
         Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter().padding(bottom = AkhadaSpace.xl),

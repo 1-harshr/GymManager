@@ -1,5 +1,9 @@
 package com.harsh.gymmanager.ui.screens.memberedit
 
+import com.harsh.gymmanager.ui.components.rememberDiscardGuard
+import kotlinx.datetime.minus
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DatePeriod
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +57,7 @@ fun MemberEditScreen(memberId: Long?, onBack: () -> Unit, onSaved: (Long, Boolea
     val deps = LocalAppDependencies.current
     val vm = viewModel(key = "member-edit-$memberId") { MemberEditViewModel(memberId, deps.memberUseCases) }
     val state by vm.state.collectAsStateWithLifecycle()
+    val back = rememberDiscardGuard(state.hasChanges, onBack)
     var showCamera by rememberSaveable { mutableStateOf(false) }
     val today = rememberToday()
 
@@ -68,7 +73,7 @@ fun MemberEditScreen(memberId: Long?, onBack: () -> Unit, onSaved: (Long, Boolea
     val form = state.form
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().imePadding()) {
-            PushedHeader(if (state.isEditing) stringResource(Res.string.edit_member) else stringResource(Res.string.new_member), onBack)
+            PushedHeader(if (state.isEditing) stringResource(Res.string.edit_member) else stringResource(Res.string.new_member), back)
             Column(
                 Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter().padding(bottom = AkhadaSpace.xl),
                 verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg),
@@ -103,11 +108,16 @@ fun MemberEditScreen(memberId: Long?, onBack: () -> Unit, onSaved: (Long, Boolea
                     }
                     SegmentedControl(Gender.entries, form.gender, vm::onGenderChange, { it.label() }, allowNone = true)
                 }
-                DateField(form.dateOfBirth, vm::onDateOfBirthChange, stringResource(Res.string.date_of_birth), optional = true)
+                // Birthdays are in the past; the picker opens on a typical member's birth year.
+                DateField(
+                    form.dateOfBirth, vm::onDateOfBirthChange, stringResource(Res.string.date_of_birth), optional = true,
+                    latest = today.minus(1, DateTimeUnit.DAY), openAt = today.minus(DatePeriod(years = TYPICAL_AGE_YEARS)),
+                )
                 DateField(
                     form.joinedOn ?: today,
                     { it?.let(vm::onJoinedOnChange) },
                     stringResource(Res.string.joined_on_label),
+                    latest = today,
                 )
                 AkhadaTextField(
                     form.notes, vm::onNotesChange, stringResource(Res.string.notes),
@@ -131,3 +141,6 @@ fun MemberEditScreen(memberId: Long?, onBack: () -> Unit, onSaved: (Long, Boolea
         }
     }
 }
+
+/** Where the birthday picker opens when no date is set. */
+private const val TYPICAL_AGE_YEARS = 20

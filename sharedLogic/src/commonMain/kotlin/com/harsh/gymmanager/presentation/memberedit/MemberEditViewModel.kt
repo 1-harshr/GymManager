@@ -37,6 +37,8 @@ data class MemberEditUiState(
     val nameError: UiMessage? = null,
     val errorMessage: UiMessage? = null,
     val isSaving: Boolean = false,
+    /** True once the owner has edited anything, so leaving asks before throwing it away. */
+    val hasChanges: Boolean = false,
 )
 
 sealed interface MemberEditEvent {
@@ -138,6 +140,7 @@ class MemberEditViewModel(
                 form = it.form.change(),
                 nameError = if (clearNameError) null else it.nameError,
                 errorMessage = null,
+                hasChanges = true,
             )
         }
 }

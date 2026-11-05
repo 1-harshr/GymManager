@@ -6,6 +6,7 @@ import com.harsh.gymmanager.domain.backup.BackupUseCases
 import com.harsh.gymmanager.domain.digest.MorningDigestUseCase
 import com.harsh.gymmanager.domain.insights.ObserveInsightsUseCase
 import com.harsh.gymmanager.domain.insights.WriteBriefUseCase
+import com.harsh.gymmanager.domain.suggestions.SuggestionsUseCase
 import com.harsh.gymmanager.domain.usecase.InboxUseCases
 import com.harsh.gymmanager.domain.messaging.MessagingUseCases
 import com.harsh.gymmanager.domain.usecase.BulkRenewUseCase
@@ -38,6 +39,7 @@ interface AppDependencies {
     val insights: ObserveInsightsUseCase
     val brief: WriteBriefUseCase
     val inbox: InboxUseCases
+    val suggestions: SuggestionsUseCase
 }
 
 val LocalAppDependencies = staticCompositionLocalOf<AppDependencies> { error("AppDependencies not provided") }

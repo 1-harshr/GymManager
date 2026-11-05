@@ -14,6 +14,7 @@ import com.harsh.gymmanager.data.local.dao.MembershipDao
 import com.harsh.gymmanager.data.local.dao.MessageLogDao
 import com.harsh.gymmanager.data.local.dao.PaymentDao
 import com.harsh.gymmanager.data.local.dao.PlanDao
+import com.harsh.gymmanager.data.local.dao.UsageDao
 import com.harsh.gymmanager.data.local.entity.InboxEntity
 import com.harsh.gymmanager.data.local.entity.MemberEntity
 import com.harsh.gymmanager.data.local.entity.MemberSummaryView
@@ -46,6 +47,7 @@ abstract class GymDatabase : RoomDatabase() {
     abstract fun messageLogDao(): MessageLogDao
     abstract fun backupDao(): BackupDao
     abstract fun inboxDao(): InboxDao
+    abstract fun usageDao(): UsageDao
 }
 
 // Room generates the actual implementations.

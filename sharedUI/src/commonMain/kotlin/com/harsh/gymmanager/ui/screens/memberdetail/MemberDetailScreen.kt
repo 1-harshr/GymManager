@@ -1,5 +1,10 @@
 package com.harsh.gymmanager.ui.screens.memberdetail
 
+import com.harsh.gymmanager.domain.suggestions.amountSuggestions
+import com.harsh.gymmanager.ui.components.rememberUsageStats
+import com.harsh.gymmanager.ui.components.AmountChips
+import kotlinx.datetime.LocalDate
+import com.harsh.gymmanager.ui.components.DateField
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.pluralStringResource
@@ -125,7 +130,10 @@ fun MemberDetailScreen(
         return
     }
     val member = detail.member
-    val owing = detail.memberships.firstOrNull { it.amountDue > 0 }
+    // Newest first, so the last one owing is the oldest due; payments settle that first.
+    val owingMemberships = detail.memberships.filter { it.amountDue > 0 }
+    val oldestOwing = owingMemberships.lastOrNull()
+    val renewalDue = detail.status == MembershipStatus.EXPIRING_SOON || detail.status == MembershipStatus.EXPIRED
 
     LazyColumn(
         Modifier.fillMaxSize(),
@@ -196,14 +204,16 @@ fun MemberDetailScreen(
             }
         }
         item {
+            // The main button is what this member needs next: a first membership, money owed, or a renewal.
             Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                AkhadaButton(
-                    if (detail.memberships.isEmpty()) stringResource(Res.string.sell_membership) else stringResource(Res.string.renew_membership),
-                    onSellMembership,
-                    Modifier.fillMaxWidth(),
-                )
-                if (owing != null) {
-                    AkhadaButton(stringResource(Res.string.record_payment), { vm.openPaymentForm(owing.id) }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+                val sellLabel = if (detail.memberships.isEmpty()) stringResource(Res.string.sell_membership) else stringResource(Res.string.renew_membership)
+                when {
+                    oldestOwing != null -> {
+                        AkhadaButton(stringResource(Res.string.record_payment), { vm.openPaymentForm(oldestOwing.id) }, Modifier.fillMaxWidth())
+                        AkhadaButton(sellLabel, onSellMembership, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+                    }
+                    detail.memberships.isEmpty() || renewalDue -> AkhadaButton(sellLabel, onSellMembership, Modifier.fillMaxWidth())
+                    else -> AkhadaButton(sellLabel, onSellMembership, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
                 }
             }
         }
@@ -213,7 +223,8 @@ fun MemberDetailScreen(
                 MembershipCard(
                     membership,
                     today,
-                    onRecordPayment = { vm.openPaymentForm(membership.id) },
+                    // Only needed to pick which one when more than one membership is owed on.
+                    onRecordPayment = if (owingMemberships.size > 1) ({ vm.openPaymentForm(membership.id) }) else null,
                     onDelete = { confirm = Confirm.DeleteMembership(membership) },
                     onPaymentClick = { confirm = Confirm.DeletePayment(it) },
                     modifier = Modifier.screenGutter(),
@@ -228,6 +239,8 @@ fun MemberDetailScreen(
             planName = detail.memberships.firstOrNull { it.id == form.membershipId }?.planName.orEmpty(),
             onAmountChange = vm::onPaymentAmountChange,
             onModeChange = vm::onPaymentModeChange,
+            onDateChange = vm::onPaymentDateChange,
+            today = today,
             onNoteChange = vm::onPaymentNoteChange,
             onSubmit = vm::submitPayment,
             onDismiss = vm::dismissPaymentForm,
@@ -266,6 +279,8 @@ private fun PaymentSheet(
     planName: String,
     onAmountChange: (String) -> Unit,
     onModeChange: (PaymentMode) -> Unit,
+    onDateChange: (LocalDate) -> Unit,
+    today: LocalDate,
     onNoteChange: (String) -> Unit,
     onSubmit: () -> Unit,
     onDismiss: () -> Unit,
@@ -275,11 +290,16 @@ private fun PaymentSheet(
             Text(stringResource(Res.string.record_payment), style = AkhadaTheme.typography.title)
             Text(stringResource(Res.string.due_on_plan, formatRupees(form.amountDue), planName), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
         }
-        AkhadaTextField(
-            form.amountText, onAmountChange, stringResource(Res.string.amount),
-            prefix = "₹", keyboardType = KeyboardType.Number, error = form.error?.asString(),
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+            AkhadaTextField(
+                form.amountText, onAmountChange, stringResource(Res.string.amount),
+                prefix = "₹", keyboardType = KeyboardType.Number, error = form.error?.asString(),
+            )
+            val usage by rememberUsageStats()
+            AmountChips(amountSuggestions(form.amountDue, usage), form.amountText, onAmountChange)
+        }
         SegmentedControl(PaymentMode.entries, form.mode, { it?.let(onModeChange) }, { it.label() })
+        DateField(form.paidOn, { it?.let(onDateChange) }, stringResource(Res.string.paid_on_label), latest = today)
         AkhadaTextField(form.note, onNoteChange, stringResource(Res.string.note), optional = true, placeholder = stringResource(Res.string.payment_note_hint))
         val amount = com.harsh.gymmanager.presentation.parseRupees(form.amountText)
         AkhadaButton(

@@ -1,5 +1,16 @@
 package com.harsh.gymmanager.ui.screens.sellmembership
 
+import com.harsh.gymmanager.presentation.parseRupees
+import com.harsh.gymmanager.ui.format.durationLabel
+import com.harsh.gymmanager.domain.model.DurationUnit
+import com.harsh.gymmanager.domain.suggestions.mostUsedFirst
+import com.harsh.gymmanager.domain.suggestions.lengthSuggestions
+import com.harsh.gymmanager.domain.suggestions.discountSuggestions
+import com.harsh.gymmanager.domain.suggestions.amountSuggestions
+import com.harsh.gymmanager.ui.components.rememberUsageStats
+import com.harsh.gymmanager.ui.components.SuggestionChips
+import com.harsh.gymmanager.ui.components.AmountChips
+import com.harsh.gymmanager.ui.components.rememberDiscardGuard
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +62,8 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
     val deps = LocalAppDependencies.current
     val vm = viewModel(key = "sell-$memberId") { SellMembershipViewModel(memberId, deps.planUseCases, deps.membershipUseCases) }
     val state by vm.state.collectAsStateWithLifecycle()
+    val back = rememberDiscardGuard(state.hasChanges, onBack)
+    val usage by rememberUsageStats()
     val memberFlow = remember(memberId) { deps.memberUseCases.observeMember(memberId) }
     val member by memberFlow.collectAsState(null)
 
@@ -59,7 +72,11 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
     }
 
     Column(Modifier.fillMaxSize().imePadding()) {
-        PushedHeader(stringResource(Res.string.new_membership), onBack, subtitle = member?.name)
+        PushedHeader(
+            stringResource(if (state.isRenewal) Res.string.renew_membership else Res.string.new_membership),
+            back,
+            subtitle = member?.name,
+        )
         Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(bottom = AkhadaSpace.xl),
             verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
@@ -74,7 +91,8 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
                 EmptyState(AkhadaIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_sell_body), actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan)
                 return@Column
             }
-            state.plans.forEach { plan ->
+            // The plans this gym sells most come first.
+            state.plans.mostUsedFirst(usage).forEach { plan ->
                 PlanCard(plan, onClick = { vm.onPlanSelect(plan) }, modifier = Modifier.screenGutter(), selected = plan.id == state.selectedPlan?.id)
             }
             if (state.selectedPlan == null) return@Column
@@ -85,10 +103,28 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
                     DateField(state.startDate, { it?.let(vm::onStartDateChange) }, stringResource(Res.string.starts), Modifier.weight(1f))
                     DateField(state.endDate, { it?.let(vm::onEndDateChange) }, stringResource(Res.string.ends), Modifier.weight(1f))
                 }
-                AkhadaTextField(state.daysText, vm::onDaysChange, stringResource(Res.string.length_days), keyboardType = KeyboardType.Number)
-                Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                    AkhadaTextField(state.priceText, vm::onPriceChange, stringResource(Res.string.price), Modifier.weight(1f), prefix = "₹", keyboardType = KeyboardType.Number)
-                    AkhadaTextField(state.discountText, vm::onDiscountChange, stringResource(Res.string.discount), Modifier.weight(1f), optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = "0")
+                Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+                    AkhadaTextField(state.daysText, vm::onDaysChange, stringResource(Res.string.length_days), keyboardType = KeyboardType.Number)
+                    val lengths = lengthSuggestions(usage)
+                    SuggestionChips(
+                        lengths.map { durationLabel(it, DurationUnit.DAYS) },
+                        selected = lengths.indexOf(state.daysText.toIntOrNull()).takeIf { it >= 0 },
+                        onPick = { vm.onDaysChange(lengths[it].toString()) },
+                    )
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+                        AkhadaTextField(state.priceText, vm::onPriceChange, stringResource(Res.string.price), Modifier.weight(1f), prefix = "₹", keyboardType = KeyboardType.Number)
+                        AkhadaTextField(state.discountText, vm::onDiscountChange, stringResource(Res.string.discount), Modifier.weight(1f), optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = "0")
+                    }
+                    val discounts = discountSuggestions(parseRupees(state.priceText) ?: 0, usage)
+                    val chosen = discounts.indexOf(parseRupees(state.discountText)).takeIf { it >= 0 }
+                    SuggestionChips(
+                        discounts.map { stringResource(Res.string.chip_discount, formatRupees(it)) },
+                        selected = chosen,
+                        // Tapping the chosen discount again takes it off.
+                        onPick = { vm.onDiscountChange(if (it == chosen) "" else discounts[it].toString()) },
+                    )
                 }
                 if (state.isCustomised) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
@@ -105,10 +141,13 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
 
             SectionHeader(stringResource(Res.string.paid_now), Modifier.screenGutter().padding(top = AkhadaSpace.md))
             Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg)) {
-                AkhadaTextField(
-                    state.firstPaymentText, vm::onFirstPaymentChange, stringResource(Res.string.amount_paid),
-                    optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = stringResource(Res.string.amount_paid_hint),
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+                    AkhadaTextField(
+                        state.firstPaymentText, vm::onFirstPaymentChange, stringResource(Res.string.amount_paid),
+                        optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = stringResource(Res.string.amount_paid_hint),
+                    )
+                    AmountChips(amountSuggestions(state.amountCharged ?: 0, usage, payLater = true), state.firstPaymentText, vm::onFirstPaymentChange)
+                }
                 SegmentedControl(PaymentMode.entries, state.paymentMode, { it?.let(vm::onPaymentModeChange) }, { it.label() })
                 AkhadaTextField(
                     state.notes, vm::onNotesChange, stringResource(Res.string.notes), optional = true,

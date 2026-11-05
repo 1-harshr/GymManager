@@ -1,5 +1,9 @@
 package com.harsh.gymmanager.ui.components
 
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.BorderStroke
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
@@ -19,6 +23,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -124,7 +129,10 @@ private fun Modifier.fieldGround(focused: Boolean, error: Boolean): Modifier {
     return if (ring != null) filled.border(2.dp, ring, AkhadaRadius.fieldShape) else filled
 }
 
-/** A date field that opens the date picker. Optional dates get a clear button once set. */
+/**
+ * A date field that opens the date picker. Optional dates get a clear button once set. Dates after
+ * [latest] can't be picked; with no value yet, the picker opens on [openAt]'s month.
+ */
 @Composable
 fun DateField(
     value: LocalDate?,
@@ -133,6 +141,8 @@ fun DateField(
     modifier: Modifier = Modifier,
     optional: Boolean = false,
     placeholder: String? = null,
+    latest: LocalDate? = null,
+    openAt: LocalDate? = null,
 ) {
     val colors = AkhadaTheme.colors
     var picking by remember { mutableStateOf(false) }
@@ -166,6 +176,8 @@ fun DateField(
     if (picking) {
         AkhadaDatePickerDialog(
             initial = value,
+            latest = latest,
+            openAt = openAt,
             onDismiss = { picking = false },
             onConfirm = { picking = false; onValueChange(it) },
         )
@@ -174,11 +186,33 @@ fun DateField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AkhadaDatePickerDialog(initial: LocalDate?, onDismiss: () -> Unit, onConfirm: (LocalDate) -> Unit) {
+fun AkhadaDatePickerDialog(
+    initial: LocalDate?,
+    onDismiss: () -> Unit,
+    onConfirm: (LocalDate) -> Unit,
+    latest: LocalDate? = null,
+    openAt: LocalDate? = null,
+) {
     val colors = AkhadaTheme.colors
     // The picker works in UTC midnight millis; convert at the edges only.
+    fun LocalDate.millis() = atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
     val state = rememberDatePickerState(
-        initialSelectedDateMillis = initial?.atStartOfDayIn(TimeZone.UTC)?.toEpochMilliseconds(),
+        initialSelectedDateMillis = initial?.millis(),
+        initialDisplayedMonthMillis = (initial ?: openAt)?.millis(),
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long) = latest == null || utcTimeMillis <= latest.millis()
+            override fun isSelectableYear(year: Int) = latest == null || year <= latest.year
+        },
+    )
+    // Selection in ink, as everywhere else in the app.
+    val pickerColors = DatePickerDefaults.colors(
+        containerColor = colors.surface,
+        selectedDayContainerColor = colors.ink,
+        selectedDayContentColor = colors.onInk,
+        selectedYearContainerColor = colors.ink,
+        selectedYearContentColor = colors.onInk,
+        todayDateBorderColor = colors.ink,
+        todayContentColor = colors.ink,
     )
     DatePickerDialog(
         onDismissRequest = onDismiss,
@@ -194,8 +228,36 @@ fun AkhadaDatePickerDialog(initial: LocalDate?, onDismiss: () -> Unit, onConfirm
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(Res.string.cancel), color = colors.inkMuted, style = AkhadaTheme.typography.bodyStrong) }
         },
-        colors = DatePickerDefaults.colors(containerColor = colors.surface),
+        colors = pickerColors,
     ) {
-        DatePicker(state = state, colors = DatePickerDefaults.colors(containerColor = colors.surface))
+        DatePicker(state = state, colors = pickerColors)
+    }
+}
+
+/**
+ * Quick picks under a field, most used first. The chip matching the field's current value is
+ * filled in ink; tapping one fills the field.
+ */
+@Composable
+fun SuggestionChips(labels: List<String>, selected: Int?, onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
+    if (labels.isEmpty()) return
+    val colors = AkhadaTheme.colors
+    Row(modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+        labels.forEachIndexed { index, label ->
+            val on = index == selected
+            Surface(
+                onClick = { onPick(index) },
+                shape = AkhadaRadius.pillShape,
+                color = if (on) colors.ink else colors.surface,
+                contentColor = if (on) colors.onInk else colors.ink,
+                border = if (on) null else BorderStroke(1.dp, colors.line),
+            ) {
+                Text(
+                    label,
+                    Modifier.heightIn(min = 36.dp).padding(horizontal = AkhadaSpace.md, vertical = AkhadaSpace.sm),
+                    style = AkhadaTheme.typography.caption.copy(fontWeight = AkhadaTheme.typography.bodyStrong.fontWeight),
+                )
+            }
+        }
     }
 }

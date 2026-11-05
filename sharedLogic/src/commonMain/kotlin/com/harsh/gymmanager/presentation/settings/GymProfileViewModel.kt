@@ -26,6 +26,8 @@ data class GymProfileUiState(
     val nameError: UiMessage? = null,
     val errorMessage: UiMessage? = null,
     val isSaving: Boolean = false,
+    /** True once the owner has edited anything, so leaving asks before throwing it away. */
+    val hasChanges: Boolean = false,
 )
 
 sealed interface GymProfileEvent {
@@ -55,11 +57,11 @@ class GymProfileViewModel(private val settings: SettingsUseCases) : ViewModel() 
         }
     }
 
-    fun onNameChange(value: String) = _state.update { it.copy(name = value, nameError = null, errorMessage = null) }
+    fun onNameChange(value: String) = _state.update { it.copy(name = value, nameError = null, errorMessage = null, hasChanges = true) }
 
-    fun onAddressChange(value: String) = _state.update { it.copy(address = value) }
+    fun onAddressChange(value: String) = _state.update { it.copy(address = value, hasChanges = true) }
 
-    fun onLogoChange(path: String?) = _state.update { it.copy(logoPath = path) }
+    fun onLogoChange(path: String?) = _state.update { it.copy(logoPath = path, hasChanges = true) }
 
     fun save() {
         val current = _state.value

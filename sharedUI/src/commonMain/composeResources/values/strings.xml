@@ -278,6 +278,14 @@
     <string name="ai_insights_body">A short daily brief, this month’s outlook, renewals and who needs attention. Worked out on this phone; nothing is sent anywhere.</string>
     <string name="collections_chart">Collections chart</string>
     <string name="collections_chart_body">This month’s collections against last month’s, day by day.</string>
+    <string name="paid_on_label">Paid on</string>
+    <string name="discard_title">Discard changes?</string>
+    <string name="discard_body">What you’ve entered here won’t be saved.</string>
+    <string name="discard_confirm">Discard</string>
+    <string name="chip_full">Full %1$s</string>
+    <string name="chip_half">Half %1$s</string>
+    <string name="chip_pay_later">Pay later</string>
+    <string name="chip_discount">%1$s off</string>
     <string name="section_about">About</string>
     <string name="version">Version %1$s</string>
     <string name="credits">Created by musa_fir ❤️ · No rights reserved</string>

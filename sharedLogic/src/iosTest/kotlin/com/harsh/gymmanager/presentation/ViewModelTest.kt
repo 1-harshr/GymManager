@@ -219,6 +219,61 @@ class ViewModelTest {
     }
 
     @Test
+    fun sellMembershipAssumesPaidInFullUntilTheOwnerSaysOtherwise() = runTest {
+        monthlyPlanId()
+        val memberId = members.addMember("Ravi").getOrThrow()
+        val vm = SellMembershipViewModel(memberId, plans, memberships)
+        assertFalse(vm.state.first { it.plans.isNotEmpty() }.hasChanges)
+
+        vm.onPlanSelect(vm.state.value.plans.single())
+        val prefilled = vm.state.first { it.selectedPlan != null }
+        assertEquals("1500", prefilled.firstPaymentText)
+        assertEquals(0, prefilled.amountDueAfterPayment)
+        assertTrue(prefilled.hasChanges)
+
+        vm.onDiscountChange("200")
+        assertEquals("1300", vm.state.value.firstPaymentText, "follows the charge")
+
+        vm.onFirstPaymentChange("")
+        vm.onDiscountChange("300")
+        assertEquals("", vm.state.value.firstPaymentText, "paying later stays paying later")
+        assertEquals(1200, vm.state.value.amountDueAfterPayment)
+    }
+
+    @Test
+    fun sellMembershipRenewsOnTheCurrentPlanWithoutCountingAsAChange() = runTest {
+        val monthlyId = monthlyPlanId()
+        plans.addPlan("Quarterly", 3, DurationUnit.MONTHS, 4000).getOrThrow()
+        val memberId = members.addMember("Ravi").getOrThrow()
+        memberships.sellMembership(memberId, plans.getPlan(monthlyId)!!, firstPaymentAmount = 1500).getOrThrow()
+
+        val vm = SellMembershipViewModel(memberId, plans, memberships)
+        val renewal = vm.state.first { it.selectedPlan != null }
+
+        assertEquals("Monthly", renewal.selectedPlan?.name)
+        assertTrue(renewal.isRenewal)
+        assertEquals(LocalDate(2026, 12, 5), renewal.startDate, "continues from the current end")
+        assertFalse(renewal.hasChanges)
+    }
+
+    @Test
+    fun memberDetailRecordsAPaymentTakenEarlier() = runTest {
+        val planId = monthlyPlanId()
+        val memberId = members.addMember("Ravi").getOrThrow()
+        val membershipId = memberships.sellMembership(memberId, plans.getPlan(planId)!!).getOrThrow()
+        val vm = MemberDetailViewModel(memberId, memberDetail, members, memberships, payments, clock, tz)
+        vm.state.first { it.detail != null }
+
+        vm.openPaymentForm(membershipId)
+        assertEquals(today, vm.state.value.paymentForm!!.paidOn)
+        vm.onPaymentDateChange(LocalDate(2026, 11, 3))
+        vm.submitPayment()
+        assertIs<MemberDetailEvent.PaymentRecorded>(vm.events.first())
+
+        assertEquals(LocalDate(2026, 11, 3), memberships.observeMemberships(memberId).first().single().payments.single().paidOn)
+    }
+
+    @Test
     fun memberDetailRecordsPartialPaymentAndRejectsOverpayment() = runTest {
         val planId = monthlyPlanId()
         val memberId = members.addMember("Ravi").getOrThrow()

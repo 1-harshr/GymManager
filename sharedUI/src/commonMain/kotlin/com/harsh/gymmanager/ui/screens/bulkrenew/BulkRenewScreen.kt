@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.screens.bulkrenew
 
+import com.harsh.gymmanager.domain.suggestions.mostUsedFirst
+import com.harsh.gymmanager.ui.components.rememberUsageStats
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.pluralStringResource
@@ -64,7 +66,7 @@ fun BulkRenewScreen(memberIds: Set<Long>, onBack: () -> Unit, onDone: (Int) -> U
                 EmptyState(AkhadaIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_renew_body), actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan)
                 return@Column
             }
-            state.plans.forEach { plan ->
+            state.plans.mostUsedFirst(rememberUsageStats().value).forEach { plan ->
                 PlanCard(plan, onClick = { vm.onPlanSelect(plan) }, modifier = Modifier.screenGutter(), selected = plan.id == state.selectedPlan?.id)
             }
             if (state.selectedPlan == null) return@Column

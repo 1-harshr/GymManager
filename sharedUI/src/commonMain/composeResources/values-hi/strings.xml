@@ -278,6 +278,14 @@
     <string name="ai_insights_body">रोज़ का छोटा सार, इस महीने का अनुमान, रिन्यूअल और किस पर ध्यान देना है। सब इसी फ़ोन पर बनता है; कुछ भी बाहर नहीं जाता।</string>
     <string name="collections_chart">वसूली चार्ट</string>
     <string name="collections_chart_body">इस महीने की वसूली की पिछले महीने से रोज़ाना तुलना।</string>
+    <string name="paid_on_label">भुगतान की तारीख</string>
+    <string name="discard_title">बदलाव हटाएँ?</string>
+    <string name="discard_body">यहाँ भरी गई जानकारी सेव नहीं होगी।</string>
+    <string name="discard_confirm">हटाएँ</string>
+    <string name="chip_full">पूरा %1$s</string>
+    <string name="chip_half">आधा %1$s</string>
+    <string name="chip_pay_later">बाद में</string>
+    <string name="chip_discount">%1$s छूट</string>
     <string name="section_about">जानकारी</string>
     <string name="version">वर्ज़न %1$s</string>
     <string name="credits">musa_fir ने ❤️ से बनाया · कोई अधिकार सुरक्षित नहीं</string>

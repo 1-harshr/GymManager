@@ -37,7 +37,8 @@ import kotlinx.datetime.LocalDate
 fun MembershipCard(
     membership: Membership,
     today: LocalDate,
-    onRecordPayment: () -> Unit,
+    /** Null hides the card's own "record payment", e.g. when the page already offers it. */
+    onRecordPayment: (() -> Unit)?,
     onDelete: () -> Unit,
     onPaymentClick: (Payment) -> Unit,
     modifier: Modifier = Modifier,
@@ -88,7 +89,7 @@ fun MembershipCard(
                 }
             }
         }
-        if (membership.amountDue > 0) {
+        if (membership.amountDue > 0 && onRecordPayment != null) {
             GhostButton(stringResource(Res.string.record_payment), onRecordPayment, Modifier.padding(start = 0.dp))
         }
     }
