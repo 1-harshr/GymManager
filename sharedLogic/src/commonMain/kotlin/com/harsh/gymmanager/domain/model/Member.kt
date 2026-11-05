@@ -15,6 +15,6 @@ data class Member(
     val isArchived: Boolean = false,
 ) {
     init {
-        require(name.isNotBlank()) { "name must not be blank" }
+        require(name.isNotBlank()) { "Name is required" }
     }
 }

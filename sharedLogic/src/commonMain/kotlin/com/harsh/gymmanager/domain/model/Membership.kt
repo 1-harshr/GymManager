@@ -22,9 +22,9 @@ data class Membership(
     val payments: List<Payment> = emptyList(),
 ) {
     init {
-        require(price >= 0) { "price must not be negative" }
-        require(discount in 0..price) { "discount must be between 0 and price" }
-        require(endDate >= startDate) { "endDate must not be before startDate" }
+        require(price >= 0) { "Price can't be negative" }
+        require(discount in 0..price) { "Discount can't be more than the price" }
+        require(endDate >= startDate) { "End date can't be before the start date" }
     }
 
     val amountCharged: Long get() = price - discount

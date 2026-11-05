@@ -1,0 +1,126 @@
+package com.harsh.gymmanager.presentation.memberdetail
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.harsh.gymmanager.domain.model.PaymentMode
+import com.harsh.gymmanager.domain.usecase.MemberDetail
+import com.harsh.gymmanager.domain.usecase.MemberUseCases
+import com.harsh.gymmanager.domain.usecase.MembershipUseCases
+import com.harsh.gymmanager.domain.usecase.ObserveMemberDetailUseCase
+import com.harsh.gymmanager.domain.usecase.PaymentUseCases
+import com.harsh.gymmanager.presentation.formatRupees
+import com.harsh.gymmanager.presentation.parseRupees
+import com.harsh.gymmanager.presentation.toUserMessage
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+/** The "record payment" sheet for one membership. */
+data class PaymentForm(
+    val membershipId: Long,
+    val amountDue: Long,
+    val amountText: String,
+    val mode: PaymentMode = PaymentMode.CASH,
+    val note: String = "",
+    val error: String? = null,
+    val isSaving: Boolean = false,
+)
+
+data class MemberDetailUiState(
+    val isLoading: Boolean = true,
+    /** Null once loaded means the member no longer exists. */
+    val detail: MemberDetail? = null,
+    val paymentForm: PaymentForm? = null,
+)
+
+sealed interface MemberDetailEvent {
+    data class ShowMessage(val message: String) : MemberDetailEvent
+    data object MemberDeleted : MemberDetailEvent
+}
+
+class MemberDetailViewModel(
+    private val memberId: Long,
+    observeMemberDetail: ObserveMemberDetailUseCase,
+    private val memberUseCases: MemberUseCases,
+    private val membershipUseCases: MembershipUseCases,
+    private val paymentUseCases: PaymentUseCases,
+) : ViewModel() {
+    private val paymentForm = MutableStateFlow<PaymentForm?>(null)
+    private val eventChannel = Channel<MemberDetailEvent>(Channel.BUFFERED)
+    val events: Flow<MemberDetailEvent> = eventChannel.receiveAsFlow()
+
+    val state: StateFlow<MemberDetailUiState> =
+        combine(observeMemberDetail(memberId), paymentForm) { detail, form ->
+            MemberDetailUiState(isLoading = false, detail = detail, paymentForm = form)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MemberDetailUiState())
+
+    /** Opens the payment sheet pre-filled with what is still owed. */
+    fun openPaymentForm(membershipId: Long) {
+        val membership = state.value.detail?.memberships?.find { it.id == membershipId } ?: return
+        paymentForm.value = PaymentForm(
+            membershipId = membershipId,
+            amountDue = membership.amountDue,
+            amountText = membership.amountDue.takeIf { it > 0 }?.toString().orEmpty(),
+        )
+    }
+
+    fun onPaymentAmountChange(text: String) = paymentForm.update { it?.copy(amountText = text, error = null) }
+
+    fun onPaymentModeChange(mode: PaymentMode) = paymentForm.update { it?.copy(mode = mode) }
+
+    fun onPaymentNoteChange(note: String) = paymentForm.update { it?.copy(note = note) }
+
+    fun dismissPaymentForm() {
+        paymentForm.value = null
+    }
+
+    fun submitPayment() {
+        val form = paymentForm.value ?: return
+        if (form.isSaving) return
+        val amount = parseRupees(form.amountText)
+        if (amount == null || amount == 0L) {
+            paymentForm.update { it?.copy(error = "Enter an amount in rupees") }
+            return
+        }
+        paymentForm.update { it?.copy(isSaving = true) }
+        viewModelScope.launch {
+            paymentUseCases.recordPayment(form.membershipId, amount, form.mode, note = form.note)
+                .onSuccess {
+                    paymentForm.value = null
+                    eventChannel.send(MemberDetailEvent.ShowMessage("Payment of ${formatRupees(amount)} recorded"))
+                }
+                .onFailure { e -> paymentForm.update { it?.copy(isSaving = false, error = e.toUserMessage()) } }
+        }
+    }
+
+    fun deletePayment(paymentId: Long) = run("Payment deleted") { paymentUseCases.deletePayment(paymentId) }
+
+    fun deleteMembership(membershipId: Long) =
+        run("Membership deleted") { membershipUseCases.deleteMembership(membershipId) }
+
+    fun archiveMember() = run("Member archived") { memberUseCases.archiveMember(memberId) }
+
+    fun restoreMember() = run("Member restored") { memberUseCases.restoreMember(memberId) }
+
+    fun deleteMemberPermanently() {
+        viewModelScope.launch {
+            memberUseCases.deleteMemberPermanently(memberId)
+                .onSuccess { eventChannel.send(MemberDetailEvent.MemberDeleted) }
+                .onFailure { eventChannel.send(MemberDetailEvent.ShowMessage(it.toUserMessage())) }
+        }
+    }
+
+    private fun run(successMessage: String, action: suspend () -> Result<Unit>) {
+        viewModelScope.launch {
+            val message = action().fold({ successMessage }, { it.toUserMessage() })
+            eventChannel.send(MemberDetailEvent.ShowMessage(message))
+        }
+    }
+}

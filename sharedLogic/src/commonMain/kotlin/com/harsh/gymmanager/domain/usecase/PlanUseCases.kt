@@ -10,6 +10,10 @@ class ObservePlansUseCase(private val repository: PlanRepository) {
         if (includeArchived) repository.observeAllPlans() else repository.observeActivePlans()
 }
 
+class GetPlanUseCase(private val repository: PlanRepository) {
+    suspend operator fun invoke(id: Long): Plan? = repository.getPlan(id)
+}
+
 class AddPlanUseCase(private val repository: PlanRepository) {
     suspend operator fun invoke(
         name: String,
@@ -38,6 +42,7 @@ class RestorePlanUseCase(private val repository: PlanRepository) {
 
 class PlanUseCases(repository: PlanRepository) {
     val observePlans = ObservePlansUseCase(repository)
+    val getPlan = GetPlanUseCase(repository)
     val addPlan = AddPlanUseCase(repository)
     val updatePlan = UpdatePlanUseCase(repository)
     val archivePlan = ArchivePlanUseCase(repository)

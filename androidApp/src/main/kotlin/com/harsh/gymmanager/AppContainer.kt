@@ -11,6 +11,7 @@ import com.harsh.gymmanager.data.repository.PlanRepositoryImpl
 import com.harsh.gymmanager.domain.usecase.MemberUseCases
 import com.harsh.gymmanager.domain.usecase.MembershipUseCases
 import com.harsh.gymmanager.domain.usecase.ObserveDashboardUseCase
+import com.harsh.gymmanager.domain.usecase.ObserveMemberDetailUseCase
 import com.harsh.gymmanager.domain.usecase.PaymentUseCases
 import com.harsh.gymmanager.domain.usecase.PlanUseCases
 import kotlinx.datetime.TimeZone
@@ -33,5 +34,8 @@ class AppContainer(context: Context) {
     val planUseCases by lazy { PlanUseCases(planRepository) }
     val membershipUseCases by lazy { MembershipUseCases(membershipRepository, clock, timeZone) }
     val paymentUseCases by lazy { PaymentUseCases(paymentRepository, clock, timeZone) }
+    val observeMemberDetail by lazy {
+        ObserveMemberDetailUseCase(memberRepository, membershipRepository, clock, timeZone)
+    }
     val observeDashboard by lazy { ObserveDashboardUseCase(memberRepository, paymentRepository, clock, timeZone) }
 }

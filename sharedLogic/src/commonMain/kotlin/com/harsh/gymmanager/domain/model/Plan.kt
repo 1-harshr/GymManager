@@ -14,9 +14,9 @@ data class Plan(
     val isArchived: Boolean = false,
 ) {
     init {
-        require(name.isNotBlank()) { "name must not be blank" }
-        require(durationValue > 0) { "durationValue must be positive" }
-        require(defaultPrice >= 0) { "defaultPrice must not be negative" }
+        require(name.isNotBlank()) { "Plan name is required" }
+        require(durationValue > 0) { "Duration must be at least 1" }
+        require(defaultPrice >= 0) { "Price can't be negative" }
     }
 
     fun endDateFor(start: LocalDate): LocalDate = membershipEndDate(start, durationValue, durationUnit)

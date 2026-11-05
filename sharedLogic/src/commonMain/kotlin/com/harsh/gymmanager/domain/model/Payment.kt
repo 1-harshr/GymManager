@@ -12,6 +12,6 @@ data class Payment(
     val note: String? = null,
 ) {
     init {
-        require(amount > 0) { "amount must be positive" }
+        require(amount > 0) { "Amount must be more than ₹0" }
     }
 }
