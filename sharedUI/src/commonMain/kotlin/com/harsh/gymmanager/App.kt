@@ -73,7 +73,12 @@ import gymmanager.sharedui.generated.resources.membership_saved
 import gymmanager.sharedui.generated.resources.msg_added
 import gymmanager.sharedui.generated.resources.msg_renewed
 import gymmanager.sharedui.generated.resources.plan_saved
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 import org.jetbrains.compose.resources.PluralStringResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getPluralString
@@ -106,7 +111,10 @@ fun App(dependencies: AppDependencies, onReady: () -> Unit = {}) {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+/** Lets a burst of edits settle before the notifications are rescheduled. */
+private val MORNING_UPDATE_SYNC_DELAY = 500.milliseconds
+
+@OptIn(ExperimentalSharedTransitionApi::class, FlowPreview::class)
 @Composable
 private fun AppContent(dependencies: AppDependencies, settings: AppSettings, settingsVm: SettingsViewModel) {
     val snackbar = remember { SnackbarHostState() }
@@ -117,6 +125,12 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
     val startDestination: Any = remember { if (settings.gym == null) GymProfileRoute else MainRoute }
     val whatsApp = viewModel { WhatsAppPromptViewModel(dependencies.messaging) }
     val whatsAppPrompt by whatsApp.prompt.collectAsStateWithLifecycle()
+    // Reschedule the morning update whenever settings or gym data change, so iOS's pre-written text stays true.
+    LaunchedEffect(dependencies) {
+        combine(dependencies.settingsUseCases.observe(), dependencies.observeDashboard()) { latest, _ -> latest }
+            .debounce(MORNING_UPDATE_SYNC_DELAY)
+            .collectLatest { dependencies.morningUpdates.sync(it) }
+    }
 
     CompositionLocalProvider(
         LocalAppDependencies provides dependencies,
@@ -255,6 +269,7 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                                     onEditGym = { nav.navigate(GymProfileRoute) },
                                     onThemeChange = settingsVm::onThemeChange,
                                     onLanguageChange = settingsVm::onLanguageChange,
+                                    onMorningUpdateChange = settingsVm::onMorningUpdateChange,
                                 )
                             }
                         }

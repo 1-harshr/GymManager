@@ -26,6 +26,19 @@ import com.harsh.gymmanager.ui.format.formatFull
 import com.harsh.gymmanager.ui.format.resolve
 import com.harsh.gymmanager.ui.platform.rememberBackupPicker
 import com.harsh.gymmanager.ui.platform.rememberBackupSaver
+import com.harsh.gymmanager.ui.platform.rememberNotificationPermission
+import com.harsh.gymmanager.ui.components.AkhadaBottomSheet
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
+import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Instant
@@ -34,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.harsh.gymmanager.domain.model.AppLanguage
 import com.harsh.gymmanager.domain.model.AppSettings
+import com.harsh.gymmanager.domain.model.MorningUpdate
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.ui.components.AkhadaButton
 import com.harsh.gymmanager.ui.components.AkhadaCard
@@ -56,6 +70,7 @@ fun SettingsScreen(
     onEditGym: () -> Unit,
     onThemeChange: (ThemeMode) -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
+    onMorningUpdateChange: (MorningUpdate) -> Unit,
 ) {
     val colors = AkhadaTheme.colors
     val typography = AkhadaTheme.typography
@@ -95,6 +110,9 @@ fun SettingsScreen(
                 SegmentedControl(AppLanguage.entries, settings.language, { it?.let(onLanguageChange) }, { languageLabels.getValue(it) })
             }
 
+            SectionHeader(stringResource(Res.string.section_notifications), Modifier.padding(top = AkhadaSpace.md))
+            MorningUpdateCard(settings.morningUpdate, onMorningUpdateChange)
+
             SectionHeader(stringResource(Res.string.section_data), Modifier.padding(top = AkhadaSpace.md))
             BackupCard(settings)
 
@@ -111,6 +129,92 @@ fun SettingsScreen(
             )
         }
     }
+}
+
+/** The daily notification: on or off, and when. Turning it on asks for notification permission first. */
+@Composable
+private fun MorningUpdateCard(update: MorningUpdate, onChange: (MorningUpdate) -> Unit) {
+    val colors = AkhadaTheme.colors
+    val typography = AkhadaTheme.typography
+    val snackbar = LocalSnackbar.current
+    val scope = rememberCoroutineScope()
+    var pickingTime by remember { mutableStateOf(false) }
+    val denied = stringResource(Res.string.morning_update_denied)
+    val askPermission = rememberNotificationPermission { granted ->
+        if (granted) onChange(update.copy(enabled = true)) else scope.launch { snackbar.showSnackbar(denied) }
+    }
+
+    AkhadaCard {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+                Text(stringResource(Res.string.morning_update), style = typography.bodyStrong)
+                Text(stringResource(Res.string.morning_update_body), style = typography.body, color = colors.inkMuted)
+            }
+            Switch(
+                checked = update.enabled,
+                onCheckedChange = { on -> if (on) askPermission() else onChange(update.copy(enabled = false)) },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = colors.onInk, checkedTrackColor = colors.ink,
+                    uncheckedThumbColor = colors.inkMuted, uncheckedTrackColor = colors.surfaceSunken, uncheckedBorderColor = colors.surfaceSunken,
+                ),
+            )
+        }
+        if (update.enabled) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(Res.string.morning_update_time), Modifier.weight(1f), style = typography.body, color = colors.inkMuted)
+                AkhadaButton(update.timeLabel(), { pickingTime = true }, kind = ButtonKind.Secondary)
+            }
+        }
+    }
+
+    if (pickingTime) {
+        MorningTimeSheet(
+            update,
+            onPick = { minuteOfDay ->
+                onChange(update.copy(minuteOfDay = minuteOfDay))
+                pickingTime = false
+            },
+            onDismiss = { pickingTime = false },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MorningTimeSheet(update: MorningUpdate, onPick: (minuteOfDay: Int) -> Unit, onDismiss: () -> Unit) {
+    val colors = AkhadaTheme.colors
+    val state = rememberTimePickerState(initialHour = update.hour, initialMinute = update.minute, is24Hour = false)
+    AkhadaBottomSheet(onDismiss) {
+        Text(stringResource(Res.string.morning_update_set_time), style = AkhadaTheme.typography.title)
+        TimePicker(
+            state,
+            Modifier.align(Alignment.CenterHorizontally),
+            colors = TimePickerDefaults.colors(
+                clockDialColor = colors.surfaceSunken,
+                selectorColor = colors.ink,
+                clockDialSelectedContentColor = colors.onInk,
+                clockDialUnselectedContentColor = colors.ink,
+                periodSelectorBorderColor = colors.line,
+                periodSelectorSelectedContainerColor = colors.ink,
+                periodSelectorSelectedContentColor = colors.onInk,
+                periodSelectorUnselectedContentColor = colors.inkMuted,
+                timeSelectorSelectedContainerColor = colors.ink,
+                timeSelectorSelectedContentColor = colors.onInk,
+                timeSelectorUnselectedContainerColor = colors.surfaceSunken,
+                timeSelectorUnselectedContentColor = colors.ink,
+            ),
+        )
+        AkhadaButton(stringResource(Res.string.done), { onPick(state.hour * 60 + state.minute) }, Modifier.fillMaxWidth())
+        AkhadaButton(stringResource(Res.string.cancel), onDismiss, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+    }
+}
+
+/** "8:00 AM". */
+@Composable
+private fun MorningUpdate.timeLabel(): String {
+    val hour12 = if (hour % 12 == 0) 12 else hour % 12
+    val minutes = minute.toString().padStart(2, '0')
+    return stringResource(if (hour < 12) Res.string.time_am else Res.string.time_pm, hour12, minutes)
 }
 
 /** Saving a backup file and restoring one; restoring asks first, since it replaces everything. */

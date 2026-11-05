@@ -3,6 +3,7 @@ package com.harsh.gymmanager.domain.usecase
 import com.harsh.gymmanager.domain.model.AppLanguage
 import com.harsh.gymmanager.domain.model.AppSettings
 import com.harsh.gymmanager.domain.model.GymProfile
+import com.harsh.gymmanager.domain.model.MorningUpdate
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -18,4 +19,6 @@ class SettingsUseCases(private val repository: SettingsRepository) {
     suspend fun setTheme(theme: ThemeMode): Result<Unit> = resultOf { repository.setTheme(theme) }
 
     suspend fun setLanguage(language: AppLanguage): Result<Unit> = resultOf { repository.setLanguage(language) }
+
+    suspend fun setMorningUpdate(update: MorningUpdate): Result<Unit> = resultOf { repository.setMorningUpdate(update) }
 }

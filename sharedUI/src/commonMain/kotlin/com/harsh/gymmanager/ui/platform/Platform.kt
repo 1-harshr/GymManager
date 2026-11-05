@@ -47,3 +47,10 @@ expect val rebuildUiOnLanguageChange: Boolean
 /** Makes the status and navigation bar icons readable on the app's own light or dark background. */
 @Composable
 expect fun SystemBarsFor(darkTheme: Boolean)
+
+/**
+ * Returns a function that asks to show notifications, then calls [onResult] with whether they are
+ * allowed. Where they're already allowed it reports true without asking.
+ */
+@Composable
+expect fun rememberNotificationPermission(onResult: (granted: Boolean) -> Unit): () -> Unit

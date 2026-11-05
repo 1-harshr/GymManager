@@ -23,6 +23,9 @@ import platform.PhotosUI.PHPickerResult
 import platform.PhotosUI.PHPickerViewController
 import platform.PhotosUI.PHPickerViewControllerDelegateProtocol
 import platform.UIKit.UIApplication
+import platform.UserNotifications.UNAuthorizationOptionAlert
+import platform.UserNotifications.UNAuthorizationOptionSound
+import platform.UserNotifications.UNUserNotificationCenter
 import platform.UIKit.UIDocumentPickerDelegateProtocol
 import platform.UIKit.UIDocumentPickerViewController
 import platform.UIKit.UIImage
@@ -184,5 +187,20 @@ actual fun SystemBarsFor(darkTheme: Boolean) {
             if (darkTheme) UIStatusBarStyleLightContent else UIStatusBarStyleDarkContent,
             animated = true,
         )
+    }
+}
+
+@Composable
+actual fun rememberNotificationPermission(onResult: (granted: Boolean) -> Unit): () -> Unit {
+    val currentOnResult by rememberUpdatedState(onResult)
+    return remember {
+        {
+            // Prompts only the first time; afterwards it reports the choice made in Settings.
+            UNUserNotificationCenter.currentNotificationCenter().requestAuthorizationWithOptions(
+                UNAuthorizationOptionAlert or UNAuthorizationOptionSound,
+            ) { granted, _ ->
+                dispatch_async(dispatch_get_main_queue()) { currentOnResult(granted) }
+            }
+        }
     }
 }

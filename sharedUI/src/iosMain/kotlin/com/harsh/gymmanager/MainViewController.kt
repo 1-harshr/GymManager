@@ -13,6 +13,7 @@ import com.harsh.gymmanager.data.local.buildGymDatabase
 import com.harsh.gymmanager.data.local.gymDatabaseBuilder
 import com.harsh.gymmanager.data.settings.SETTINGS_FILE_NAME
 import com.harsh.gymmanager.data.settings.createSettingsDataStore
+import com.harsh.gymmanager.ui.notifications.IosMorningUpdates
 import com.harsh.gymmanager.ui.platform.IosStoredFiles
 import com.harsh.gymmanager.ui.platform.documentsDirectory
 import platform.UIKit.UIViewController
@@ -22,6 +23,7 @@ private val iosDependencies: AppDependencies by lazy {
         openDatabase = { buildGymDatabase(gymDatabaseBuilder()) },
         openSettings = { createSettingsDataStore("${documentsDirectory()}/$SETTINGS_FILE_NAME") },
         storedFiles = IosStoredFiles(),
+        createMorningUpdates = { IosMorningUpdates(it) },
     )
 }
 

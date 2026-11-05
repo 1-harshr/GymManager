@@ -14,6 +14,7 @@ import com.harsh.gymmanager.domain.model.AppLanguage
 import com.harsh.gymmanager.domain.model.AppSettings
 import com.harsh.gymmanager.domain.model.DurationUnit
 import com.harsh.gymmanager.domain.model.GymProfile
+import com.harsh.gymmanager.domain.model.MorningUpdate
 import com.harsh.gymmanager.domain.model.PaymentMode
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.domain.repository.SettingsRepository
@@ -50,6 +51,7 @@ class BackupUseCasesTest {
         override suspend fun setTheme(theme: ThemeMode) { state.value = state.value.copy(theme = theme) }
         override suspend fun setLanguage(language: AppLanguage) { state.value = state.value.copy(language = language) }
         override suspend fun setLastBackupAt(at: Instant) { state.value = state.value.copy(lastBackupAt = at) }
+        override suspend fun setMorningUpdate(update: MorningUpdate) { state.value = state.value.copy(morningUpdate = update) }
     }
 
     /** An in-memory folder tree standing in for app storage. */

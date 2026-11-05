@@ -21,6 +21,21 @@ data class GymProfile(
     }
 }
 
+/** A daily notification summarising the gym; [minuteOfDay] is local time, e.g. 480 for 8:00 AM. */
+data class MorningUpdate(val enabled: Boolean = false, val minuteOfDay: Int = DEFAULT_MINUTE_OF_DAY) {
+    init {
+        require(minuteOfDay in 0 until MINUTES_PER_DAY) { "minuteOfDay out of range: $minuteOfDay" }
+    }
+
+    val hour: Int get() = minuteOfDay / 60
+    val minute: Int get() = minuteOfDay % 60
+
+    companion object {
+        const val DEFAULT_MINUTE_OF_DAY = 8 * 60
+        const val MINUTES_PER_DAY = 24 * 60
+    }
+}
+
 data class AppSettings(
     /** Null until the owner finishes first-run setup. */
     val gym: GymProfile? = null,
@@ -28,4 +43,5 @@ data class AppSettings(
     val language: AppLanguage = AppLanguage.SYSTEM,
     /** When a backup file was last saved from this phone; null if never. */
     val lastBackupAt: Instant? = null,
+    val morningUpdate: MorningUpdate = MorningUpdate(),
 )
