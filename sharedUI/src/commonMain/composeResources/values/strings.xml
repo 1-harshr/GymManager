@@ -306,6 +306,9 @@
     <string name="sent_today">Reminded today</string>
     <string name="sent_yesterday">Reminded yesterday</string>
     <string name="no_whatsapp_number">No mobile number</string>
+    <string name="length_days">Days</string>
+    <string name="sale_customised">Changed for this sale. The membership is still called “%1$s”.</string>
+    <string name="reset_to_plan">Reset to plan</string>
     <plurals name="members_count">
         <item quantity="one">%1$d member</item>
         <item quantity="other">%1$d members</item>

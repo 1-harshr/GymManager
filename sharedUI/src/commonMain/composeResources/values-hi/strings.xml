@@ -306,6 +306,9 @@
     <string name="sent_today">आज याद दिलाया</string>
     <string name="sent_yesterday">कल याद दिलाया</string>
     <string name="no_whatsapp_number">मोबाइल नंबर नहीं है</string>
+    <string name="length_days">दिन</string>
+    <string name="sale_customised">इस बिक्री के लिए बदला गया। मेंबरशिप का नाम “%1$s” ही रहेगा।</string>
+    <string name="reset_to_plan">प्लान जैसा करें</string>
     <plurals name="members_count">
         <item quantity="one">%1$d सदस्य</item>
         <item quantity="other">%1$d सदस्य</item>

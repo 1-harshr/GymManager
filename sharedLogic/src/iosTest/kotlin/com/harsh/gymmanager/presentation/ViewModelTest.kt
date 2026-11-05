@@ -41,6 +41,8 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.time.Clock
@@ -164,6 +166,56 @@ class ViewModelTest {
         val membership = memberships.observeMemberships(memberId).first().single()
         assertEquals(1300, membership.amountCharged)
         assertEquals(PaymentMode.UPI, membership.payments.single().mode)
+    }
+
+    @Test
+    fun sellMembershipAdjustsDaysForThisSaleOnly() = runTest {
+        monthlyPlanId()
+        val memberId = members.addMember("Ravi").getOrThrow()
+        val vm = SellMembershipViewModel(memberId, plans, memberships)
+        vm.onPlanSelect(vm.state.first { it.plans.isNotEmpty() }.plans.single())
+        val prefilled = vm.state.first { it.selectedPlan != null }
+        assertEquals("30", prefilled.daysText)
+        assertFalse(prefilled.isCustomised)
+
+        vm.onDaysChange("45")
+        assertEquals(LocalDate(2026, 12, 19), vm.state.value.endDate)
+        assertTrue(vm.state.value.isCustomised)
+        vm.onStartDateChange(LocalDate(2026, 11, 10))
+        assertEquals(LocalDate(2026, 12, 24), vm.state.value.endDate, "a custom length survives moving the start")
+        vm.onEndDateChange(LocalDate(2026, 11, 16))
+        assertEquals("7", vm.state.value.daysText)
+
+        vm.resetToPlan()
+        assertEquals(LocalDate(2026, 12, 9), vm.state.value.endDate)
+        assertFalse(vm.state.value.isCustomised)
+
+        vm.onDaysChange("")
+        vm.save()
+        assertEquals(UiMessage.ChooseDates, vm.state.value.errorMessage)
+
+        vm.onDaysChange("40")
+        vm.onDiscountChange("300")
+        vm.save()
+        assertIs<SellMembershipEvent.Sold>(vm.events.first())
+        val membership = memberships.observeMemberships(memberId).first().single()
+        assertEquals("Monthly", membership.planName)
+        assertEquals(LocalDate(2026, 12, 19), membership.endDate)
+        assertEquals(1200, membership.amountCharged)
+        assertEquals(1, plans.observePlans().first().size, "the plan itself is untouched")
+    }
+
+    @Test
+    fun sellMembershipSelectsAPlanAddedMeanwhile() = runTest {
+        monthlyPlanId()
+        val memberId = members.addMember("Ravi").getOrThrow()
+        val vm = SellMembershipViewModel(memberId, plans, memberships)
+        vm.state.first { it.plans.isNotEmpty() }
+
+        plans.addPlan("Festive 45 days", 45, DurationUnit.DAYS, 1800).getOrThrow()
+        val selected = vm.state.first { it.selectedPlan != null }
+        assertEquals("Festive 45 days", selected.selectedPlan?.name)
+        assertEquals("45", selected.daysText)
     }
 
     @Test

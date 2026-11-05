@@ -18,7 +18,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.daysUntil
+import kotlinx.datetime.plus
 
 data class SellMembershipUiState(
     val isLoading: Boolean = true,
@@ -26,6 +29,8 @@ data class SellMembershipUiState(
     val selectedPlan: Plan? = null,
     val startDate: LocalDate? = null,
     val endDate: LocalDate? = null,
+    /** Length in days, both ends counted; kept in step with [endDate]. */
+    val daysText: String = "",
     val priceText: String = "",
     val discountText: String = "",
     val firstPaymentText: String = "",
@@ -37,6 +42,14 @@ data class SellMembershipUiState(
     private val price: Long? get() = parseRupees(priceText)
     private val discount: Long? get() = if (discountText.isBlank()) 0 else parseRupees(discountText)
     private val firstPayment: Long? get() = if (firstPaymentText.isBlank()) 0 else parseRupees(firstPaymentText)
+
+    /** True when this sale's length, price or discount differs from the chosen plan. */
+    val isCustomised: Boolean
+        get() {
+            val plan = selectedPlan ?: return false
+            val start = startDate ?: return false
+            return endDate != plan.endDateFor(start) || price != plan.defaultPrice || (discount ?: 0) != 0L
+        }
 
     /** Price minus discount, or null while the inputs aren't valid numbers. */
     val amountCharged: Long?
@@ -56,7 +69,7 @@ data class SellMembershipUiState(
 
     internal fun validationError(): UiMessage? = when {
         selectedPlan == null -> UiMessage.ChoosePlan
-        startDate == null || endDate == null -> UiMessage.ChooseDates
+        startDate == null || endDate == null || daysText.toIntOrNull()?.takeIf { it >= 1 } == null -> UiMessage.ChooseDates
         price == null -> UiMessage.EnterPrice
         discount == null -> UiMessage.EnterDiscount
         amountCharged == null -> UiMessage.Invalid(ValidationError.DISCOUNT_TOO_LARGE)
@@ -84,8 +97,13 @@ class SellMembershipViewModel(
 
     init {
         viewModelScope.launch {
+            var known: Set<Long>? = null
             planUseCases.observePlans().collect { plans ->
                 _state.update { it.copy(isLoading = false, plans = plans) }
+                // A plan added from this screen comes back selected, ready to sell.
+                val added = known?.let { ids -> plans.filter { it.id !in ids } }.orEmpty()
+                if (added.size == 1) onPlanSelect(added.single())
+                known = plans.map { it.id }.toSet()
             }
         }
     }
@@ -98,19 +116,58 @@ class SellMembershipViewModel(
                     selectedPlan = plan,
                     startDate = quote.startDate,
                     endDate = quote.endDate,
+                    daysText = lengthInDays(quote.startDate, quote.endDate).toString(),
                     priceText = quote.price.toString(),
+                    discountText = "",
                     errorMessage = null,
                 )
             }
         }
     }
 
-    /** Moving the start date moves the end date with it, based on the plan length. */
+    /**
+     * Moving the start keeps the length: the plan's own length (so months stay calendar months)
+     * unless the days were changed for this sale, in which case that many days.
+     */
     fun onStartDateChange(date: LocalDate) = _state.update {
-        it.copy(startDate = date, endDate = it.selectedPlan?.endDateFor(date) ?: it.endDate, errorMessage = null)
+        val plan = it.selectedPlan
+        val start = it.startDate
+        val keptPlanLength = plan != null && start != null && it.endDate == plan.endDateFor(start)
+        val days = it.daysText.toIntOrNull()?.takeIf { d -> d >= 1 }
+        val end = when {
+            keptPlanLength -> plan!!.endDateFor(date)
+            days != null -> date.plus(days - 1, DateTimeUnit.DAY)
+            else -> it.endDate
+        }
+        it.copy(startDate = date, endDate = end, daysText = end?.let { e -> lengthInDays(date, e).toString() } ?: it.daysText, errorMessage = null)
     }
 
-    fun onEndDateChange(date: LocalDate) = _state.update { it.copy(endDate = date, errorMessage = null) }
+    fun onEndDateChange(date: LocalDate) = _state.update {
+        val start = it.startDate
+        it.copy(endDate = date, daysText = start?.let { s -> lengthInDays(s, date).toString() } ?: it.daysText, errorMessage = null)
+    }
+
+    /** Typing a length moves the end date; an unusable number waits until it is fixed. */
+    fun onDaysChange(text: String) = _state.update {
+        val digits = text.filter(Char::isDigit).take(4)
+        val days = digits.toIntOrNull()?.takeIf { d -> d >= 1 }
+        val start = it.startDate
+        it.copy(
+            daysText = digits,
+            endDate = if (days != null && start != null) start.plus(days - 1, DateTimeUnit.DAY) else it.endDate,
+            errorMessage = null,
+        )
+    }
+
+    /** Puts length, price and discount back to the plan's, keeping the start date. */
+    fun resetToPlan() {
+        val plan = _state.value.selectedPlan ?: return
+        _state.update {
+            val start = it.startDate ?: return@update it
+            val end = plan.endDateFor(start)
+            it.copy(endDate = end, daysText = lengthInDays(start, end).toString(), priceText = plan.defaultPrice.toString(), discountText = "", errorMessage = null)
+        }
+    }
     fun onPriceChange(text: String) = _state.update { it.copy(priceText = text, errorMessage = null) }
     fun onDiscountChange(text: String) = _state.update { it.copy(discountText = text, errorMessage = null) }
     fun onFirstPaymentChange(text: String) = _state.update { it.copy(firstPaymentText = text, errorMessage = null) }
@@ -142,3 +199,6 @@ class SellMembershipViewModel(
         }
     }
 }
+
+/** Days covered from [start] to [end], both included. */
+private fun lengthInDays(start: LocalDate, end: LocalDate): Int = start.daysUntil(end) + 1

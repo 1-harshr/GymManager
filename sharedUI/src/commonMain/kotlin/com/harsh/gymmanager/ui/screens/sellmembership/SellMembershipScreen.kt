@@ -19,6 +19,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.harsh.gymmanager.ui.components.GhostButton
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -62,7 +64,12 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
             Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(bottom = AkhadaSpace.xl),
             verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
         ) {
-            SectionHeader(stringResource(Res.string.section_plan), Modifier.screenGutter())
+            SectionHeader(
+                stringResource(Res.string.section_plan),
+                Modifier.screenGutter(),
+                action = if (state.plans.isNotEmpty()) stringResource(Res.string.new_plan) else null,
+                onAction = onAddPlan,
+            )
             if (!state.isLoading && state.plans.isEmpty()) {
                 EmptyState(AkhadaIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_sell_body), actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan)
                 return@Column
@@ -78,9 +85,21 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
                     DateField(state.startDate, { it?.let(vm::onStartDateChange) }, stringResource(Res.string.starts), Modifier.weight(1f))
                     DateField(state.endDate, { it?.let(vm::onEndDateChange) }, stringResource(Res.string.ends), Modifier.weight(1f))
                 }
+                AkhadaTextField(state.daysText, vm::onDaysChange, stringResource(Res.string.length_days), keyboardType = KeyboardType.Number)
                 Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
                     AkhadaTextField(state.priceText, vm::onPriceChange, stringResource(Res.string.price), Modifier.weight(1f), prefix = "₹", keyboardType = KeyboardType.Number)
                     AkhadaTextField(state.discountText, vm::onDiscountChange, stringResource(Res.string.discount), Modifier.weight(1f), optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = "0")
+                }
+                if (state.isCustomised) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+                        Text(
+                            stringResource(Res.string.sale_customised, state.selectedPlan?.name.orEmpty()),
+                            Modifier.weight(1f),
+                            style = AkhadaTheme.typography.caption,
+                            color = AkhadaTheme.colors.inkMuted,
+                        )
+                        GhostButton(stringResource(Res.string.reset_to_plan), vm::resetToPlan)
+                    }
                 }
             }
 
