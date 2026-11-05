@@ -25,7 +25,9 @@ interface BackupDao {
 
     @Transaction
     suspend fun replaceAll(tables: Tables) {
-        // Children first, so no foreign key is ever left pointing at nothing.
+        // Children first, so no foreign key is ever left pointing at nothing. Alerts aren't backed up;
+        // they're rebuilt from the restored data.
+        deleteInbox()
         deleteMessages()
         deletePayments()
         deleteMemberships()
@@ -38,6 +40,7 @@ interface BackupDao {
         insertMessages(tables.messages)
     }
 
+    @Query("DELETE FROM inbox") suspend fun deleteInbox()
     @Query("DELETE FROM message_log") suspend fun deleteMessages()
     @Query("DELETE FROM payments") suspend fun deletePayments()
     @Query("DELETE FROM memberships") suspend fun deleteMemberships()

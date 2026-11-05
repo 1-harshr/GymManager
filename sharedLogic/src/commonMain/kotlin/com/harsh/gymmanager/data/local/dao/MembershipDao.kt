@@ -48,4 +48,9 @@ interface MembershipDao {
     @Transaction
     @Query("SELECT * FROM memberships WHERE memberId = :memberId ORDER BY startDate DESC")
     fun observeForMember(memberId: Long): Flow<List<MembershipWithPayments>>
+
+    /** Every membership of members who aren't archived, each with its payments. */
+    @Transaction
+    @Query("SELECT ms.* FROM memberships ms JOIN members m ON m.id = ms.memberId WHERE m.isArchived = 0")
+    fun observeAllActiveMembers(): Flow<List<MembershipWithPayments>>
 }

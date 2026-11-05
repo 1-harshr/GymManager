@@ -24,6 +24,7 @@ internal val iosDependencies: AppDependencies by lazy {
         openSettings = { createSettingsDataStore("${documentsDirectory()}/$SETTINGS_FILE_NAME") },
         storedFiles = IosStoredFiles(),
         createMorningUpdates = { IosMorningUpdates(it) },
+        onDeviceModel = InstalledOnDeviceModel,
     )
 }
 

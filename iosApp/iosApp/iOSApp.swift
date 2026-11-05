@@ -1,9 +1,14 @@
 import SwiftUI
+import SharedUI
 import UserNotifications
 
 @main
 struct iOSApp: App {
     @UIApplicationDelegateAdaptor private var appDelegate: AppDelegate
+
+    init() {
+        OnDeviceModel_iosKt.installOnDeviceModel(model: AppleOnDeviceModel())
+    }
 
     var body: some Scene {
         WindowGroup {

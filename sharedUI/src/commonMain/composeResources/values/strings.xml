@@ -10,7 +10,6 @@
     <string name="saving">Saving…</string>
     <string name="save_changes">Save changes</string>
     <string name="optional">optional</string>
-    <string name="see_all">See all</string>
     <string name="edit">Edit</string>
     <string name="archive">Archive</string>
     <string name="restore">Restore</string>
@@ -41,7 +40,6 @@
     <string name="no_membership_yet">No membership yet</string>
     <string name="amount_due">%1$s due</string>
     <string name="nothing_due">Nothing due</string>
-    <string name="still_due">%1$s still due</string>
     <string name="gender_male">Male</string>
     <string name="gender_female">Female</string>
     <string name="gender_other">Other</string>
@@ -54,9 +52,6 @@
     <string name="stat_expiring_week">Expiring this week</string>
     <string name="stat_expired">Expired</string>
     <string name="stat_dues">Dues · %1$d</string>
-    <string name="section_expiring_week">Expiring this week</string>
-    <string name="no_one_expires_title">No one expires this week</string>
-    <string name="no_one_expires_body">Memberships ending in the next 7 days show up here.</string>
     <string name="search_hint">Search name or phone</string>
     <string name="clear_search">Clear search</string>
     <string name="filter_all">All</string>
@@ -233,6 +228,56 @@
     <string name="morning_more_names">%1$s and %2$d more</string>
     <string name="morning_no_dues">Nothing due</string>
     <string name="morning_collected">%1$s collected this month</string>
+    <string name="section_recent_payments">Recent payments</string>
+    <string name="no_payments_title">No payments yet</string>
+    <string name="no_payments_body">Payments you record show up here.</string>
+    <string name="day_today">Today</string>
+    <string name="day_yesterday">Yesterday</string>
+    <string name="brief_title">Today’s brief</string>
+    <string name="brief_ai">On-device AI</string>
+    <string name="brief_pace_ahead">%1$s collected so far, %2$d%% ahead of %3$s by this date.</string>
+    <string name="brief_pace_behind">%1$s collected so far, %2$d%% behind %3$s by this date.</string>
+    <string name="brief_pace_plain">%1$s collected so far this month.</string>
+    <string name="brief_due">%1$s has owed %2$s since %3$s, worth a reminder today.</string>
+    <string name="brief_win_back">%1$s hasn’t renewed since %2$s; a call could bring them back.</string>
+    <string name="brief_forecast">On track for %1$s if dues are paid and renewals come in.</string>
+    <string name="brief_quiet">Nothing urgent today.</string>
+    <string name="pace_ahead">%1$d%% ahead of %2$s</string>
+    <string name="pace_behind">%1$d%% behind %2$s</string>
+    <string name="pace_level">Level with %1$s</string>
+    <string name="pace_no_compare">Nothing to compare with in %1$s</string>
+    <string name="pace_by_date">by this date</string>
+    <string name="chart_day">Day %1$d</string>
+    <string name="chart_description">Collections through the month: %1$s so far in %2$s, against %3$s in %4$s by the same date.</string>
+    <string name="forecast_title">On track for</string>
+    <string name="forecast_collected">Collected</string>
+    <string name="forecast_dues">Still due</string>
+    <string name="forecast_note">If every due is paid and every membership ending this month renews.</string>
+    <string name="renewals_title">Renewals</string>
+    <string name="renewals_none">None end this week</string>
+    <string name="renewal_rate">%1$d of %2$d renewed in the last %3$d days (%4$d%%)</string>
+    <string name="renewal_rate_none">No memberships ended in the last %1$d days</string>
+    <string name="attention_title">Needs attention</string>
+    <string name="oldest_dues">Longest unpaid</string>
+    <string name="win_back">Win back</string>
+    <string name="more_count">+%1$d more</string>
+    <string name="inbox_title">Alerts</string>
+    <string name="open_alerts">Alerts</string>
+    <string name="open_alerts_unread">Alerts, %1$d unread</string>
+    <string name="inbox_empty_title">No alerts</string>
+    <string name="inbox_empty_body">Renewals due today, lapsed members and long-unpaid dues show up here.</string>
+    <string name="inbox_earlier">Earlier</string>
+    <string name="alert_ends_today">%1$s’s membership ends today</string>
+    <string name="alert_ends_today_detail">Renewal worth %1$s</string>
+    <string name="alert_lapsed">%1$s’s membership ended on %2$s</string>
+    <string name="alert_lapsed_detail">Not renewed yet</string>
+    <string name="alert_due">%1$s has owed %2$s since %3$s</string>
+    <string name="alert_due_detail">Unpaid for 2 weeks or more</string>
+    <string name="section_home_screen">Home screen</string>
+    <string name="ai_insights">AI insights</string>
+    <string name="ai_insights_body">A short daily brief, this month’s outlook, renewals and who needs attention. Worked out on this phone; nothing is sent anywhere.</string>
+    <string name="collections_chart">Collections chart</string>
+    <string name="collections_chart_body">This month’s collections against last month’s, day by day.</string>
     <string name="section_about">About</string>
     <string name="version">Version %1$s</string>
     <string name="credits">Created by musa_fir ❤️ · No rights reserved</string>
@@ -447,5 +492,25 @@
     <plurals name="morning_dues">
         <item quantity="one">%1$s due from %2$d member</item>
         <item quantity="other">%1$s due from %2$d members</item>
+    </plurals>
+    <plurals name="brief_renewals">
+        <item quantity="one">%3$s’s membership (%2$s) ends this week.</item>
+        <item quantity="other">%1$d memberships worth %2$s end this week, starting with %3$s.</item>
+    </plurals>
+    <plurals name="forecast_renewals">
+        <item quantity="one">%1$d renewal this month</item>
+        <item quantity="other">%1$d renewals this month</item>
+    </plurals>
+    <plurals name="renewals_at_stake">
+        <item quantity="one">%1$d ends this week · %2$s</item>
+        <item quantity="other">%1$d end this week · %2$s</item>
+    </plurals>
+    <plurals name="owed_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <plurals name="ended_days_ago">
+        <item quantity="one">Ended %1$d day ago</item>
+        <item quantity="other">Ended %1$d days ago</item>
     </plurals>
 </resources>

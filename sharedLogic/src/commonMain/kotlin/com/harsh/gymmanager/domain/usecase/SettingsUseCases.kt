@@ -3,6 +3,7 @@ package com.harsh.gymmanager.domain.usecase
 import com.harsh.gymmanager.domain.model.AppLanguage
 import com.harsh.gymmanager.domain.model.AppSettings
 import com.harsh.gymmanager.domain.model.GymProfile
+import com.harsh.gymmanager.domain.model.HomeFeatures
 import com.harsh.gymmanager.domain.model.MorningUpdate
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.domain.repository.SettingsRepository
@@ -21,4 +22,6 @@ class SettingsUseCases(private val repository: SettingsRepository) {
     suspend fun setLanguage(language: AppLanguage): Result<Unit> = resultOf { repository.setLanguage(language) }
 
     suspend fun setMorningUpdate(update: MorningUpdate): Result<Unit> = resultOf { repository.setMorningUpdate(update) }
+
+    suspend fun setHomeFeatures(features: HomeFeatures): Result<Unit> = resultOf { repository.setHomeFeatures(features) }
 }

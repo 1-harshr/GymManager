@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import com.harsh.gymmanager.data.local.entity.DailyTotalRow
 import com.harsh.gymmanager.data.local.entity.PaymentEntity
+import com.harsh.gymmanager.data.local.entity.PaymentRecordRow
 import com.harsh.gymmanager.domain.OverpaymentException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
@@ -38,4 +40,23 @@ interface PaymentDao {
     /** Total collected between [from] and [to], both inclusive, in whole rupees. */
     @Query("SELECT COALESCE(SUM(amount), 0) FROM payments WHERE paidOn BETWEEN :from AND :to")
     fun observeRevenue(from: LocalDate, to: LocalDate): Flow<Long>
+
+    /** Whole rupees collected on each day between [from] and [to] that had any payment. */
+    @Query("SELECT paidOn AS day, SUM(amount) AS total FROM payments WHERE paidOn BETWEEN :from AND :to GROUP BY paidOn")
+    fun observeDailyRevenue(from: LocalDate, to: LocalDate): Flow<List<DailyTotalRow>>
+
+    /** Payments made between [from] and [to], both inclusive, newest first; at most [limit] (-1 for all). */
+    @Query(
+        """
+        SELECT p.id AS paymentId, m.id AS memberId, m.name AS memberName, ms.planName AS planName,
+            p.amount AS amount, p.mode AS mode, p.paidOn AS paidOn
+        FROM payments p
+        JOIN memberships ms ON ms.id = p.membershipId
+        JOIN members m ON m.id = ms.memberId
+        WHERE p.paidOn BETWEEN :from AND :to
+        ORDER BY p.paidOn DESC, p.createdAt DESC, p.id DESC
+        LIMIT :limit
+        """
+    )
+    fun observePayments(from: LocalDate, to: LocalDate, limit: Int): Flow<List<PaymentRecordRow>>
 }

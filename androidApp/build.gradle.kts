@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.androidx.appfunctions)
     ksp(libs.androidx.appfunctions.compiler)
     implementation(libs.androidx.work.runtime)
+    implementation(libs.mlkit.genai.prompt)
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)

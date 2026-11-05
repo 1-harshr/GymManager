@@ -9,6 +9,9 @@ interface MembershipRepository {
     /** The member's memberships with their payments, newest first. */
     fun observeMemberships(memberId: Long): Flow<List<Membership>>
 
+    /** Every membership of members who aren't archived, each with its payments, in no set order. */
+    fun observeAllMemberships(): Flow<List<Membership>>
+
     suspend fun getLatestEndDate(memberId: Long): LocalDate?
 
     /**

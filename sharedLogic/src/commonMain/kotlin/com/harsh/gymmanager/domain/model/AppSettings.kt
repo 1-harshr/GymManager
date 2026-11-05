@@ -36,6 +36,14 @@ data class MorningUpdate(val enabled: Boolean = false, val minuteOfDay: Int = DE
     }
 }
 
+/** Optional extras on Home; both off until the owner turns them on in Settings. */
+data class HomeFeatures(
+    /** The daily brief, the month's outlook, renewals and who needs attention. */
+    val aiInsights: Boolean = false,
+    /** This month's collections against last month's, day by day. */
+    val collectionsChart: Boolean = false,
+)
+
 data class AppSettings(
     /** Null until the owner finishes first-run setup. */
     val gym: GymProfile? = null,
@@ -44,4 +52,5 @@ data class AppSettings(
     /** When a backup file was last saved from this phone; null if never. */
     val lastBackupAt: Instant? = null,
     val morningUpdate: MorningUpdate = MorningUpdate(),
+    val homeFeatures: HomeFeatures = HomeFeatures(),
 )

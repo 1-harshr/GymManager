@@ -29,6 +29,14 @@ class ObserveMembersUseCase(private val repository: MemberRepository) {
         }
 }
 
+/** Most urgent first: soonest expiry, latest lapse, or largest due; other filters keep their order. */
+fun List<MemberSummary>.mostUrgentFirst(filter: MemberFilter): List<MemberSummary> = when (filter) {
+    MemberFilter.EXPIRING_SOON -> sortedBy { it.latestEndDate }
+    MemberFilter.EXPIRED -> sortedByDescending { it.latestEndDate }
+    MemberFilter.WITH_DUES -> sortedByDescending { it.amountDue }
+    else -> this
+}
+
 class ObserveMemberUseCase(private val repository: MemberRepository) {
     operator fun invoke(id: Long): Flow<Member?> = repository.observeMember(id)
 }

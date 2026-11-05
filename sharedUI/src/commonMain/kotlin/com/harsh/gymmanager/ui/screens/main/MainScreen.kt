@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -56,6 +58,7 @@ import com.harsh.gymmanager.ui.format.resolve
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
 import com.harsh.gymmanager.ui.motion.AkhadaMotion
 import com.harsh.gymmanager.ui.platform.SystemBackHandler
+import com.harsh.gymmanager.domain.model.HomeFeatures
 import com.harsh.gymmanager.ui.screens.home.HomeScreen
 import com.harsh.gymmanager.ui.screens.members.MembersScreen
 import com.harsh.gymmanager.ui.screens.plans.PlansScreen
@@ -69,6 +72,9 @@ private const val HOME = 0
 private const val MEMBERS = 1
 private const val PLANS = 2
 
+/** How many payments Home lists. */
+private const val RECENT_PAYMENTS = 5
+
 /** The three tabs under the floating tab bar; select mode swaps the bar for bulk actions. */
 @Composable
 fun MainScreen(
@@ -79,10 +85,20 @@ fun MainScreen(
     onBulkRenew: (Set<Long>) -> Unit,
     onImportMembers: () -> Unit,
     onOpenReminders: () -> Unit,
+    onOpenInbox: () -> Unit,
+    homeFeatures: HomeFeatures,
 ) {
     val deps = LocalAppDependencies.current
     val snackbar = LocalSnackbar.current
-    val dashboardVm = viewModel { DashboardViewModel(deps.observeDashboard, deps.messaging::observeRemindersToSend) }
+    val dashboardVm = viewModel {
+        DashboardViewModel(
+            deps.observeDashboard,
+            remindersToSend = deps.messaging::observeRemindersToSend,
+            recentPayments = { deps.paymentUseCases.observePayments.recent(RECENT_PAYMENTS) },
+            insights = { deps.insights() },
+            unreadAlerts = deps.inbox::observeUnreadCount,
+        )
+    }
     val membersVm = viewModel { MembersViewModel(deps.memberUseCases) }
     val plansVm = viewModel { PlansViewModel(deps.planUseCases) }
     var tab by rememberSaveable { mutableIntStateOf(HOME) }
@@ -98,9 +114,12 @@ fun MainScreen(
     val selecting = (tab == MEMBERS && membersState.isSelecting) || (tab == PLANS && plansState.isSelecting)
 
     // "Today" is read when lists load, so re-read it whenever the app comes back.
+    // Alerts come from the data, so look for new ones whenever the app comes back too.
+    val scope = rememberCoroutineScope()
     LifecycleResumeEffect(Unit) {
         dashboardVm.refresh()
         membersVm.refresh()
+        scope.launch { deps.inbox.refresh() }
         onPauseOrDispose { }
     }
     LaunchedEffect(plansVm) { plansVm.messages.collect { snackbar.showSnackbar(it.resolve()) } }
@@ -125,14 +144,11 @@ fun MainScreen(
             when (current) {
                 HOME -> HomeScreen(
                     state = dashboardVm.state.collectAsStateWithLifecycle().value,
-                    onOpenMembers = { filter ->
-                        membersVm.onQueryChange("")
-                        membersVm.onFilterChange(filter)
-                        tab = MEMBERS
-                    },
-                    onOpenMember = { onOpenMember(it.memberId) },
+                    onOpenMember = onOpenMember,
                     onOpenSettings = onOpenSettings,
                     onOpenReminders = onOpenReminders,
+                    onOpenInbox = onOpenInbox,
+                    features = homeFeatures,
                 )
                 MEMBERS -> MembersScreen(
                     state = membersState,

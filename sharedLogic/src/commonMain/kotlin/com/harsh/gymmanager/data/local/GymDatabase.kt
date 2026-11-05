@@ -8,11 +8,13 @@ import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.harsh.gymmanager.data.local.dao.BackupDao
+import com.harsh.gymmanager.data.local.dao.InboxDao
 import com.harsh.gymmanager.data.local.dao.MemberDao
 import com.harsh.gymmanager.data.local.dao.MembershipDao
 import com.harsh.gymmanager.data.local.dao.MessageLogDao
 import com.harsh.gymmanager.data.local.dao.PaymentDao
 import com.harsh.gymmanager.data.local.dao.PlanDao
+import com.harsh.gymmanager.data.local.entity.InboxEntity
 import com.harsh.gymmanager.data.local.entity.MemberEntity
 import com.harsh.gymmanager.data.local.entity.MemberSummaryView
 import com.harsh.gymmanager.data.local.entity.MembershipEntity
@@ -25,11 +27,14 @@ import kotlinx.coroutines.IO
 const val DATABASE_NAME = "gym.db"
 
 @Database(
-    entities = [MemberEntity::class, PlanEntity::class, MembershipEntity::class, PaymentEntity::class, MessageLogEntity::class],
+    entities = [
+        MemberEntity::class, PlanEntity::class, MembershipEntity::class, PaymentEntity::class, MessageLogEntity::class,
+        InboxEntity::class,
+    ],
     views = [MemberSummaryView::class],
-    version = 2,
-    // 2: message_log, for WhatsApp messages.
-    autoMigrations = [AutoMigration(from = 1, to = 2)],
+    version = 3,
+    // 2: message_log, for WhatsApp messages. 3: inbox, for the bell's alerts.
+    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
 )
 @TypeConverters(Converters::class)
 @ConstructedBy(GymDatabaseConstructor::class)
@@ -40,6 +45,7 @@ abstract class GymDatabase : RoomDatabase() {
     abstract fun paymentDao(): PaymentDao
     abstract fun messageLogDao(): MessageLogDao
     abstract fun backupDao(): BackupDao
+    abstract fun inboxDao(): InboxDao
 }
 
 // Room generates the actual implementations.

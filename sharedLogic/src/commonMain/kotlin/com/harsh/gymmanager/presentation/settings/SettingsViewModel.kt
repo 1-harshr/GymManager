@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.harsh.gymmanager.domain.model.AppLanguage
 import com.harsh.gymmanager.domain.model.AppSettings
+import com.harsh.gymmanager.domain.model.HomeFeatures
 import com.harsh.gymmanager.domain.model.MorningUpdate
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.domain.usecase.SettingsUseCases
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-/** App-wide settings: the gym, theme, language and morning update. Null until the stored settings have loaded. */
+/** App-wide settings: the gym, theme, language, morning update and Home's extras. Null until the stored settings have loaded. */
 class SettingsViewModel(private val settings: SettingsUseCases) : ViewModel() {
     val state: StateFlow<AppSettings?> = settings.observe()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -27,5 +28,9 @@ class SettingsViewModel(private val settings: SettingsUseCases) : ViewModel() {
 
     fun onMorningUpdateChange(update: MorningUpdate) {
         viewModelScope.launch { settings.setMorningUpdate(update) }
+    }
+
+    fun onHomeFeaturesChange(features: HomeFeatures) {
+        viewModelScope.launch { settings.setHomeFeatures(features) }
     }
 }
