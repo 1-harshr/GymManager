@@ -8,6 +8,10 @@ plugins {
 }
 
 kotlin {
+    compilerOptions {
+        // Required for the Room database constructor.
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
     listOf(
         iosArm64(),
         iosSimulatorArm64()
