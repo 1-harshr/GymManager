@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.domain.model
 
+import com.harsh.gymmanager.domain.ValidationError
+import com.harsh.gymmanager.domain.ensure
 import kotlinx.datetime.LocalDate
 
 data class Payment(
@@ -12,6 +14,6 @@ data class Payment(
     val note: String? = null,
 ) {
     init {
-        require(amount > 0) { "Amount must be more than ₹0" }
+        ensure(amount > 0, ValidationError.AMOUNT_NOT_POSITIVE)
     }
 }

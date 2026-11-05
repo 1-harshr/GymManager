@@ -1,5 +1,8 @@
 package com.harsh.gymmanager.ui.screens.main
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.pluralStringResource
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -46,6 +49,7 @@ import com.harsh.gymmanager.ui.components.BulkActionBar
 import com.harsh.gymmanager.ui.components.ConfirmSheet
 import com.harsh.gymmanager.ui.components.FloatingTabBar
 import com.harsh.gymmanager.ui.components.TabItem
+import com.harsh.gymmanager.ui.format.resolve
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
 import com.harsh.gymmanager.ui.platform.SystemBackHandler
 import com.harsh.gymmanager.ui.screens.home.HomeScreen
@@ -53,11 +57,6 @@ import com.harsh.gymmanager.ui.screens.members.MembersScreen
 import com.harsh.gymmanager.ui.screens.plans.PlansScreen
 import com.harsh.gymmanager.ui.theme.AkhadaSpace
 
-private val MainTabs = listOf(
-    TabItem("Home", AkhadaIcons.Home),
-    TabItem("Members", AkhadaIcons.Users),
-    TabItem("Plans", AkhadaIcons.Tag),
-)
 
 /** Matches the tab pill's spring so the bar and pill move together. */
 private val BarSpring = spring(dampingRatio = 0.78f, stiffness = Spring.StiffnessMediumLow, visibilityThreshold = IntSize(1, 1))
@@ -83,6 +82,11 @@ fun MainScreen(
     val plansVm = viewModel { PlansViewModel(deps.planUseCases) }
     var tab by rememberSaveable { mutableIntStateOf(HOME) }
     var confirmDelete by remember { mutableStateOf(false) }
+    val mainTabs = listOf(
+        TabItem(stringResource(Res.string.tab_home), AkhadaIcons.Home),
+        TabItem(stringResource(Res.string.tab_members), AkhadaIcons.Users),
+        TabItem(stringResource(Res.string.tab_plans), AkhadaIcons.Tag),
+    )
 
     val membersState by membersVm.state.collectAsStateWithLifecycle()
     val plansState by plansVm.state.collectAsStateWithLifecycle()
@@ -94,8 +98,8 @@ fun MainScreen(
         membersVm.refresh()
         onPauseOrDispose { }
     }
-    LaunchedEffect(plansVm) { plansVm.messages.collect { snackbar.showSnackbar(it) } }
-    LaunchedEffect(membersVm) { membersVm.messages.collect { snackbar.showSnackbar(it) } }
+    LaunchedEffect(plansVm) { plansVm.messages.collect { snackbar.showSnackbar(it.resolve()) } }
+    LaunchedEffect(membersVm) { membersVm.messages.collect { snackbar.showSnackbar(it.resolve()) } }
     SystemBackHandler(enabled = selecting) {
         membersVm.clearSelection()
         plansVm.clearSelection()
@@ -157,13 +161,13 @@ fun MainScreen(
                         onRestore = membersVm::restoreSelected,
                         onDelete = { confirmDelete = true },
                     ) else listOfNotNull(
-                        if (plansState.selectedHasActive) BulkAction("Archive", AkhadaIcons.Archive, onClick = plansVm::archiveSelected) else null,
-                        if (plansState.selectedHasArchived) BulkAction("Restore", AkhadaIcons.Restore, onClick = plansVm::restoreSelected) else null,
+                        if (plansState.selectedHasActive) BulkAction(stringResource(Res.string.archive), AkhadaIcons.Archive, onClick = plansVm::archiveSelected) else null,
+                        if (plansState.selectedHasArchived) BulkAction(stringResource(Res.string.restore), AkhadaIcons.Restore, onClick = plansVm::restoreSelected) else null,
                     ),
                 )
             } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    FloatingTabBar(tabs = MainTabs, selected = tab, onSelect = { tab = it })
+                    FloatingTabBar(tabs = mainTabs, selected = tab, onSelect = { tab = it })
                     // The button's width (gap included) grows on the same spring as the tab pill, so the
                     // centred bar glides aside instead of jumping when the button appears.
                     AnimatedVisibility(
@@ -171,7 +175,7 @@ fun MainScreen(
                         enter = expandHorizontally(BarSpring, expandFrom = Alignment.Start) + fadeIn() + scaleIn(initialScale = 0.6f),
                         exit = shrinkHorizontally(BarSpring, shrinkTowards = Alignment.Start) + fadeOut() + scaleOut(targetScale = 0.6f),
                     ) {
-                        AddButton(onClick = onAddMember, contentDescription = "Add member", modifier = Modifier.padding(start = AkhadaSpace.md))
+                        AddButton(onClick = onAddMember, contentDescription = stringResource(Res.string.add_member), modifier = Modifier.padding(start = AkhadaSpace.md))
                     }
                 }
             }
@@ -180,17 +184,17 @@ fun MainScreen(
 
     if (confirmDelete) {
         val count = membersState.selectedIds.size
-        val who = if (count == 1) "1 member" else "$count members"
         ConfirmSheet(
-            title = "Delete $who?",
-            body = "Their memberships and payments are deleted too, and this can't be undone. Archive them instead to keep their history.",
-            confirmLabel = "Delete $who",
+            title = pluralStringResource(Res.plurals.delete_members_title, count, count),
+            body = stringResource(Res.string.delete_members_body),
+            confirmLabel = pluralStringResource(Res.plurals.delete_members_button, count, count),
             onConfirm = { confirmDelete = false; membersVm.deleteSelected() },
             onDismiss = { confirmDelete = false },
         )
     }
 }
 
+@Composable
 private fun memberActions(
     archivedList: Boolean,
     onRenew: () -> Unit,
@@ -199,13 +203,13 @@ private fun memberActions(
     onDelete: () -> Unit,
 ): List<BulkAction> = if (archivedList) {
     listOf(
-        BulkAction("Restore", AkhadaIcons.Restore, onClick = onRestore),
-        BulkAction("Delete", AkhadaIcons.Trash, destructive = true, onClick = onDelete),
+        BulkAction(stringResource(Res.string.restore), AkhadaIcons.Restore, onClick = onRestore),
+        BulkAction(stringResource(Res.string.delete), AkhadaIcons.Trash, destructive = true, onClick = onDelete),
     )
 } else {
     listOf(
-        BulkAction("Renew", AkhadaIcons.Renew, onClick = onRenew),
-        BulkAction("Archive", AkhadaIcons.Archive, onClick = onArchive),
-        BulkAction("Delete", AkhadaIcons.Trash, destructive = true, onClick = onDelete),
+        BulkAction(stringResource(Res.string.renew), AkhadaIcons.Renew, onClick = onRenew),
+        BulkAction(stringResource(Res.string.archive), AkhadaIcons.Archive, onClick = onArchive),
+        BulkAction(stringResource(Res.string.delete), AkhadaIcons.Trash, destructive = true, onClick = onDelete),
     )
 }

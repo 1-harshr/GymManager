@@ -7,7 +7,8 @@ import com.harsh.gymmanager.domain.model.Plan
 import com.harsh.gymmanager.domain.usecase.BulkRenewItem
 import com.harsh.gymmanager.domain.usecase.BulkRenewUseCase
 import com.harsh.gymmanager.domain.usecase.PlanUseCases
-import com.harsh.gymmanager.presentation.toUserMessage
+import com.harsh.gymmanager.presentation.UiMessage
+import com.harsh.gymmanager.presentation.toUiMessage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,7 @@ data class BulkRenewUiState(
     val items: List<BulkRenewItem> = emptyList(),
     val markPaid: Boolean = false,
     val paymentMode: PaymentMode = PaymentMode.CASH,
-    val errorMessage: String? = null,
+    val errorMessage: UiMessage? = null,
     val isSaving: Boolean = false,
 ) {
     /** Whole rupees the renewals add up to at the plan price. */
@@ -71,14 +72,14 @@ class BulkRenewViewModel(
         val plan = current.selectedPlan
         if (current.isSaving) return
         if (plan == null) {
-            _state.update { it.copy(errorMessage = "Choose a plan") }
+            _state.update { it.copy(errorMessage = UiMessage.ChoosePlan) }
             return
         }
         _state.update { it.copy(isSaving = true, errorMessage = null) }
         viewModelScope.launch {
             bulkRenew(memberIds, plan, current.markPaid, current.paymentMode)
                 .onSuccess { eventChannel.send(BulkRenewEvent.Renewed(it)) }
-                .onFailure { e -> _state.update { it.copy(isSaving = false, errorMessage = e.toUserMessage()) } }
+                .onFailure { e -> _state.update { it.copy(isSaving = false, errorMessage = e.toUiMessage()) } }
         }
     }
 }

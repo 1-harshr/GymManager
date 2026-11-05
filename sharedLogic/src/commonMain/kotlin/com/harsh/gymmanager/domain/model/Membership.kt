@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.domain.model
 
+import com.harsh.gymmanager.domain.ValidationError
+import com.harsh.gymmanager.domain.ensure
 import kotlinx.datetime.LocalDate
 
 /**
@@ -22,9 +24,9 @@ data class Membership(
     val payments: List<Payment> = emptyList(),
 ) {
     init {
-        require(price >= 0) { "Price can't be negative" }
-        require(discount in 0..price) { "Discount can't be more than the price" }
-        require(endDate >= startDate) { "End date can't be before the start date" }
+        ensure(price >= 0, ValidationError.PRICE_NEGATIVE)
+        ensure(discount in 0..price, ValidationError.DISCOUNT_TOO_LARGE)
+        ensure(endDate >= startDate, ValidationError.END_BEFORE_START)
     }
 
     val amountCharged: Long get() = price - discount

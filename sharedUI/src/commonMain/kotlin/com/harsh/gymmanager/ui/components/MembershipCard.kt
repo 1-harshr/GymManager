@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.components
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,21 +22,15 @@ import com.harsh.gymmanager.domain.membershipStatus
 import com.harsh.gymmanager.domain.EXPIRING_SOON_DAYS
 import com.harsh.gymmanager.domain.model.Membership
 import com.harsh.gymmanager.domain.model.Payment
-import com.harsh.gymmanager.domain.model.PaymentMode
 import com.harsh.gymmanager.presentation.formatRupees
 import com.harsh.gymmanager.ui.format.formatDateRange
 import com.harsh.gymmanager.ui.format.formatDayMonth
+import com.harsh.gymmanager.ui.format.label
 import com.harsh.gymmanager.ui.format.statusLabel
 import com.harsh.gymmanager.ui.theme.AkhadaRadius
 import com.harsh.gymmanager.ui.theme.AkhadaSpace
 import com.harsh.gymmanager.ui.theme.AkhadaTheme
 import kotlinx.datetime.LocalDate
-
-fun PaymentMode.label(): String = when (this) {
-    PaymentMode.CASH -> "Cash"
-    PaymentMode.UPI -> "UPI"
-    PaymentMode.OTHER -> "Other"
-}
 
 /** One purchase or renewal: plan, dates, charged/paid/due, and its payments. */
 @Composable
@@ -54,27 +50,27 @@ fun MembershipCard(
         Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
             Column(Modifier.weight(1f)) {
                 Text(membership.planName, style = typography.title)
-                val discount = if (membership.discount > 0) " · ${formatRupees(membership.discount)} off" else ""
+                val discount = if (membership.discount > 0) " · " + stringResource(Res.string.discount_off, formatRupees(membership.discount)) else ""
                 Text(formatDateRange(membership.startDate, membership.endDate) + discount, style = typography.caption, color = colors.inkMuted)
             }
             if (status == null) {
-                Badge("Starts ${membership.startDate.formatDayMonth()}", BadgeTone.Expired)
+                Badge(stringResource(Res.string.starts_on, membership.startDate.formatDayMonth()), BadgeTone.Expired)
             } else {
                 Badge(statusLabel(status, membership.endDate, today), status.tone())
             }
             MoreMenu(
-                actions = listOf(MenuAction("Delete membership", destructive = true, onClick = onDelete)),
-                contentDescription = "More for ${membership.planName}",
+                actions = listOf(MenuAction(stringResource(Res.string.delete_membership), destructive = true, onClick = onDelete)),
+                contentDescription = stringResource(Res.string.more_for, membership.planName),
                 container = colors.surface,
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-            MoneyFigure("Charged", formatRupees(membership.amountCharged), Modifier.weight(1f))
-            MoneyFigure("Paid", formatRupees(membership.amountPaid), Modifier.weight(1f))
+            MoneyFigure(stringResource(Res.string.charged), formatRupees(membership.amountCharged), Modifier.weight(1f))
+            MoneyFigure(stringResource(Res.string.paid), formatRupees(membership.amountPaid), Modifier.weight(1f))
             if (membership.amountDue > 0) {
-                MoneyFigure("Due", formatRupees(membership.amountDue), Modifier.weight(1f), colors.statusDue)
+                MoneyFigure(stringResource(Res.string.due), formatRupees(membership.amountDue), Modifier.weight(1f), colors.statusDue)
             } else {
-                MoneyFigure("Due", "Paid", Modifier.weight(1f), colors.statusActive)
+                MoneyFigure(stringResource(Res.string.due), stringResource(Res.string.paid_in_full), Modifier.weight(1f), colors.statusActive)
             }
         }
         PaidProgress(membership)
@@ -83,17 +79,17 @@ fun MembershipCard(
             Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
                 membership.payments.forEach { payment ->
                     Row(
-                        Modifier.fillMaxWidth().clickable(onClickLabel = "Delete payment") { onPaymentClick(payment) }.padding(vertical = AkhadaSpace.xs),
+                        Modifier.fillMaxWidth().clickable(onClickLabel = stringResource(Res.string.delete_payment)) { onPaymentClick(payment) }.padding(vertical = AkhadaSpace.xs),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("${payment.paidOn.formatDayMonth()} · ${payment.mode.label()}", Modifier.weight(1f), style = typography.body, color = colors.inkMuted)
+                        Text(stringResource(Res.string.payment_line, payment.paidOn.formatDayMonth(), payment.mode.label()), Modifier.weight(1f), style = typography.body, color = colors.inkMuted)
                         Text(formatRupees(payment.amount), style = typography.bodyStrong.copy(fontFeatureSettings = "tnum"))
                     }
                 }
             }
         }
         if (membership.amountDue > 0) {
-            GhostButton("Record payment", onRecordPayment, Modifier.padding(start = 0.dp))
+            GhostButton(stringResource(Res.string.record_payment), onRecordPayment, Modifier.padding(start = 0.dp))
         }
     }
 }

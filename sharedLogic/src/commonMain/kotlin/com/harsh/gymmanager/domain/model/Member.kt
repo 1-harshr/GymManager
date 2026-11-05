@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.domain.model
 
+import com.harsh.gymmanager.domain.ValidationError
+import com.harsh.gymmanager.domain.ensure
 import kotlinx.datetime.LocalDate
 
 data class Member(
@@ -15,6 +17,6 @@ data class Member(
     val isArchived: Boolean = false,
 ) {
     init {
-        require(name.isNotBlank()) { "Name is required" }
+        ensure(name.isNotBlank(), ValidationError.NAME_REQUIRED)
     }
 }

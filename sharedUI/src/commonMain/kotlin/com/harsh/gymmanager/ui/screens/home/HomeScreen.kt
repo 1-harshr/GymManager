@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.screens.home
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +16,7 @@ import com.harsh.gymmanager.domain.model.MemberSummary
 import com.harsh.gymmanager.domain.usecase.MemberFilter
 import com.harsh.gymmanager.presentation.dashboard.DashboardUiState
 import com.harsh.gymmanager.presentation.formatRupees
+import com.harsh.gymmanager.ui.LocalGym
 import com.harsh.gymmanager.ui.components.AkhadaIconButton
 import com.harsh.gymmanager.ui.components.BadgeTone
 import com.harsh.gymmanager.ui.components.EmptyState
@@ -47,40 +50,40 @@ fun HomeScreen(
     ) {
         item {
             TabHeader(
-                title = "Akhada Gym & MMA",
+                title = LocalGym.current.name,
                 subtitle = today.formatWeekday(),
                 titleStyle = AkhadaTheme.typography.title,
-            ) { AkhadaIconButton(AkhadaIcons.Settings, "Settings", onOpenSettings) }
+            ) { AkhadaIconButton(AkhadaIcons.Settings, stringResource(Res.string.settings), onOpenSettings) }
         }
         if (board == null) return@LazyColumn
         item {
             Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
                 HeroTile(
-                    label = "Collected in ${today.monthName()}",
+                    label = stringResource(Res.string.collected_in, today.monthName()),
                     value = formatRupees(board.revenueThisMonth),
-                    caption = if (board.totalDue > 0) "${formatRupees(board.totalDue)} still due" else "Nothing due",
+                    caption = if (board.totalDue > 0) stringResource(Res.string.still_due, formatRupees(board.totalDue)) else stringResource(Res.string.nothing_due),
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                    StatTile("Active", board.activeCount.toString(), BadgeTone.Active, { onOpenMembers(MemberFilter.ACTIVE) }, Modifier.weight(1f))
-                    StatTile("Expiring this week", board.expiringSoon.size.toString(), BadgeTone.Expiring, { onOpenMembers(MemberFilter.EXPIRING_SOON) }, Modifier.weight(1f))
+                    StatTile(stringResource(Res.string.stat_active), board.activeCount.toString(), BadgeTone.Active, { onOpenMembers(MemberFilter.ACTIVE) }, Modifier.weight(1f))
+                    StatTile(stringResource(Res.string.stat_expiring_week), board.expiringSoon.size.toString(), BadgeTone.Expiring, { onOpenMembers(MemberFilter.EXPIRING_SOON) }, Modifier.weight(1f))
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                    StatTile("Expired", board.expiredCount.toString(), BadgeTone.Expired, { onOpenMembers(MemberFilter.EXPIRED) }, Modifier.weight(1f))
-                    StatTile("Dues · ${board.membersWithDuesCount}", formatRupees(board.totalDue), BadgeTone.Due, { onOpenMembers(MemberFilter.WITH_DUES) }, Modifier.weight(1f))
+                    StatTile(stringResource(Res.string.stat_expired), board.expiredCount.toString(), BadgeTone.Expired, { onOpenMembers(MemberFilter.EXPIRED) }, Modifier.weight(1f))
+                    StatTile(stringResource(Res.string.stat_dues, board.membersWithDuesCount), formatRupees(board.totalDue), BadgeTone.Due, { onOpenMembers(MemberFilter.WITH_DUES) }, Modifier.weight(1f))
                 }
             }
         }
         item {
             SectionHeader(
-                "Expiring this week",
+                stringResource(Res.string.section_expiring_week),
                 Modifier.screenGutter().padding(top = AkhadaSpace.md),
-                action = if (board.expiringSoon.isNotEmpty()) "See all" else null,
+                action = if (board.expiringSoon.isNotEmpty()) stringResource(Res.string.see_all) else null,
                 onAction = { onOpenMembers(MemberFilter.EXPIRING_SOON) },
             )
         }
         if (board.expiringSoon.isEmpty()) {
             item {
-                EmptyState(AkhadaIcons.Calendar, "No one expires this week", "Memberships ending in the next 7 days show up here.")
+                EmptyState(AkhadaIcons.Calendar, stringResource(Res.string.no_one_expires_title), stringResource(Res.string.no_one_expires_body))
             }
         } else {
             items(board.expiringSoon, key = { it.memberId }) { member ->

@@ -1,7 +1,22 @@
 package com.harsh.gymmanager.ui.platform
 
+import android.app.Activity
+import android.content.Context
+import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.provider.OpenableColumns
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.compose.runtime.ProvidedValue
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
+import java.io.File
+import java.util.Locale
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,7 +47,7 @@ actual fun rememberTextFilePicker(onPicked: (name: String, text: String?) -> Uni
             val (name, text) = withContext(Dispatchers.IO) {
                 val name = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
                     if (c.moveToFirst()) c.getString(0) else null
-                } ?: "the file"
+                } ?: "file.csv"
                 val text = runCatching {
                     resolver.openInputStream(uri)?.use { input -> readCapped(input)?.decodeToString() }
                 }.getOrNull()
@@ -55,5 +70,79 @@ private fun readCapped(input: java.io.InputStream): ByteArray? {
         if (read < 0) return out.toByteArray()
         out.write(buffer, 0, read)
         if (out.size() > MAX_IMPORT_BYTES) return null
+    }
+}
+
+/** Logos show as circles up to about 80dp; 512px covers every screen density. */
+private const val LOGO_SIDE = 512
+
+@Composable
+actual fun rememberLogoPicker(onPicked: (path: String?) -> Unit): () -> Unit {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val callback by rememberUpdatedState(onPicked)
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val path = withContext(Dispatchers.IO) { runCatching { saveLogo(context, uri) }.getOrNull() }
+            callback(path)
+        }
+    }
+    return { launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+}
+
+/** Decodes upright, crops the centre square, shrinks to [LOGO_SIDE] and keeps transparency as PNG. */
+private fun saveLogo(context: Context, uri: Uri): String {
+    val decoded: Bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, uri)) { decoder, info, _ ->
+            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+            val longest = maxOf(info.size.width, info.size.height)
+            if (longest > LOGO_SIDE * 2) {
+                val scale = LOGO_SIDE * 2f / longest
+                decoder.setTargetSize((info.size.width * scale).toInt(), (info.size.height * scale).toInt())
+            }
+        }
+    } else {
+        context.contentResolver.openInputStream(uri)!!.use { BitmapFactory.decodeStream(it) }
+    }
+    val side = minOf(decoded.width, decoded.height)
+    val square = Bitmap.createBitmap(decoded, (decoded.width - side) / 2, (decoded.height - side) / 2, side, side)
+    val scaled = if (side > LOGO_SIDE) Bitmap.createScaledBitmap(square, LOGO_SIDE, LOGO_SIDE, true) else square
+    val dir = File(context.filesDir, "branding").apply { mkdirs() }
+    // Only the newest logo is kept; older ones are no longer referenced.
+    dir.listFiles()?.forEach { it.delete() }
+    val file = File(dir, "logo-${System.currentTimeMillis()}.png")
+    file.outputStream().use { scaled.compress(Bitmap.CompressFormat.PNG, 100, it) }
+    return file.absolutePath
+}
+
+/** Follows the Compose Multiplatform guide for overriding the resource locale on Android. */
+actual object LocalAppLocale {
+    private var systemDefault: Locale? = null
+
+    @Composable
+    actual infix fun provides(tag: String?): ProvidedValue<*> {
+        val configuration = LocalConfiguration.current
+        if (systemDefault == null) systemDefault = Locale.getDefault()
+        val locale = tag?.let { Locale.forLanguageTag(it) } ?: systemDefault!!
+        Locale.setDefault(locale)
+        val updated = Configuration(configuration).apply { setLocale(locale) }
+        val resources = LocalContext.current.resources
+        @Suppress("DEPRECATION")
+        resources.updateConfiguration(updated, resources.displayMetrics)
+        return LocalConfiguration.provides(updated)
+    }
+}
+
+@Composable
+actual fun SystemBarsFor(darkTheme: Boolean) {
+    val view = LocalView.current
+    if (view.isInEditMode) return
+    SideEffect {
+        val window = (view.context as? Activity)?.window ?: return@SideEffect
+        WindowCompat.getInsetsController(window, view).apply {
+            isAppearanceLightStatusBars = !darkTheme
+            isAppearanceLightNavigationBars = !darkTheme
+        }
     }
 }

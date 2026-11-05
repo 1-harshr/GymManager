@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.components
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,7 +54,7 @@ fun Badge(text: String, tone: BadgeTone, modifier: Modifier = Modifier, showDot:
 }
 
 @Composable
-fun DueBadge(amount: Long, modifier: Modifier = Modifier) = Badge("${formatRupees(amount)} due", BadgeTone.Due, modifier)
+fun DueBadge(amount: Long, modifier: Modifier = Modifier) = Badge(stringResource(Res.string.amount_due, formatRupees(amount)), BadgeTone.Due, modifier)
 
 @Composable
 fun StatusDot(color: Color, modifier: Modifier = Modifier) {

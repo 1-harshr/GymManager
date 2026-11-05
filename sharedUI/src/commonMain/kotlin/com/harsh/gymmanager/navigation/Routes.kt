@@ -32,3 +32,7 @@ data class BulkRenewRoute(val memberIds: String) {
 
 @Serializable
 data object ImportMembersRoute
+
+/** First-run setup and, later, editing the gym's name and logo. */
+@Serializable
+data object GymProfileRoute

@@ -9,6 +9,7 @@ import com.harsh.gymmanager.domain.usecase.ObserveDashboardUseCase
 import com.harsh.gymmanager.domain.usecase.ObserveMemberDetailUseCase
 import com.harsh.gymmanager.domain.usecase.PaymentUseCases
 import com.harsh.gymmanager.domain.usecase.PlanUseCases
+import com.harsh.gymmanager.domain.usecase.SettingsUseCases
 
 /** What the screens need from the app; the Android app's AppContainer provides it. */
 interface AppDependencies {
@@ -20,6 +21,7 @@ interface AppDependencies {
     val observeMemberDetail: ObserveMemberDetailUseCase
     val bulkRenew: BulkRenewUseCase
     val importMembers: ImportMembersUseCase
+    val settingsUseCases: SettingsUseCases
 }
 
 val LocalAppDependencies = staticCompositionLocalOf<AppDependencies> { error("AppDependencies not provided") }

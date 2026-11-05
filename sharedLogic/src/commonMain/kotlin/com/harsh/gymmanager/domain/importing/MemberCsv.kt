@@ -5,8 +5,20 @@ import com.harsh.gymmanager.domain.model.Member
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 
-/** A problem with one row of an import file. [skipped] rows are not added at all. */
-data class ImportIssue(val line: Int, val message: String, val skipped: Boolean)
+enum class ImportIssueKind(val skipsRow: Boolean) {
+    NO_NAME(true),
+    DUPLICATE_PHONE(true),
+    BAD_PHONE(false),
+    BAD_GENDER(false),
+    BAD_BIRTH_DATE(false),
+    BAD_JOIN_DATE(false),
+}
+
+/** A problem with one row of an import file: which member, and the value that couldn't be used. */
+data class ImportIssue(val line: Int, val kind: ImportIssueKind, val name: String? = null, val value: String? = null) {
+    /** Skipped rows are not added at all; the others are added with that field left empty. */
+    val skipped: Boolean get() = kind.skipsRow
+}
 
 data class ImportPreview(
     /** Members ready to add, in file order. */
@@ -19,7 +31,9 @@ data class ImportPreview(
     val warningCount: Int get() = issues.count { !it.skipped }
 }
 
-class ImportFileException(message: String) : IllegalArgumentException(message)
+enum class ImportFileProblem { EMPTY, NO_NAME_COLUMN }
+
+class ImportFileException(val problem: ImportFileProblem) : IllegalArgumentException(problem.name)
 
 private enum class Column { NAME, PHONE, GENDER, DATE_OF_BIRTH, JOINED_ON, NOTES }
 
@@ -42,13 +56,13 @@ private val ColumnAliases = mapOf(
  */
 fun parseMembersCsv(text: String, today: LocalDate, existingPhones: Collection<String>): ImportPreview {
     val rows = readCsv(text.removePrefix("﻿"))
-    val header = rows.firstOrNull() ?: throw ImportFileException("The file is empty.")
+    val header = rows.firstOrNull() ?: throw ImportFileException(ImportFileProblem.EMPTY)
     val columns = header.mapIndexedNotNull { index, title ->
         val key = title.trim().lowercase().replace(Regex("[_.]"), " ").replace(Regex("\\s+"), " ")
         ColumnAliases.entries.firstOrNull { key in it.value }?.let { it.key to index }
     }.toMap()
     if (Column.NAME !in columns) {
-        throw ImportFileException("Couldn't find a Name column. The first row should be the column names, such as Name, Phone, Gender.")
+        throw ImportFileException(ImportFileProblem.NO_NAME_COLUMN)
     }
 
     val seenPhones = existingPhones.mapNotNull(::normalizeIndianPhone).toMutableSet()
@@ -62,7 +76,7 @@ fun parseMembersCsv(text: String, today: LocalDate, existingPhones: Collection<S
 
         val name = cell(Column.NAME).replace(Regex("\\s+"), " ")
         if (name.isEmpty()) {
-            issues += ImportIssue(line, "No name", skipped = true)
+            issues += ImportIssue(line, ImportIssueKind.NO_NAME)
             continue
         }
 
@@ -71,9 +85,9 @@ fun parseMembersCsv(text: String, today: LocalDate, existingPhones: Collection<S
         if (rawPhone.isNotEmpty()) {
             val normalized = normalizeIndianPhone(rawPhone)
             when {
-                normalized == null -> issues += ImportIssue(line, "$name: phone “$rawPhone” isn't a 10-digit number, so it was left empty", skipped = false)
+                normalized == null -> issues += ImportIssue(line, ImportIssueKind.BAD_PHONE, name, rawPhone)
                 normalized in seenPhones -> {
-                    issues += ImportIssue(line, "$name: phone $normalized is already used by another member", skipped = true)
+                    issues += ImportIssue(line, ImportIssueKind.DUPLICATE_PHONE, name, normalized)
                     continue
                 }
                 else -> phone = normalized
@@ -83,19 +97,19 @@ fun parseMembersCsv(text: String, today: LocalDate, existingPhones: Collection<S
         val rawGender = cell(Column.GENDER)
         val gender = parseGender(rawGender)
         if (rawGender.isNotEmpty() && gender == null) {
-            issues += ImportIssue(line, "$name: gender “$rawGender” wasn't recognised, so it was left empty", skipped = false)
+            issues += ImportIssue(line, ImportIssueKind.BAD_GENDER, name, rawGender)
         }
 
         val rawBirth = cell(Column.DATE_OF_BIRTH)
         val dateOfBirth = parseDate(rawBirth, today)
         if (rawBirth.isNotEmpty() && dateOfBirth == null) {
-            issues += ImportIssue(line, "$name: date of birth “$rawBirth” wasn't recognised, so it was left empty", skipped = false)
+            issues += ImportIssue(line, ImportIssueKind.BAD_BIRTH_DATE, name, rawBirth)
         }
 
         val rawJoined = cell(Column.JOINED_ON)
         val joined = parseDate(rawJoined, today)
         if (rawJoined.isNotEmpty() && joined == null) {
-            issues += ImportIssue(line, "$name: join date “$rawJoined” wasn't recognised, so today was used", skipped = false)
+            issues += ImportIssue(line, ImportIssueKind.BAD_JOIN_DATE, name, rawJoined)
         }
 
         phone?.let { seenPhones += it }

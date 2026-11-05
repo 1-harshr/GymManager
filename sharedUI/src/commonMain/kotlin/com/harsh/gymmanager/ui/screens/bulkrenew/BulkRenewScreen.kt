@@ -1,5 +1,8 @@
 package com.harsh.gymmanager.ui.screens.bulkrenew
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.pluralStringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,7 +36,8 @@ import com.harsh.gymmanager.ui.components.PlanCard
 import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.components.SectionHeader
 import com.harsh.gymmanager.ui.components.SegmentedControl
-import com.harsh.gymmanager.ui.components.label
+import com.harsh.gymmanager.ui.format.asString
+import com.harsh.gymmanager.ui.format.label
 import com.harsh.gymmanager.ui.format.formatDateRange
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
 import com.harsh.gymmanager.ui.theme.AkhadaSpace
@@ -50,16 +54,15 @@ fun BulkRenewScreen(memberIds: Set<Long>, onBack: () -> Unit, onDone: (Int) -> U
     val state by vm.state.collectAsStateWithLifecycle()
     LaunchedEffect(vm) { vm.events.collect { if (it is BulkRenewEvent.Renewed) onDone(it.count) } }
 
-    val who = if (memberIds.size == 1) "1 member" else "${memberIds.size} members"
     Column(Modifier.fillMaxSize()) {
-        PushedHeader("Renew $who", onBack, subtitle = "Each member continues from their own end date")
+        PushedHeader(pluralStringResource(Res.plurals.renew_members_title, memberIds.size, memberIds.size), onBack, subtitle = stringResource(Res.string.bulk_renew_subtitle))
         Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(bottom = AkhadaSpace.xl),
             verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
         ) {
-            SectionHeader("Plan", Modifier.screenGutter())
+            SectionHeader(stringResource(Res.string.section_plan), Modifier.screenGutter())
             if (!state.isLoading && state.plans.isEmpty()) {
-                EmptyState(AkhadaIcons.Tag, "No plans yet", "Add a plan first, then come back to renew.", actionLabel = "Add plan", onAction = onAddPlan)
+                EmptyState(AkhadaIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_renew_body), actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan)
                 return@Column
             }
             state.plans.forEach { plan ->
@@ -67,13 +70,13 @@ fun BulkRenewScreen(memberIds: Set<Long>, onBack: () -> Unit, onDone: (Int) -> U
             }
             if (state.selectedPlan == null) return@Column
 
-            SectionHeader("Payment", Modifier.screenGutter().padding(top = AkhadaSpace.md))
+            SectionHeader(stringResource(Res.string.section_payment), Modifier.screenGutter().padding(top = AkhadaSpace.md))
             AkhadaCard(Modifier.screenGutter()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("Mark all as paid in full", style = AkhadaTheme.typography.bodyStrong)
+                        Text(stringResource(Res.string.mark_all_paid), style = AkhadaTheme.typography.bodyStrong)
                         Text(
-                            if (state.markPaid) "${formatRupees(state.total)} recorded today" else "Each member will owe ${formatRupees(state.selectedPlan!!.defaultPrice)}",
+                            if (state.markPaid) stringResource(Res.string.recorded_today, formatRupees(state.total)) else stringResource(Res.string.each_will_owe, formatRupees(state.selectedPlan!!.defaultPrice)),
                             style = AkhadaTheme.typography.caption,
                             color = colors.inkMuted,
                         )
@@ -92,10 +95,10 @@ fun BulkRenewScreen(memberIds: Set<Long>, onBack: () -> Unit, onDone: (Int) -> U
                 }
             }
 
-            SectionHeader("New dates", Modifier.screenGutter().padding(top = AkhadaSpace.md))
+            SectionHeader(stringResource(Res.string.section_new_dates), Modifier.screenGutter().padding(top = AkhadaSpace.md))
             if (state.items.size < memberIds.size && state.items.isNotEmpty()) {
                 Text(
-                    "Archived members are left out.",
+                    stringResource(Res.string.archived_left_out),
                     Modifier.screenGutter(),
                     style = AkhadaTheme.typography.caption,
                     color = colors.inkMuted,
@@ -114,14 +117,13 @@ fun BulkRenewScreen(memberIds: Set<Long>, onBack: () -> Unit, onDone: (Int) -> U
             }
         }
         Column(Modifier.screenGutter().navigationBarsPadding().padding(vertical = AkhadaSpace.md), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-            state.errorMessage?.let { Text(it, style = AkhadaTheme.typography.caption, color = colors.statusDue) }
+            state.errorMessage?.let { Text(it.asString(), style = AkhadaTheme.typography.caption, color = colors.statusDue) }
             val count = state.items.size
             AkhadaButton(
                 when {
-                    state.isSaving -> "Saving…"
-                    state.selectedPlan == null -> "Choose a plan"
-                    count == 1 -> "Renew 1 member"
-                    else -> "Renew $count members"
+                    state.isSaving -> stringResource(Res.string.saving)
+                    state.selectedPlan == null -> stringResource(Res.string.choose_a_plan)
+                    else -> pluralStringResource(Res.plurals.renew_members_button, count, count)
                 },
                 vm::save,
                 Modifier.fillMaxWidth(),

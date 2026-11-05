@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.screens.sellmembership
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,7 +37,8 @@ import com.harsh.gymmanager.ui.components.PlanCard
 import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.components.SectionHeader
 import com.harsh.gymmanager.ui.components.SegmentedControl
-import com.harsh.gymmanager.ui.components.label
+import com.harsh.gymmanager.ui.format.asString
+import com.harsh.gymmanager.ui.format.label
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
 import com.harsh.gymmanager.ui.theme.AkhadaSpace
 import com.harsh.gymmanager.ui.theme.AkhadaTheme
@@ -54,14 +57,14 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: () -> Unit,
     }
 
     Column(Modifier.fillMaxSize().imePadding()) {
-        PushedHeader("New membership", onBack, subtitle = member?.name)
+        PushedHeader(stringResource(Res.string.new_membership), onBack, subtitle = member?.name)
         Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(bottom = AkhadaSpace.xl),
             verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
         ) {
-            SectionHeader("Plan", Modifier.screenGutter())
+            SectionHeader(stringResource(Res.string.section_plan), Modifier.screenGutter())
             if (!state.isLoading && state.plans.isEmpty()) {
-                EmptyState(AkhadaIcons.Tag, "No plans yet", "Add a plan first, then come back to sell it.", actionLabel = "Add plan", onAction = onAddPlan)
+                EmptyState(AkhadaIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_sell_body), actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan)
                 return@Column
             }
             state.plans.forEach { plan ->
@@ -69,43 +72,47 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: () -> Unit,
             }
             if (state.selectedPlan == null) return@Column
 
-            SectionHeader("Dates and price", Modifier.screenGutter().padding(top = AkhadaSpace.md))
+            SectionHeader(stringResource(Res.string.dates_and_price), Modifier.screenGutter().padding(top = AkhadaSpace.md))
             Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                    DateField(state.startDate, { it?.let(vm::onStartDateChange) }, "Starts", Modifier.weight(1f))
-                    DateField(state.endDate, { it?.let(vm::onEndDateChange) }, "Ends", Modifier.weight(1f))
+                    DateField(state.startDate, { it?.let(vm::onStartDateChange) }, stringResource(Res.string.starts), Modifier.weight(1f))
+                    DateField(state.endDate, { it?.let(vm::onEndDateChange) }, stringResource(Res.string.ends), Modifier.weight(1f))
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                    AkhadaTextField(state.priceText, vm::onPriceChange, "Price", Modifier.weight(1f), prefix = "₹", keyboardType = KeyboardType.Number)
-                    AkhadaTextField(state.discountText, vm::onDiscountChange, "Discount", Modifier.weight(1f), optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = "0")
+                    AkhadaTextField(state.priceText, vm::onPriceChange, stringResource(Res.string.price), Modifier.weight(1f), prefix = "₹", keyboardType = KeyboardType.Number)
+                    AkhadaTextField(state.discountText, vm::onDiscountChange, stringResource(Res.string.discount), Modifier.weight(1f), optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = "0")
                 }
             }
 
-            SectionHeader("Paid now", Modifier.screenGutter().padding(top = AkhadaSpace.md))
+            SectionHeader(stringResource(Res.string.paid_now), Modifier.screenGutter().padding(top = AkhadaSpace.md))
             Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg)) {
                 AkhadaTextField(
-                    state.firstPaymentText, vm::onFirstPaymentChange, "Amount paid",
-                    optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = "Leave empty if paying later",
+                    state.firstPaymentText, vm::onFirstPaymentChange, stringResource(Res.string.amount_paid),
+                    optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = stringResource(Res.string.amount_paid_hint),
                 )
                 SegmentedControl(PaymentMode.entries, state.paymentMode, { it?.let(vm::onPaymentModeChange) }, { it.label() })
                 AkhadaTextField(
-                    state.notes, vm::onNotesChange, "Notes", optional = true,
+                    state.notes, vm::onNotesChange, stringResource(Res.string.notes), optional = true,
                     singleLine = false, capitalization = KeyboardCapitalization.Sentences,
                 )
                 AkhadaCard {
-                    SummaryLine("Charged", state.amountCharged?.let(::formatRupees) ?: "–")
+                    SummaryLine(stringResource(Res.string.charged), state.amountCharged?.let(::formatRupees) ?: "–")
                     SummaryLine(
-                        "Due after this",
-                        state.amountDueAfterPayment?.let { if (it == 0L) "Nothing" else formatRupees(it) } ?: "–",
+                        stringResource(Res.string.due_after_this),
+                        when (val due = state.amountDueAfterPayment) {
+                            null -> "–"
+                            0L -> stringResource(Res.string.nothing)
+                            else -> formatRupees(due)
+                        },
                         due = (state.amountDueAfterPayment ?: 0) > 0,
                     )
                 }
             }
         }
         Column(Modifier.screenGutter().navigationBarsPadding().padding(vertical = AkhadaSpace.md), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-            state.errorMessage?.let { Text(it, style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.statusDue) }
+            state.errorMessage?.let { Text(it.asString(), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.statusDue) }
             AkhadaButton(
-                if (state.isSaving) "Saving…" else "Save membership",
+                if (state.isSaving) stringResource(Res.string.saving) else stringResource(Res.string.save_membership),
                 vm::save,
                 Modifier.fillMaxWidth(),
                 enabled = !state.isSaving && state.selectedPlan != null,

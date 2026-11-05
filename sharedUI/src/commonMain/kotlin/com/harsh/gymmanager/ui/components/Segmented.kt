@@ -28,7 +28,7 @@ fun <T> SegmentedControl(
     options: List<T>,
     selected: T?,
     onSelect: (T?) -> Unit,
-    label: (T) -> String,
+    label: @Composable (T) -> String,
     modifier: Modifier = Modifier,
     allowNone: Boolean = false,
 ) {

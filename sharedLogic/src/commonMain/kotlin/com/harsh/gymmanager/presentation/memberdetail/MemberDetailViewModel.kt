@@ -8,9 +8,9 @@ import com.harsh.gymmanager.domain.usecase.MemberUseCases
 import com.harsh.gymmanager.domain.usecase.MembershipUseCases
 import com.harsh.gymmanager.domain.usecase.ObserveMemberDetailUseCase
 import com.harsh.gymmanager.domain.usecase.PaymentUseCases
-import com.harsh.gymmanager.presentation.formatRupees
 import com.harsh.gymmanager.presentation.parseRupees
-import com.harsh.gymmanager.presentation.toUserMessage
+import com.harsh.gymmanager.presentation.UiMessage
+import com.harsh.gymmanager.presentation.toUiMessage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +29,7 @@ data class PaymentForm(
     val amountText: String,
     val mode: PaymentMode = PaymentMode.CASH,
     val note: String = "",
-    val error: String? = null,
+    val error: UiMessage? = null,
     val isSaving: Boolean = false,
 )
 
@@ -41,7 +41,7 @@ data class MemberDetailUiState(
 )
 
 sealed interface MemberDetailEvent {
-    data class ShowMessage(val message: String) : MemberDetailEvent
+    data class ShowMessage(val message: UiMessage) : MemberDetailEvent
     data object MemberDeleted : MemberDetailEvent
 }
 
@@ -86,7 +86,7 @@ class MemberDetailViewModel(
         if (form.isSaving) return
         val amount = parseRupees(form.amountText)
         if (amount == null || amount == 0L) {
-            paymentForm.update { it?.copy(error = "Enter an amount in rupees") }
+            paymentForm.update { it?.copy(error = UiMessage.EnterAmount) }
             return
         }
         paymentForm.update { it?.copy(isSaving = true) }
@@ -94,32 +94,32 @@ class MemberDetailViewModel(
             paymentUseCases.recordPayment(form.membershipId, amount, form.mode, note = form.note)
                 .onSuccess {
                     paymentForm.value = null
-                    eventChannel.send(MemberDetailEvent.ShowMessage("Payment of ${formatRupees(amount)} recorded"))
+                    eventChannel.send(MemberDetailEvent.ShowMessage(UiMessage.PaymentRecorded(amount)))
                 }
-                .onFailure { e -> paymentForm.update { it?.copy(isSaving = false, error = e.toUserMessage()) } }
+                .onFailure { e -> paymentForm.update { it?.copy(isSaving = false, error = e.toUiMessage()) } }
         }
     }
 
-    fun deletePayment(paymentId: Long) = run("Payment deleted") { paymentUseCases.deletePayment(paymentId) }
+    fun deletePayment(paymentId: Long) = run(UiMessage.PaymentDeleted) { paymentUseCases.deletePayment(paymentId) }
 
     fun deleteMembership(membershipId: Long) =
-        run("Membership deleted") { membershipUseCases.deleteMembership(membershipId) }
+        run(UiMessage.MembershipDeleted) { membershipUseCases.deleteMembership(membershipId) }
 
-    fun archiveMember() = run("Member archived") { memberUseCases.archiveMember(memberId) }
+    fun archiveMember() = run(UiMessage.MemberArchived) { memberUseCases.archiveMember(memberId) }
 
-    fun restoreMember() = run("Member restored") { memberUseCases.restoreMember(memberId) }
+    fun restoreMember() = run(UiMessage.MemberRestored) { memberUseCases.restoreMember(memberId) }
 
     fun deleteMemberPermanently() {
         viewModelScope.launch {
             memberUseCases.deleteMemberPermanently(memberId)
                 .onSuccess { eventChannel.send(MemberDetailEvent.MemberDeleted) }
-                .onFailure { eventChannel.send(MemberDetailEvent.ShowMessage(it.toUserMessage())) }
+                .onFailure { eventChannel.send(MemberDetailEvent.ShowMessage(it.toUiMessage())) }
         }
     }
 
-    private fun run(successMessage: String, action: suspend () -> Result<Unit>) {
+    private fun run(successMessage: UiMessage, action: suspend () -> Result<Unit>) {
         viewModelScope.launch {
-            val message = action().fold({ successMessage }, { it.toUserMessage() })
+            val message = action().fold({ successMessage }, { it.toUiMessage() })
             eventChannel.send(MemberDetailEvent.ShowMessage(message))
         }
     }

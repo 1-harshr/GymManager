@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.harsh.gymmanager.domain.importing.ImportPreview
 import com.harsh.gymmanager.domain.usecase.ImportMembersUseCase
-import com.harsh.gymmanager.presentation.toUserMessage
+import com.harsh.gymmanager.presentation.UiMessage
+import com.harsh.gymmanager.presentation.toUiMessage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +21,7 @@ data class ImportMembersUiState(
     val preview: ImportPreview? = null,
     val isReading: Boolean = false,
     val isImporting: Boolean = false,
-    val errorMessage: String? = null,
+    val errorMessage: UiMessage? = null,
 )
 
 sealed interface ImportMembersEvent {
@@ -37,14 +38,14 @@ class ImportMembersViewModel(private val importMembers: ImportMembersUseCase) : 
     /** Called with the picked file's name and text, or null text if it couldn't be read. */
     fun onFilePicked(name: String, text: String?) {
         if (text == null) {
-            _state.update { ImportMembersUiState(fileName = name, errorMessage = "Couldn't read $name. Save it as CSV and try again.") }
+            _state.update { ImportMembersUiState(fileName = name, errorMessage = UiMessage.FileUnreadable(name)) }
             return
         }
         _state.update { ImportMembersUiState(fileName = name, isReading = true) }
         viewModelScope.launch {
             importMembers.preview(text)
                 .onSuccess { preview -> _state.update { it.copy(isReading = false, preview = preview) } }
-                .onFailure { e -> _state.update { it.copy(isReading = false, errorMessage = e.toUserMessage()) } }
+                .onFailure { e -> _state.update { it.copy(isReading = false, errorMessage = e.toUiMessage()) } }
         }
     }
 
@@ -56,7 +57,7 @@ class ImportMembersViewModel(private val importMembers: ImportMembersUseCase) : 
         viewModelScope.launch {
             importMembers.import(members)
                 .onSuccess { eventChannel.send(ImportMembersEvent.Imported(it)) }
-                .onFailure { e -> _state.update { it.copy(isImporting = false, errorMessage = e.toUserMessage()) } }
+                .onFailure { e -> _state.update { it.copy(isImporting = false, errorMessage = e.toUiMessage()) } }
         }
     }
 }

@@ -5,7 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.harsh.gymmanager.domain.model.MemberSummary
 import com.harsh.gymmanager.domain.usecase.MemberFilter
 import com.harsh.gymmanager.domain.usecase.MemberUseCases
-import com.harsh.gymmanager.presentation.toUserMessage
+import com.harsh.gymmanager.presentation.UiMessage
+import com.harsh.gymmanager.presentation.toUiMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
@@ -39,9 +40,9 @@ class MembersViewModel(private val memberUseCases: MemberUseCases) : ViewModel()
     private val refreshes = MutableStateFlow(0)
     private val selected = MutableStateFlow<Set<Long>>(emptySet())
 
-    private val messageChannel = Channel<String>(Channel.BUFFERED)
+    private val messageChannel = Channel<UiMessage>(Channel.BUFFERED)
     /** Messages to show in a snackbar. */
-    val messages: Flow<String> = messageChannel.receiveAsFlow()
+    val messages: Flow<UiMessage> = messageChannel.receiveAsFlow()
 
     private val results = combine(
         query.debounce { if (it.isBlank()) 0L else SEARCH_DEBOUNCE_MS },
@@ -73,23 +74,21 @@ class MembersViewModel(private val memberUseCases: MemberUseCases) : ViewModel()
 
     fun clearSelection() = selected.update { emptySet() }
 
-    fun archiveSelected() = runBulk({ "Archived ${members(it)}" }) { memberUseCases.bulk.archive(it) }
+    fun archiveSelected() = runBulk(UiMessage::MembersArchived) { memberUseCases.bulk.archive(it) }
 
-    fun restoreSelected() = runBulk({ "Restored ${members(it)}" }) { memberUseCases.bulk.restore(it) }
+    fun restoreSelected() = runBulk(UiMessage::MembersRestored) { memberUseCases.bulk.restore(it) }
 
-    fun deleteSelected() = runBulk({ "Deleted ${members(it)}" }) { memberUseCases.bulk.deletePermanently(it) }
+    fun deleteSelected() = runBulk(UiMessage::MembersDeleted) { memberUseCases.bulk.deletePermanently(it) }
 
-    private fun runBulk(success: (Int) -> String, action: suspend (Set<Long>) -> Result<Int>) {
+    private fun runBulk(success: (Int) -> UiMessage, action: suspend (Set<Long>) -> Result<Int>) {
         val ids = state.value.selectedIds
         if (ids.isEmpty()) return
         viewModelScope.launch {
             action(ids)
                 .onSuccess { clearSelection(); messageChannel.send(success(it)) }
-                .onFailure { messageChannel.send(it.toUserMessage()) }
+                .onFailure { messageChannel.send(it.toUiMessage()) }
         }
     }
-
-    private fun members(count: Int) = if (count == 1) "1 member" else "$count members"
 
     private companion object {
         const val SEARCH_DEBOUNCE_MS = 300L

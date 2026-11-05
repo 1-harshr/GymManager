@@ -8,6 +8,9 @@ import com.harsh.gymmanager.data.repository.MemberRepositoryImpl
 import com.harsh.gymmanager.data.repository.MembershipRepositoryImpl
 import com.harsh.gymmanager.data.repository.PaymentRepositoryImpl
 import com.harsh.gymmanager.data.repository.PlanRepositoryImpl
+import com.harsh.gymmanager.data.settings.DataStoreSettingsRepository
+import com.harsh.gymmanager.data.settings.SETTINGS_FILE_NAME
+import com.harsh.gymmanager.data.settings.createSettingsDataStore
 import com.harsh.gymmanager.domain.usecase.BulkRenewUseCase
 import com.harsh.gymmanager.domain.usecase.ImportMembersUseCase
 import com.harsh.gymmanager.domain.usecase.MemberUseCases
@@ -16,6 +19,7 @@ import com.harsh.gymmanager.domain.usecase.ObserveDashboardUseCase
 import com.harsh.gymmanager.domain.usecase.ObserveMemberDetailUseCase
 import com.harsh.gymmanager.domain.usecase.PaymentUseCases
 import com.harsh.gymmanager.domain.usecase.PlanUseCases
+import com.harsh.gymmanager.domain.usecase.SettingsUseCases
 import kotlinx.datetime.TimeZone
 import kotlin.time.Clock
 
@@ -38,6 +42,10 @@ class AppContainer(context: Context) : AppDependencies {
     override val paymentUseCases by lazy { PaymentUseCases(paymentRepository, clock, timeZone) }
     override val observeMemberDetail by lazy {
         ObserveMemberDetailUseCase(memberRepository, membershipRepository, clock, timeZone)
+    }
+    override val settingsUseCases by lazy {
+        val file = appContext.filesDir.resolve(SETTINGS_FILE_NAME)
+        SettingsUseCases(DataStoreSettingsRepository(createSettingsDataStore(file.absolutePath)))
     }
     override val bulkRenew by lazy { BulkRenewUseCase(memberRepository, membershipRepository, clock, timeZone) }
     override val importMembers by lazy { ImportMembersUseCase(memberRepository, clock, timeZone) }

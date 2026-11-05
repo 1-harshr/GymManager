@@ -1,5 +1,8 @@
 package com.harsh.gymmanager.ui.screens.importmembers
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.pluralStringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +23,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.harsh.gymmanager.LocalAppDependencies
+import com.harsh.gymmanager.domain.importing.ImportIssue
+import com.harsh.gymmanager.domain.importing.ImportIssueKind
 import com.harsh.gymmanager.domain.importing.ImportPreview
 import com.harsh.gymmanager.presentation.importmembers.ImportMembersEvent
 import com.harsh.gymmanager.presentation.importmembers.ImportMembersViewModel
@@ -30,6 +35,7 @@ import com.harsh.gymmanager.ui.components.BadgeTone
 import com.harsh.gymmanager.ui.components.ButtonKind
 import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.components.SectionHeader
+import com.harsh.gymmanager.ui.format.asString
 import com.harsh.gymmanager.ui.format.formatPhone
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
 import com.harsh.gymmanager.ui.platform.rememberTextFilePicker
@@ -51,16 +57,16 @@ fun ImportMembersScreen(onBack: () -> Unit, onImported: (Int) -> Unit) {
 
     val preview = state.preview
     Column(Modifier.fillMaxSize()) {
-        PushedHeader("Import members", onBack, subtitle = state.fileName ?: "From a CSV file")
+        PushedHeader(stringResource(Res.string.import_members), onBack, subtitle = state.fileName ?: stringResource(Res.string.from_csv))
         Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter().padding(bottom = AkhadaSpace.xl),
             verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
         ) {
             if (preview == null) {
                 AkhadaCard {
-                    Text("Bring in members from a spreadsheet", style = AkhadaTheme.typography.title)
+                    Text(stringResource(Res.string.import_intro_title), style = AkhadaTheme.typography.title)
                     Text(
-                        "In Excel or Google Sheets, put the column names in the first row, then save or download the sheet as CSV. Only Name is required.",
+                        stringResource(Res.string.import_intro_body),
                         style = AkhadaTheme.typography.body,
                         color = colors.inkMuted,
                     )
@@ -75,7 +81,7 @@ fun ImportMembersScreen(onBack: () -> Unit, onImported: (Int) -> Unit) {
                         softWrap = false,
                     )
                     Text(
-                        "Dates are read day first, so 05/11/2026 is 5 November. Members whose phone number is already saved are skipped.",
+                        stringResource(Res.string.import_intro_note),
                         style = AkhadaTheme.typography.caption,
                         color = colors.inkMuted,
                     )
@@ -83,20 +89,20 @@ fun ImportMembersScreen(onBack: () -> Unit, onImported: (Int) -> Unit) {
             } else {
                 ImportSummary(preview)
             }
-            state.errorMessage?.let { Text(it, style = AkhadaTheme.typography.body, color = colors.statusDue) }
+            state.errorMessage?.let { Text(it.asString(), style = AkhadaTheme.typography.body, color = colors.statusDue) }
         }
         Column(Modifier.screenGutter().navigationBarsPadding().padding(vertical = AkhadaSpace.md), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
             val ready = preview?.members?.size ?: 0
             if (ready > 0) {
                 AkhadaButton(
-                    if (state.isImporting) "Adding…" else if (ready == 1) "Add 1 member" else "Add $ready members",
+                    if (state.isImporting) stringResource(Res.string.adding) else pluralStringResource(Res.plurals.add_members_button, ready, ready),
                     vm::import,
                     Modifier.fillMaxWidth(),
                     enabled = !state.isImporting,
                 )
             }
             AkhadaButton(
-                if (state.isReading) "Reading…" else if (preview == null) "Choose CSV file" else "Choose a different file",
+                if (state.isReading) stringResource(Res.string.reading) else if (preview == null) stringResource(Res.string.choose_csv) else stringResource(Res.string.choose_different_file),
                 pickFile,
                 Modifier.fillMaxWidth(),
                 kind = if (ready > 0) ButtonKind.Secondary else ButtonKind.Primary,
@@ -112,27 +118,23 @@ private fun ImportSummary(preview: ImportPreview) {
     val colors = AkhadaTheme.colors
     AkhadaCard {
         Text(
-            when (preview.members.size) {
-                0 -> "No members to add"
-                1 -> "1 member ready to add"
-                else -> "${preview.members.size} members ready to add"
-            },
+            if (preview.members.isEmpty()) stringResource(Res.string.no_members_to_add) else pluralStringResource(Res.plurals.members_ready, preview.members.size, preview.members.size),
             style = AkhadaTheme.typography.title,
         )
         Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-            Badge(plural(preview.rowCount, "row"), BadgeTone.Expired, showDot = false)
-            if (preview.skippedCount > 0) Badge("${preview.skippedCount} skipped", BadgeTone.Due)
-            if (preview.warningCount > 0) Badge(plural(preview.warningCount, "warning"), BadgeTone.Expiring)
+            Badge(pluralStringResource(Res.plurals.rows_count, preview.rowCount, preview.rowCount), BadgeTone.Expired, showDot = false)
+            if (preview.skippedCount > 0) Badge(stringResource(Res.string.skipped_count, preview.skippedCount), BadgeTone.Due)
+            if (preview.warningCount > 0) Badge(pluralStringResource(Res.plurals.warnings_count, preview.warningCount, preview.warningCount), BadgeTone.Expiring)
         }
     }
     if (preview.issues.isNotEmpty()) {
-        SectionHeader("Check these rows", Modifier.padding(top = AkhadaSpace.md))
+        SectionHeader(stringResource(Res.string.check_rows), Modifier.padding(top = AkhadaSpace.md))
         AkhadaCard {
             preview.issues.forEach { issue ->
                 Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                    Text("Row ${issue.line}", style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+                    Text(stringResource(Res.string.row_number, issue.line), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
                     Text(
-                        (if (issue.skipped) "Skipped: " else "") + issue.message,
+                        issue.asString(),
                         Modifier.weight(1f),
                         style = AkhadaTheme.typography.caption,
                         color = if (issue.skipped) colors.statusDue else colors.ink,
@@ -142,19 +144,31 @@ private fun ImportSummary(preview: ImportPreview) {
         }
     }
     if (preview.members.isNotEmpty()) {
-        SectionHeader("Members to add", Modifier.padding(top = AkhadaSpace.md))
+        SectionHeader(stringResource(Res.string.members_to_add), Modifier.padding(top = AkhadaSpace.md))
         AkhadaCard {
             preview.members.take(PREVIEW_LIMIT).forEach { member ->
                 Row {
                     Text(member.name, Modifier.weight(1f), style = AkhadaTheme.typography.body)
-                    Text(member.phone?.let(::formatPhone) ?: "No phone", style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+                    Text(member.phone?.let(::formatPhone) ?: stringResource(Res.string.no_phone), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
                 }
             }
             if (preview.members.size > PREVIEW_LIMIT) {
-                Text("and ${preview.members.size - PREVIEW_LIMIT} more", style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+                Text(stringResource(Res.string.and_more, preview.members.size - PREVIEW_LIMIT), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
             }
         }
     }
 }
 
-private fun plural(count: Int, word: String) = if (count == 1) "1 $word" else "$count ${word}s"
+@Composable
+private fun ImportIssue.asString(): String {
+    val who = name.orEmpty()
+    val what = value.orEmpty()
+    return when (kind) {
+        ImportIssueKind.NO_NAME -> stringResource(Res.string.issue_no_name)
+        ImportIssueKind.DUPLICATE_PHONE -> stringResource(Res.string.issue_duplicate_phone, who, what)
+        ImportIssueKind.BAD_PHONE -> stringResource(Res.string.issue_bad_phone, who, what)
+        ImportIssueKind.BAD_GENDER -> stringResource(Res.string.issue_bad_gender, who, what)
+        ImportIssueKind.BAD_BIRTH_DATE -> stringResource(Res.string.issue_bad_birth_date, who, what)
+        ImportIssueKind.BAD_JOIN_DATE -> stringResource(Res.string.issue_bad_join_date, who, what)
+    }
+}

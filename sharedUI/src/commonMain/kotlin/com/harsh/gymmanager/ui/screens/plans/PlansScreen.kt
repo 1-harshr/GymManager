@@ -1,5 +1,8 @@
 package com.harsh.gymmanager.ui.screens.plans
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.pluralStringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -55,22 +58,22 @@ fun PlansScreen(
             if (state.isSelecting) {
                 SelectionHeader(state.selectedIds.size, onCancel = onClearSelection, onSelectAll = onSelectAll)
             } else {
-                TabHeader("Plans", if (state.isLoading) null else if (activeCount == 1) "1 plan" else "$activeCount plans") {
-                    AkhadaIconButton(AkhadaIcons.Settings, "Settings", onOpenSettings)
+                TabHeader(stringResource(Res.string.tab_plans), if (state.isLoading) null else pluralStringResource(Res.plurals.plans_count, activeCount, activeCount)) {
+                    AkhadaIconButton(AkhadaIcons.Settings, stringResource(Res.string.settings), onOpenSettings)
                 }
             }
         }
         if (!state.isLoading && state.plans.isEmpty() && !state.showArchived) {
             item {
                 EmptyState(
-                    AkhadaIcons.Tag, "No plans yet", "Add the plans you sell, like Gym · Monthly for ₹800.",
-                    actionLabel = "Add plan", onAction = onAddPlan,
+                    AkhadaIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_body),
+                    actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan,
                 )
             }
         } else {
             item {
                 Row(Modifier.fillMaxWidth().screenGutter(), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Show archived plans", Modifier.weight(1f), style = AkhadaTheme.typography.body, color = colors.inkMuted)
+                    Text(stringResource(Res.string.show_archived_plans), Modifier.weight(1f), style = AkhadaTheme.typography.body, color = colors.inkMuted)
                     Switch(
                         checked = state.showArchived,
                         onCheckedChange = onShowArchivedChange,
@@ -91,10 +94,10 @@ fun PlansScreen(
                     trailing = if (state.isSelecting) null else ({
                         MoreMenu(
                             actions = listOf(
-                                MenuAction("Edit") { onOpenPlan(plan) },
-                                if (plan.isArchived) MenuAction("Restore") { onRestore(plan) } else MenuAction("Archive") { onArchive(plan) },
+                                MenuAction(stringResource(Res.string.edit)) { onOpenPlan(plan) },
+                                if (plan.isArchived) MenuAction(stringResource(Res.string.restore)) { onRestore(plan) } else MenuAction(stringResource(Res.string.archive)) { onArchive(plan) },
                             ),
-                            contentDescription = "More for ${plan.name}",
+                            contentDescription = stringResource(Res.string.more_for, plan.name),
                             container = colors.surface,
                         )
                     }),
@@ -102,7 +105,7 @@ fun PlansScreen(
             }
             if (!state.isSelecting) item {
                 AkhadaButton(
-                    "Add plan", onAddPlan,
+                    stringResource(Res.string.add_plan), onAddPlan,
                     Modifier.fillMaxWidth().screenGutter().padding(top = AkhadaSpace.sm),
                     kind = ButtonKind.Secondary, icon = AkhadaIcons.Plus,
                 )

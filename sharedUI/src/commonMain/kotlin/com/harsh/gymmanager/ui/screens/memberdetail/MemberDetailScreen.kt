@@ -1,5 +1,9 @@
 package com.harsh.gymmanager.ui.screens.memberdetail
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.getString
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,9 +57,10 @@ import com.harsh.gymmanager.ui.components.MoreMenu
 import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.components.SectionHeader
 import com.harsh.gymmanager.ui.components.SegmentedControl
-import com.harsh.gymmanager.ui.components.label
 import com.harsh.gymmanager.ui.components.tone
+import com.harsh.gymmanager.ui.format.asString
 import com.harsh.gymmanager.ui.format.formatFull
+import com.harsh.gymmanager.ui.format.resolve
 import com.harsh.gymmanager.ui.format.formatPhone
 import com.harsh.gymmanager.ui.format.label
 import com.harsh.gymmanager.ui.format.rememberToday
@@ -91,10 +96,10 @@ fun MemberDetailScreen(
     LaunchedEffect(vm) {
         vm.events.collect { event ->
             when (event) {
-                is MemberDetailEvent.ShowMessage -> snackbar.showSnackbar(event.message)
+                is MemberDetailEvent.ShowMessage -> snackbar.showSnackbar(event.message.resolve())
                 MemberDetailEvent.MemberDeleted -> {
                     onBack()
-                    snackbar.showSnackbar("Member deleted")
+                    snackbar.showSnackbar(getString(Res.string.member_deleted))
                 }
             }
         }
@@ -103,8 +108,8 @@ fun MemberDetailScreen(
     val detail = state.detail
     if (!state.isLoading && detail == null) {
         Column(Modifier.fillMaxSize()) {
-            PushedHeader("Member", onBack)
-            EmptyState(AkhadaIcons.Users, "This member no longer exists", "They may have been deleted.")
+            PushedHeader(stringResource(Res.string.member), onBack)
+            EmptyState(AkhadaIcons.Users, stringResource(Res.string.member_gone_title), stringResource(Res.string.member_gone_body))
         }
         return
     }
@@ -121,18 +126,18 @@ fun MemberDetailScreen(
         verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
     ) {
         item {
-            PushedHeader(member.name, onBack, subtitle = "Joined ${member.joinedOn.formatFull()}") {
+            PushedHeader(member.name, onBack, subtitle = stringResource(Res.string.joined_on, member.joinedOn.formatFull())) {
                 member.phone?.let { phone ->
-                    AkhadaIconButton(AkhadaIcons.Phone, "Call ${member.name}", onClick = { uriHandler.openUri("tel:$phone") }, iconSize = 20.dp)
+                    AkhadaIconButton(AkhadaIcons.Phone, stringResource(Res.string.call_person, member.name), onClick = { uriHandler.openUri("tel:$phone") }, iconSize = 20.dp)
                 }
                 MoreMenu(
                     actions = listOf(
-                        MenuAction("Edit details", onClick = onEdit),
-                        if (member.isArchived) MenuAction("Restore member", onClick = vm::restoreMember)
-                        else MenuAction("Archive member", onClick = vm::archiveMember),
-                        MenuAction("Delete permanently", destructive = true) { confirm = Confirm.DeleteMember },
+                        MenuAction(stringResource(Res.string.edit_details), onClick = onEdit),
+                        if (member.isArchived) MenuAction(stringResource(Res.string.restore_member), onClick = vm::restoreMember)
+                        else MenuAction(stringResource(Res.string.archive_member), onClick = vm::archiveMember),
+                        MenuAction(stringResource(Res.string.delete_permanently), destructive = true) { confirm = Confirm.DeleteMember },
                     ),
-                    contentDescription = "More for ${member.name}",
+                    contentDescription = stringResource(Res.string.more_for, member.name),
                 )
             }
         }
@@ -142,22 +147,22 @@ fun MemberDetailScreen(
                     Avatar(member.name, member.photoPath, size = 72.dp)
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
                         if (member.isArchived) {
-                            Badge("Archived", BadgeTone.Expired)
+                            Badge(stringResource(Res.string.archived), BadgeTone.Expired)
                         } else {
                             Badge(statusLabel(detail.status, detail.latestEndDate, today), detail.status.tone())
                         }
                         val endDate = detail.latestEndDate
                         Text(
                             when {
-                                endDate == null -> "No membership yet"
-                                detail.status == MembershipStatus.EXPIRED -> "Ended ${endDate.formatFull()}"
-                                else -> "Ends ${endDate.formatFull()}"
+                                endDate == null -> stringResource(Res.string.no_membership_yet)
+                                detail.status == MembershipStatus.EXPIRED -> stringResource(Res.string.ended_on_full, endDate.formatFull())
+                                else -> stringResource(Res.string.ends_on_full, endDate.formatFull())
                             },
                             style = AkhadaTheme.typography.body,
                         )
                         if (detail.memberships.isNotEmpty()) {
                             Text(
-                                if (detail.totalDue > 0) "${formatRupees(detail.totalDue)} due" else "Nothing due",
+                                if (detail.totalDue > 0) stringResource(Res.string.amount_due, formatRupees(detail.totalDue)) else stringResource(Res.string.nothing_due),
                                 style = AkhadaTheme.typography.bodyStrong,
                                 color = if (detail.totalDue > 0) AkhadaTheme.colors.statusDue else AkhadaTheme.colors.statusActive,
                             )
@@ -167,7 +172,7 @@ fun MemberDetailScreen(
                 val facts = listOfNotNull(
                     member.phone?.let(::formatPhone),
                     member.gender?.label(),
-                    member.dateOfBirth?.let { "Born ${it.formatFull()}" },
+                    member.dateOfBirth?.let { stringResource(Res.string.born_on, it.formatFull()) },
                 )
                 if (facts.isNotEmpty()) {
                     Text(facts.joinToString(" · "), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
@@ -178,17 +183,17 @@ fun MemberDetailScreen(
         item {
             Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
                 AkhadaButton(
-                    if (detail.memberships.isEmpty()) "Sell membership" else "Renew membership",
+                    if (detail.memberships.isEmpty()) stringResource(Res.string.sell_membership) else stringResource(Res.string.renew_membership),
                     onSellMembership,
                     Modifier.fillMaxWidth(),
                 )
                 if (owing != null) {
-                    AkhadaButton("Record payment", { vm.openPaymentForm(owing.id) }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+                    AkhadaButton(stringResource(Res.string.record_payment), { vm.openPaymentForm(owing.id) }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
                 }
             }
         }
         if (detail.memberships.isNotEmpty()) {
-            item { SectionHeader("History", Modifier.screenGutter().padding(top = AkhadaSpace.md)) }
+            item { SectionHeader(stringResource(Res.string.history), Modifier.screenGutter().padding(top = AkhadaSpace.md)) }
             items(detail.memberships, key = { it.id }) { membership ->
                 MembershipCard(
                     membership,
@@ -216,23 +221,23 @@ fun MemberDetailScreen(
 
     when (val c = confirm) {
         Confirm.DeleteMember -> ConfirmSheet(
-            title = "Delete ${member.name}?",
-            body = "This removes their memberships and payments too, and can't be undone. Archive them instead to keep their history.",
-            confirmLabel = "Delete member",
+            title = stringResource(Res.string.delete_member_title, member.name),
+            body = stringResource(Res.string.delete_member_body),
+            confirmLabel = stringResource(Res.string.delete_member),
             onConfirm = { confirm = null; vm.deleteMemberPermanently() },
             onDismiss = { confirm = null },
         )
         is Confirm.DeleteMembership -> ConfirmSheet(
-            title = "Delete ${c.membership.planName}?",
-            body = "Its ${c.membership.payments.size} payment(s) are deleted with it. Use this only to fix a mistake.",
-            confirmLabel = "Delete membership",
+            title = stringResource(Res.string.delete_membership_title, c.membership.planName),
+            body = pluralStringResource(Res.plurals.delete_membership_body, c.membership.payments.size, c.membership.payments.size),
+            confirmLabel = stringResource(Res.string.delete_membership),
             onConfirm = { confirm = null; vm.deleteMembership(c.membership.id) },
             onDismiss = { confirm = null },
         )
         is Confirm.DeletePayment -> ConfirmSheet(
-            title = "Delete payment of ${formatRupees(c.payment.amount)}?",
-            body = "Paid on ${c.payment.paidOn.formatFull()} by ${c.payment.mode.label()}. The amount goes back to due.",
-            confirmLabel = "Delete payment",
+            title = stringResource(Res.string.delete_payment_title, formatRupees(c.payment.amount)),
+            body = stringResource(Res.string.delete_payment_body, c.payment.paidOn.formatFull(), c.payment.mode.label()),
+            confirmLabel = stringResource(Res.string.delete_payment),
             onConfirm = { confirm = null; vm.deletePayment(c.payment.id) },
             onDismiss = { confirm = null },
         )
@@ -252,18 +257,18 @@ private fun PaymentSheet(
 ) {
     AkhadaBottomSheet(onDismiss) {
         Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
-            Text("Record payment", style = AkhadaTheme.typography.title)
-            Text("${formatRupees(form.amountDue)} due on $planName", style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
+            Text(stringResource(Res.string.record_payment), style = AkhadaTheme.typography.title)
+            Text(stringResource(Res.string.due_on_plan, formatRupees(form.amountDue), planName), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
         }
         AkhadaTextField(
-            form.amountText, onAmountChange, "Amount",
-            prefix = "₹", keyboardType = KeyboardType.Number, error = form.error,
+            form.amountText, onAmountChange, stringResource(Res.string.amount),
+            prefix = "₹", keyboardType = KeyboardType.Number, error = form.error?.asString(),
         )
         SegmentedControl(PaymentMode.entries, form.mode, { it?.let(onModeChange) }, { it.label() })
-        AkhadaTextField(form.note, onNoteChange, "Note", optional = true, placeholder = "e.g. paid by brother")
+        AkhadaTextField(form.note, onNoteChange, stringResource(Res.string.note), optional = true, placeholder = stringResource(Res.string.payment_note_hint))
         val amount = com.harsh.gymmanager.presentation.parseRupees(form.amountText)
         AkhadaButton(
-            if (form.isSaving) "Saving…" else if (amount != null && amount > 0) "Record ${formatRupees(amount)}" else "Record payment",
+            if (form.isSaving) stringResource(Res.string.saving) else if (amount != null && amount > 0) stringResource(Res.string.record_amount, formatRupees(amount)) else stringResource(Res.string.record_payment),
             onSubmit,
             Modifier.fillMaxWidth(),
             enabled = !form.isSaving,

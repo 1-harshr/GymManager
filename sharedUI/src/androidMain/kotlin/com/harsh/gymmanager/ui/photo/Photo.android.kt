@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.photo
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -53,6 +55,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -113,15 +117,15 @@ private fun PermissionNeeded(onRetry: () -> Unit, onClose: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("Camera access is off", style = AkhadaTheme.typography.title, color = Color.White)
+        Text(stringResource(Res.string.camera_off_title), style = AkhadaTheme.typography.title, color = Color.White)
         Text(
-            "Allow camera access to take member photos. You can also turn it on in Settings › Apps › Akhada › Permissions.",
+            stringResource(Res.string.camera_off_body),
             style = AkhadaTheme.typography.body,
             color = Color.White.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
         )
-        AkhadaButton("Allow camera", onRetry, Modifier.fillMaxWidth())
-        AkhadaButton("Not now", onClose, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+        AkhadaButton(stringResource(Res.string.allow_camera), onRetry, Modifier.fillMaxWidth())
+        AkhadaButton(stringResource(Res.string.not_now), onClose, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
     }
 }
 
@@ -134,7 +138,8 @@ private fun CameraScreen(onPhotoTaken: (String) -> Unit, onClose: () -> Unit) {
     var lens by remember { mutableIntStateOf(CameraSelector.LENS_FACING_FRONT) }
     var captured by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var failed by remember { mutableStateOf(false) }
+    val shutterLabel = stringResource(Res.string.take_picture)
     val imageCapture = remember { ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY).build() }
 
     LaunchedEffect(lens, captured) {
@@ -156,9 +161,9 @@ private fun CameraScreen(onPhotoTaken: (String) -> Unit, onClose: () -> Unit) {
 
     Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
         Row(Modifier.fillMaxWidth().padding(AkhadaSpace.gutter), verticalAlignment = Alignment.CenterVertically) {
-            AkhadaIconButton(AkhadaIcons.X, "Close camera", onClose, container = Color.White.copy(alpha = 0.16f), content = Color.White)
+            AkhadaIconButton(AkhadaIcons.X, stringResource(Res.string.close_camera), onClose, container = Color.White.copy(alpha = 0.16f), content = Color.White)
             Spacer(Modifier.weight(1f))
-            Text(if (captured == null) "Member photo" else "Use this photo?", style = AkhadaTheme.typography.title, color = Color.White)
+            Text(if (captured == null) stringResource(Res.string.member_photo) else stringResource(Res.string.use_this_photo), style = AkhadaTheme.typography.title, color = Color.White)
             Spacer(Modifier.weight(1f))
             Spacer(Modifier.size(44.dp))
         }
@@ -169,13 +174,13 @@ private fun CameraScreen(onPhotoTaken: (String) -> Unit, onClose: () -> Unit) {
         ) {
             val path = captured
             if (path != null) {
-                MemberPhoto(path, "Captured photo", Modifier.fillMaxSize())
+                MemberPhoto(path, stringResource(Res.string.captured_photo), Modifier.fillMaxSize())
             } else {
                 surfaceRequest?.let { CameraXViewfinder(surfaceRequest = it, modifier = Modifier.fillMaxSize()) }
             }
         }
-        error?.let {
-            Text(it, Modifier.fillMaxWidth().padding(AkhadaSpace.lg), style = AkhadaTheme.typography.body, color = Color.White, textAlign = TextAlign.Center)
+        if (failed) {
+            Text(stringResource(Res.string.photo_failed), Modifier.fillMaxWidth().padding(AkhadaSpace.lg), style = AkhadaTheme.typography.body, color = Color.White, textAlign = TextAlign.Center)
         }
         Spacer(Modifier.weight(1f))
         val path = captured
@@ -190,29 +195,33 @@ private fun CameraScreen(onPhotoTaken: (String) -> Unit, onClose: () -> Unit) {
                     onClick = {
                         if (busy) return@Surface
                         busy = true
-                        error = null
+                        failed = false
                         takePhoto(context, imageCapture, mirror = lens == CameraSelector.LENS_FACING_FRONT) { result ->
                             scope.launch {
                                 busy = false
-                                result.onSuccess { captured = it }.onFailure { error = "Couldn't take the photo. Try again." }
+                                result.onSuccess { captured = it }.onFailure { failed = true }
                             }
                         }
                     },
                     shape = CircleShape,
                     color = Color.White,
-                    modifier = Modifier.size(76.dp).border(4.dp, Color.White.copy(alpha = 0.35f), CircleShape).padding(6.dp),
+                    modifier = Modifier
+                        .size(76.dp)
+                        .border(4.dp, Color.White.copy(alpha = 0.35f), CircleShape)
+                        .padding(6.dp)
+                        .semantics { contentDescription = shutterLabel },
                 ) {}
                 AkhadaIconButton(
-                    AkhadaIcons.SwitchCamera, "Switch camera",
+                    AkhadaIcons.SwitchCamera, stringResource(Res.string.switch_camera),
                     onClick = { lens = if (lens == CameraSelector.LENS_FACING_FRONT) CameraSelector.LENS_FACING_BACK else CameraSelector.LENS_FACING_FRONT },
                     size = 48.dp, container = Color.White.copy(alpha = 0.16f), content = Color.White,
                 )
             }
         } else {
             Column(Modifier.fillMaxWidth().padding(AkhadaSpace.gutter), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                AkhadaButton("Use photo", { onPhotoTaken(path) }, Modifier.fillMaxWidth())
+                AkhadaButton(stringResource(Res.string.use_photo), { onPhotoTaken(path) }, Modifier.fillMaxWidth())
                 AkhadaButton(
-                    "Retake",
+                    stringResource(Res.string.retake),
                     { File(path).delete(); captured = null },
                     Modifier.fillMaxWidth(),
                     kind = ButtonKind.Secondary,

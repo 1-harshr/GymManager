@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.components
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -49,7 +51,7 @@ import kotlin.time.Instant
 private fun FieldLabel(label: String, optional: Boolean) {
     Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
         Text(label, style = AkhadaTheme.typography.caption.copy(fontWeight = AkhadaTheme.typography.bodyStrong.fontWeight))
-        if (optional) Text("optional", style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
+        if (optional) Text(stringResource(Res.string.optional), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
     }
 }
 
@@ -130,7 +132,7 @@ fun DateField(
     label: String,
     modifier: Modifier = Modifier,
     optional: Boolean = false,
-    placeholder: String = "Choose a date",
+    placeholder: String? = null,
 ) {
     val colors = AkhadaTheme.colors
     var picking by remember { mutableStateOf(false) }
@@ -141,19 +143,19 @@ fun DateField(
                 .fillMaxWidth()
                 .heightIn(min = 52.dp)
                 .fieldGround(focused = false, error = false)
-                .clickable(onClickLabel = "Choose $label") { picking = true }
+                .clickable(onClickLabel = stringResource(Res.string.choose_field, label)) { picking = true }
                 .padding(start = AkhadaSpace.lg, end = AkhadaSpace.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                value?.formatFull() ?: placeholder,
+                value?.formatFull() ?: placeholder ?: stringResource(Res.string.choose_a_date),
                 Modifier.weight(1f),
                 style = AkhadaTheme.typography.body,
                 color = if (value == null) colors.inkMuted else colors.ink,
             )
             if (optional && value != null) {
                 AkhadaIconButton(
-                    AkhadaIcons.X, "Clear $label", onClick = { onValueChange(null) },
+                    AkhadaIcons.X, stringResource(Res.string.clear_field, label), onClick = { onValueChange(null) },
                     size = 36.dp, iconSize = 18.dp, container = colors.surfaceSunken, content = colors.inkMuted,
                 )
             } else {
@@ -187,10 +189,10 @@ fun AkhadaDatePickerDialog(initial: LocalDate?, onDismiss: () -> Unit, onConfirm
                         onConfirm(Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.UTC).date)
                     } ?: onDismiss()
                 },
-            ) { Text("Done", color = colors.ink, style = AkhadaTheme.typography.bodyStrong) }
+            ) { Text(stringResource(Res.string.done), color = colors.ink, style = AkhadaTheme.typography.bodyStrong) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = colors.inkMuted, style = AkhadaTheme.typography.bodyStrong) }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.cancel), color = colors.inkMuted, style = AkhadaTheme.typography.bodyStrong) }
         },
         colors = DatePickerDefaults.colors(containerColor = colors.surface),
     ) {

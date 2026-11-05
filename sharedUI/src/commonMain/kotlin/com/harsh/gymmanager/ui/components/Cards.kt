@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.components
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -69,13 +71,13 @@ fun MemberRow(
     val colors = AkhadaTheme.colors
     val secondary = listOfNotNull(
         member.phone?.let(::formatPhone),
-        member.latestEndDate?.let { if (it >= today) "ends ${it.formatDayMonth()}" else "ended ${it.formatDayMonth()}" },
-    ).joinToString(" · ").ifEmpty { "No membership yet" }
+        member.latestEndDate?.let { if (it >= today) stringResource(Res.string.ends_on, it.formatDayMonth()) else stringResource(Res.string.ended_on, it.formatDayMonth()) },
+    ).joinToString(" · ").ifEmpty { stringResource(Res.string.no_membership_yet) }
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .clip(AkhadaRadius.cardShape)
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick, onLongClickLabel = "Select")
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick, onLongClickLabel = stringResource(Res.string.select))
             .semantics { this.selected = selected },
         shape = AkhadaRadius.cardShape,
         color = if (selected) colors.accentSoft else colors.surface,
@@ -92,7 +94,7 @@ fun MemberRow(
             }
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
                 if (member.isArchived) {
-                    Badge("Archived", BadgeTone.Expired)
+                    Badge(stringResource(Res.string.archived), BadgeTone.Expired)
                 } else {
                     Badge(statusShortLabel(member.status, member.latestEndDate, today), member.status.tone())
                 }
@@ -107,7 +109,7 @@ fun MemberRow(
 fun SelectedMark(modifier: Modifier = Modifier) {
     val colors = AkhadaTheme.colors
     Box(modifier.size(AkhadaSize.avatar).background(colors.ink, CircleShape), contentAlignment = Alignment.Center) {
-        Icon(AkhadaIcons.Check, contentDescription = "Selected", Modifier.size(22.dp), tint = colors.onInk)
+        Icon(AkhadaIcons.Check, contentDescription = stringResource(Res.string.selected), Modifier.size(22.dp), tint = colors.onInk)
     }
 }
 
@@ -156,7 +158,7 @@ fun PlanCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(AkhadaRadius.cardShape)
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick, onLongClickLabel = "Select")
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick, onLongClickLabel = stringResource(Res.string.select))
             .semantics { this.selected = selected },
         shape = AkhadaRadius.cardShape,
         color = ground,
@@ -170,8 +172,8 @@ fun PlanCard(
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
                     Text(plan.name, style = AkhadaTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                    if (selected) Icon(AkhadaIcons.Check, contentDescription = "Selected", Modifier.size(16.dp))
-                    if (plan.isArchived) Badge("Archived", BadgeTone.Expired, showDot = false)
+                    if (selected) Icon(AkhadaIcons.Check, contentDescription = stringResource(Res.string.selected), Modifier.size(16.dp))
+                    if (plan.isArchived) Badge(stringResource(Res.string.archived), BadgeTone.Expired, showDot = false)
                 }
                 Text(plan.durationLabel(), style = AkhadaTheme.typography.caption, color = if (selected) ink else colors.inkMuted)
             }

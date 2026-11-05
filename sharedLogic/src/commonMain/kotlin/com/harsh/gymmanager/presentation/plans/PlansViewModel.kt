@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.harsh.gymmanager.domain.model.Plan
 import com.harsh.gymmanager.domain.usecase.PlanUseCases
-import com.harsh.gymmanager.presentation.toUserMessage
+import com.harsh.gymmanager.presentation.UiMessage
+import com.harsh.gymmanager.presentation.toUiMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -35,9 +36,9 @@ class PlansViewModel(private val planUseCases: PlanUseCases) : ViewModel() {
     private val showArchived = MutableStateFlow(false)
     private val selected = MutableStateFlow<Set<Long>>(emptySet())
 
-    private val eventChannel = Channel<String>(Channel.BUFFERED)
+    private val eventChannel = Channel<UiMessage>(Channel.BUFFERED)
     /** Messages to show in a snackbar. */
-    val messages: Flow<String> = eventChannel.receiveAsFlow()
+    val messages: Flow<UiMessage> = eventChannel.receiveAsFlow()
 
     private val plans = showArchived.flatMapLatest { planUseCases.observePlans(includeArchived = it) }
 
@@ -48,9 +49,9 @@ class PlansViewModel(private val planUseCases: PlanUseCases) : ViewModel() {
 
     fun onShowArchivedChange(value: Boolean) = showArchived.update { value }
 
-    fun archive(id: Long) = run("Plan archived") { planUseCases.archivePlan(id) }
+    fun archive(id: Long) = run(UiMessage.PlanArchived) { planUseCases.archivePlan(id) }
 
-    fun restore(id: Long) = run("Plan restored") { planUseCases.restorePlan(id) }
+    fun restore(id: Long) = run(UiMessage.PlanRestored) { planUseCases.restorePlan(id) }
 
     fun toggleSelection(planId: Long) = selected.update { if (planId in it) it - planId else it + planId }
 
@@ -59,30 +60,30 @@ class PlansViewModel(private val planUseCases: PlanUseCases) : ViewModel() {
     fun clearSelection() = selected.update { emptySet() }
 
     /** Archives the ticked plans that are active; archived ones are left as they are. */
-    fun archiveSelected() = runBulk("Archived") { ids ->
+    fun archiveSelected() = runBulk(UiMessage::PlansArchived) { ids ->
         planUseCases.bulk.archive(state.value.plans.filter { it.id in ids && !it.isArchived }.map { it.id })
     }
 
-    fun restoreSelected() = runBulk("Restored") { ids ->
+    fun restoreSelected() = runBulk(UiMessage::PlansRestored) { ids ->
         planUseCases.bulk.restore(state.value.plans.filter { it.id in ids && it.isArchived }.map { it.id })
     }
 
-    private fun run(successMessage: String, action: suspend () -> Result<Unit>) {
+    private fun run(successMessage: UiMessage, action: suspend () -> Result<Unit>) {
         viewModelScope.launch {
-            eventChannel.send(action().fold({ successMessage }, { it.toUserMessage() }))
+            eventChannel.send(action().fold({ successMessage }, { it.toUiMessage() }))
         }
     }
 
-    private fun runBulk(verb: String, action: suspend (Set<Long>) -> Result<Int>) {
+    private fun runBulk(success: (Int) -> UiMessage, action: suspend (Set<Long>) -> Result<Int>) {
         val ids = state.value.selectedIds
         if (ids.isEmpty()) return
         viewModelScope.launch {
             action(ids)
                 .onSuccess { count ->
                     clearSelection()
-                    eventChannel.send("$verb ${if (count == 1) "1 plan" else "$count plans"}")
+                    eventChannel.send(success(count))
                 }
-                .onFailure { eventChannel.send(it.toUserMessage()) }
+                .onFailure { eventChannel.send(it.toUiMessage()) }
         }
     }
 }

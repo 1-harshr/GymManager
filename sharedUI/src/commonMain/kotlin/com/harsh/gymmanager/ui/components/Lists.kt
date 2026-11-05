@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.components
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,7 +35,7 @@ import com.harsh.gymmanager.ui.theme.AkhadaTheme
 
 /** The pill search field at the top of Members. */
 @Composable
-fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier, placeholder: String = "Search name or phone") {
+fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier, placeholder: String? = null) {
     val colors = AkhadaTheme.colors
     BasicTextField(
         value = query,
@@ -51,12 +53,12 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier
             ) {
                 Icon(AkhadaIcons.Search, contentDescription = null, Modifier.size(20.dp), tint = colors.inkMuted)
                 Box(Modifier.weight(1f)) {
-                    if (query.isEmpty()) Text(placeholder, style = AkhadaTheme.typography.body, color = colors.inkMuted)
+                    if (query.isEmpty()) Text(placeholder ?: stringResource(Res.string.search_hint), style = AkhadaTheme.typography.body, color = colors.inkMuted)
                     inner()
                 }
                 if (query.isNotEmpty()) {
                     AkhadaIconButton(
-                        AkhadaIcons.X, "Clear search", onClick = { onQueryChange("") },
+                        AkhadaIcons.X, stringResource(Res.string.clear_search), onClick = { onQueryChange("") },
                         size = 40.dp, iconSize = 18.dp, container = colors.surface, content = colors.inkMuted,
                     )
                 }
@@ -67,14 +69,14 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier
 
 /** One row of mutually exclusive filters that scrolls edge to edge. */
 @Composable
-fun <T> FilterChips(options: List<T>, selected: T, onSelect: (T) -> Unit, label: (T) -> String, modifier: Modifier = Modifier) {
+fun <T> FilterChips(options: List<T>, selected: T, onSelect: (T) -> Unit, label: @Composable (T) -> String, modifier: Modifier = Modifier) {
     val colors = AkhadaTheme.colors
     LazyRow(
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = AkhadaSpace.gutter),
         horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm),
     ) {
-        items(options, key = { label(it) }) { option ->
+        items(options) { option ->
             val on = option == selected
             Surface(
                 onClick = { onSelect(option) },

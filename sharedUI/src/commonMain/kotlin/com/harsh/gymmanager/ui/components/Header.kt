@@ -1,6 +1,6 @@
 package com.harsh.gymmanager.ui.components
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +16,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
+import com.harsh.gymmanager.domain.model.GymProfile
+import com.harsh.gymmanager.ui.LocalGym
+import com.harsh.gymmanager.ui.format.initials
+import com.harsh.gymmanager.ui.photo.MemberPhoto
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
@@ -24,18 +31,34 @@ import com.harsh.gymmanager.ui.theme.AkhadaSize
 import com.harsh.gymmanager.ui.theme.AkhadaSpace
 import com.harsh.gymmanager.ui.theme.AkhadaTheme
 import gymmanager.sharedui.generated.resources.Res
-import gymmanager.sharedui.generated.resources.akhada_logo
-import org.jetbrains.compose.resources.painterResource
+import gymmanager.sharedui.generated.resources.back
+import gymmanager.sharedui.generated.resources.gym_logo
+import org.jetbrains.compose.resources.stringResource
 
-/** The gym's logo in its white disc; never recoloured. */
+/**
+ * The gym's logo in a disc: the owner's image on `logo-ground`, or the gym's initials on `ink`
+ * when no logo has been chosen. Never recoloured.
+ */
 @Composable
-fun GymLogo(modifier: Modifier = Modifier) {
-    Image(
-        painterResource(Res.drawable.akhada_logo),
-        contentDescription = "Akhada Gym & MMA logo",
-        modifier = modifier.size(AkhadaSize.logo).clip(CircleShape).background(AkhadaTheme.colors.logoGround),
-        contentScale = ContentScale.Crop,
-    )
+fun GymLogo(modifier: Modifier = Modifier, profile: GymProfile = LocalGym.current, size: Dp = AkhadaSize.logo, logoPath: String? = profile.logoPath) {
+    val colors = AkhadaTheme.colors
+    val description = stringResource(Res.string.gym_logo, profile.name)
+    if (logoPath != null) {
+        Box(modifier.size(size).clip(CircleShape).background(colors.logoGround)) {
+            MemberPhoto(logoPath, contentDescription = description, modifier = Modifier.size(size))
+        }
+    } else {
+        Box(
+            modifier.size(size).clip(CircleShape).background(colors.ink).semantics { contentDescription = description },
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                initials(profile.name).ifEmpty { "G" },
+                style = AkhadaTheme.typography.stat.copy(fontSize = (size.value * 0.4f).sp, lineHeight = (size.value * 0.45f).sp),
+                color = colors.onInk,
+            )
+        }
+    }
 }
 
 /** Header for the main tabs: logo, title, one line of context and actions on the right. */
@@ -72,7 +95,7 @@ fun PushedHeader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
     ) {
-        AkhadaIconButton(AkhadaIcons.ChevronLeft, "Back", onBack)
+        AkhadaIconButton(AkhadaIcons.ChevronLeft, stringResource(Res.string.back), onBack)
         HeaderText(title, subtitle, AkhadaTheme.typography.screenTitle, Modifier.weight(1f))
         actions()
     }

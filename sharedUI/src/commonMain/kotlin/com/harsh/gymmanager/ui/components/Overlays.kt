@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.components
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -79,7 +81,7 @@ fun ConfirmSheet(
             modifier = Modifier.fillMaxWidth(),
             kind = if (destructive) ButtonKind.Danger else ButtonKind.Primary,
         )
-        AkhadaButton("Cancel", onClick = onDismiss, modifier = Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+        AkhadaButton(stringResource(Res.string.cancel), onClick = onDismiss, modifier = Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
     }
 }
 

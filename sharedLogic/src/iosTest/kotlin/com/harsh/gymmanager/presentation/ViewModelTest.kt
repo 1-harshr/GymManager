@@ -8,6 +8,7 @@ import com.harsh.gymmanager.data.repository.MembershipRepositoryImpl
 import com.harsh.gymmanager.data.repository.PaymentRepositoryImpl
 import com.harsh.gymmanager.data.repository.PlanRepositoryImpl
 import com.harsh.gymmanager.domain.MembershipStatus
+import com.harsh.gymmanager.domain.ValidationError
 import com.harsh.gymmanager.domain.model.DurationUnit
 import com.harsh.gymmanager.domain.model.PaymentMode
 import com.harsh.gymmanager.domain.usecase.MemberFilter
@@ -88,7 +89,7 @@ class ViewModelTest {
     fun memberEditRequiresNameThenSaves() = runTest {
         val vm = MemberEditViewModel(null, members)
         vm.save()
-        assertEquals("Name is required", vm.state.value.nameError)
+        assertEquals(UiMessage.Invalid(ValidationError.NAME_REQUIRED), vm.state.value.nameError)
 
         vm.onNameChange("Ravi")
         assertNull(vm.state.value.nameError)
@@ -120,9 +121,9 @@ class ViewModelTest {
         vm.onPriceChange("abc")
         vm.save()
         with(vm.state.value) {
-            assertEquals("Plan name is required", nameError)
-            assertEquals("Enter a number of days or months", durationError)
-            assertEquals("Enter a price in rupees", priceError)
+            assertEquals(UiMessage.Invalid(ValidationError.PLAN_NAME_REQUIRED), nameError)
+            assertEquals(UiMessage.EnterDuration, durationError)
+            assertEquals(UiMessage.EnterPrice, priceError)
         }
 
         vm.onNameChange("Quarterly")
@@ -152,7 +153,7 @@ class ViewModelTest {
         vm.onDiscountChange("200")
         vm.onFirstPaymentChange("1400")
         vm.save()
-        assertEquals("Amount paid can't be more than ₹1,300", vm.state.value.errorMessage)
+        assertEquals(UiMessage.AmountPaidTooHigh(1300), vm.state.value.errorMessage)
 
         vm.onFirstPaymentChange("1000")
         vm.onPaymentModeChange(PaymentMode.UPI)
@@ -182,11 +183,11 @@ class ViewModelTest {
 
         vm.onPaymentAmountChange("1001")
         vm.submitPayment()
-        assertEquals("Amount is more than the ₹1,000 due", vm.state.first { it.paymentForm?.error != null }.paymentForm!!.error)
+        assertEquals(UiMessage.Overpayment(1000), vm.state.first { it.paymentForm?.error != null }.paymentForm!!.error)
 
         vm.onPaymentAmountChange("600")
         vm.submitPayment()
-        assertEquals(MemberDetailEvent.ShowMessage("Payment of ₹600 recorded"), vm.events.first())
+        assertEquals(MemberDetailEvent.ShowMessage(UiMessage.PaymentRecorded(600)), vm.events.first())
         val after = vm.state.first { it.detail?.totalDue == 400L }
         assertNull(after.paymentForm)
     }
@@ -229,7 +230,7 @@ class ViewModelTest {
         vm.toggleSelection(asha)
 
         vm.archiveSelected()
-        assertEquals("Archived 2 members", vm.messages.first())
+        assertEquals(UiMessage.MembersArchived(2), vm.messages.first())
         val after = vm.state.first { it.members.size == 1 }
         assertEquals(listOf("Mohit"), after.members.map { it.name })
         assertEquals(false, after.isSelecting)

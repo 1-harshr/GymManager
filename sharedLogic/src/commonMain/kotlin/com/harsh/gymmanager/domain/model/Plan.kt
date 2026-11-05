@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.domain.model
 
+import com.harsh.gymmanager.domain.ValidationError
+import com.harsh.gymmanager.domain.ensure
 import com.harsh.gymmanager.domain.membershipEndDate
 import kotlinx.datetime.LocalDate
 
@@ -14,9 +16,9 @@ data class Plan(
     val isArchived: Boolean = false,
 ) {
     init {
-        require(name.isNotBlank()) { "Plan name is required" }
-        require(durationValue > 0) { "Duration must be at least 1" }
-        require(defaultPrice >= 0) { "Price can't be negative" }
+        ensure(name.isNotBlank(), ValidationError.PLAN_NAME_REQUIRED)
+        ensure(durationValue > 0, ValidationError.DURATION_TOO_SHORT)
+        ensure(defaultPrice >= 0, ValidationError.PRICE_NEGATIVE)
     }
 
     fun endDateFor(start: LocalDate): LocalDate = membershipEndDate(start, durationValue, durationUnit)

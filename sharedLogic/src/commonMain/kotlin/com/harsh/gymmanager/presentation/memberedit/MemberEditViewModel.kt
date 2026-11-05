@@ -2,10 +2,12 @@ package com.harsh.gymmanager.presentation.memberedit
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.harsh.gymmanager.domain.ValidationError
 import com.harsh.gymmanager.domain.model.Gender
 import com.harsh.gymmanager.domain.model.Member
 import com.harsh.gymmanager.domain.usecase.MemberUseCases
-import com.harsh.gymmanager.presentation.toUserMessage
+import com.harsh.gymmanager.presentation.UiMessage
+import com.harsh.gymmanager.presentation.toUiMessage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,8 +34,8 @@ data class MemberEditUiState(
     val isEditing: Boolean,
     val isLoading: Boolean = isEditing,
     val form: MemberForm = MemberForm(),
-    val nameError: String? = null,
-    val errorMessage: String? = null,
+    val nameError: UiMessage? = null,
+    val errorMessage: UiMessage? = null,
     val isSaving: Boolean = false,
 )
 
@@ -95,7 +97,7 @@ class MemberEditViewModel(
         if (current.isSaving || current.isLoading) return
         val form = current.form
         if (form.name.isBlank()) {
-            _state.update { it.copy(nameError = "Name is required") }
+            _state.update { it.copy(nameError = UiMessage.Invalid(ValidationError.NAME_REQUIRED)) }
             return
         }
         _state.update { it.copy(isSaving = true, errorMessage = null) }
@@ -126,7 +128,7 @@ class MemberEditViewModel(
             }
             result
                 .onSuccess { eventChannel.send(MemberEditEvent.Saved(it)) }
-                .onFailure { e -> _state.update { it.copy(isSaving = false, errorMessage = e.toUserMessage()) } }
+                .onFailure { e -> _state.update { it.copy(isSaving = false, errorMessage = e.toUiMessage()) } }
         }
     }
 

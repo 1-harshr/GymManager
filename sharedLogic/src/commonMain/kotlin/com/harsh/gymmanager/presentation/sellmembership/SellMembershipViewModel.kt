@@ -6,9 +6,10 @@ import com.harsh.gymmanager.domain.model.PaymentMode
 import com.harsh.gymmanager.domain.model.Plan
 import com.harsh.gymmanager.domain.usecase.MembershipUseCases
 import com.harsh.gymmanager.domain.usecase.PlanUseCases
-import com.harsh.gymmanager.presentation.formatRupees
+import com.harsh.gymmanager.domain.ValidationError
 import com.harsh.gymmanager.presentation.parseRupees
-import com.harsh.gymmanager.presentation.toUserMessage
+import com.harsh.gymmanager.presentation.UiMessage
+import com.harsh.gymmanager.presentation.toUiMessage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +31,7 @@ data class SellMembershipUiState(
     val firstPaymentText: String = "",
     val paymentMode: PaymentMode = PaymentMode.CASH,
     val notes: String = "",
-    val errorMessage: String? = null,
+    val errorMessage: UiMessage? = null,
     val isSaving: Boolean = false,
 ) {
     private val price: Long? get() = parseRupees(priceText)
@@ -53,14 +54,14 @@ data class SellMembershipUiState(
             return (charged - paid).takeIf { it >= 0 }
         }
 
-    internal fun validationError(): String? = when {
-        selectedPlan == null -> "Choose a plan"
-        startDate == null || endDate == null -> "Choose the dates"
-        price == null -> "Enter a price in rupees"
-        discount == null -> "Enter a discount in rupees"
-        amountCharged == null -> "Discount can't be more than the price"
-        firstPayment == null -> "Enter the amount paid in rupees"
-        amountDueAfterPayment == null -> "Amount paid can't be more than ${formatRupees(amountCharged!!)}"
+    internal fun validationError(): UiMessage? = when {
+        selectedPlan == null -> UiMessage.ChoosePlan
+        startDate == null || endDate == null -> UiMessage.ChooseDates
+        price == null -> UiMessage.EnterPrice
+        discount == null -> UiMessage.EnterDiscount
+        amountCharged == null -> UiMessage.Invalid(ValidationError.DISCOUNT_TOO_LARGE)
+        firstPayment == null -> UiMessage.EnterAmountPaid
+        amountDueAfterPayment == null -> UiMessage.AmountPaidTooHigh(amountCharged!!)
         else -> null
     }
 }
@@ -137,7 +138,7 @@ class SellMembershipViewModel(
                 firstPaymentMode = current.paymentMode,
             )
                 .onSuccess { eventChannel.send(SellMembershipEvent.Sold(it)) }
-                .onFailure { e -> _state.update { it.copy(isSaving = false, errorMessage = e.toUserMessage()) } }
+                .onFailure { e -> _state.update { it.copy(isSaving = false, errorMessage = e.toUiMessage()) } }
         }
     }
 }

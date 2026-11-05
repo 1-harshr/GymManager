@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.screens.planedit
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +31,7 @@ import com.harsh.gymmanager.ui.components.AkhadaButton
 import com.harsh.gymmanager.ui.components.AkhadaTextField
 import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.components.SegmentedControl
+import com.harsh.gymmanager.ui.format.asString
 import com.harsh.gymmanager.ui.theme.AkhadaSpace
 import com.harsh.gymmanager.ui.theme.AkhadaTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
@@ -50,42 +53,42 @@ fun PlanEditScreen(planId: Long?, onBack: () -> Unit, onSaved: () -> Unit) {
     }
 
     Column(Modifier.fillMaxSize().imePadding()) {
-        PushedHeader(if (state.isEditing) "Edit plan" else "New plan", onBack)
+        PushedHeader(if (state.isEditing) stringResource(Res.string.edit_plan) else stringResource(Res.string.new_plan), onBack)
         Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter(),
             verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg),
         ) {
             AkhadaTextField(
-                state.name, vm::onNameChange, "Plan name",
-                error = state.nameError, placeholder = "e.g. Gym · Monthly", capitalization = KeyboardCapitalization.Words,
+                state.name, vm::onNameChange, stringResource(Res.string.plan_name),
+                error = state.nameError?.asString(), placeholder = stringResource(Res.string.plan_name_hint), capitalization = KeyboardCapitalization.Words,
             )
             Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md), verticalAlignment = Alignment.Bottom) {
                 AkhadaTextField(
-                    state.durationText, vm::onDurationChange, "Length",
-                    Modifier.weight(1f), error = state.durationError, keyboardType = KeyboardType.Number,
+                    state.durationText, vm::onDurationChange, stringResource(Res.string.plan_length),
+                    Modifier.weight(1f), error = state.durationError?.asString(), keyboardType = KeyboardType.Number,
                 )
                 SegmentedControl(
                     listOf(DurationUnit.DAYS, DurationUnit.MONTHS), state.durationUnit,
                     { it?.let(vm::onDurationUnitChange) },
-                    { if (it == DurationUnit.DAYS) "Days" else "Months" },
+                    { if (it == DurationUnit.DAYS) stringResource(Res.string.unit_days) else stringResource(Res.string.unit_months) },
                     Modifier.weight(1.2f).padding(bottom = if (state.durationError != null) 24.dp else 6.dp),
                 )
             }
             AkhadaTextField(
-                state.priceText, vm::onPriceChange, "Price",
-                error = state.priceError, prefix = "₹", keyboardType = KeyboardType.Number,
+                state.priceText, vm::onPriceChange, stringResource(Res.string.price),
+                error = state.priceError?.asString(), prefix = "₹", keyboardType = KeyboardType.Number,
             )
             if (state.isEditing) {
                 Text(
-                    "Changes apply to memberships you sell from now on. Ones already sold keep their price and dates.",
+                    stringResource(Res.string.plan_edit_note),
                     style = AkhadaTheme.typography.caption,
                     color = AkhadaTheme.colors.inkMuted,
                 )
             }
-            state.errorMessage?.let { Text(it, style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.statusDue) }
+            state.errorMessage?.let { Text(it.asString(), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.statusDue) }
         }
         AkhadaButton(
-            if (state.isSaving) "Saving…" else if (state.isEditing) "Save changes" else "Add plan",
+            if (state.isSaving) stringResource(Res.string.saving) else if (state.isEditing) stringResource(Res.string.save_changes) else stringResource(Res.string.add_plan),
             vm::save,
             Modifier.fillMaxWidth().screenGutter().navigationBarsPadding().padding(vertical = AkhadaSpace.md),
             enabled = !state.isSaving && !state.isLoading,

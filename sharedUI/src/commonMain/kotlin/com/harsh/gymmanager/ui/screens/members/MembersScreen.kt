@@ -1,5 +1,8 @@
 package com.harsh.gymmanager.ui.screens.members
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.pluralStringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.Alignment
@@ -29,15 +32,18 @@ import com.harsh.gymmanager.ui.theme.AkhadaSize
 import com.harsh.gymmanager.ui.theme.AkhadaSpace
 import com.harsh.gymmanager.ui.theme.screenGutter
 
-fun MemberFilter.label(): String = when (this) {
-    MemberFilter.ALL -> "All"
-    MemberFilter.ACTIVE -> "Active"
-    MemberFilter.EXPIRING_SOON -> "Expiring"
-    MemberFilter.EXPIRED -> "Expired"
-    MemberFilter.WITH_DUES -> "Dues"
-    MemberFilter.NO_MEMBERSHIP -> "No plan"
-    MemberFilter.ARCHIVED -> "Archived"
-}
+@Composable
+fun MemberFilter.label(): String = stringResource(
+    when (this) {
+        MemberFilter.ALL -> Res.string.filter_all
+        MemberFilter.ACTIVE -> Res.string.filter_active
+        MemberFilter.EXPIRING_SOON -> Res.string.filter_expiring
+        MemberFilter.EXPIRED -> Res.string.filter_expired
+        MemberFilter.WITH_DUES -> Res.string.filter_dues
+        MemberFilter.NO_MEMBERSHIP -> Res.string.filter_no_plan
+        MemberFilter.ARCHIVED -> Res.string.filter_archived
+    },
+)
 
 private val FilterOrder = listOf(
     MemberFilter.ALL, MemberFilter.ACTIVE, MemberFilter.EXPIRING_SOON, MemberFilter.EXPIRED,
@@ -58,11 +64,7 @@ fun MembersScreen(
     onImport: () -> Unit,
 ) {
     val today = rememberToday()
-    val subtitle = when {
-        state.isLoading -> null
-        state.members.size == 1 -> "1 member"
-        else -> "${state.members.size} members"
-    }
+    val subtitle = if (state.isLoading) null else pluralStringResource(Res.plurals.members_count, state.members.size, state.members.size)
     LazyColumn(
         Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = AkhadaSize.contentBottomClearance),
@@ -72,15 +74,15 @@ fun MembersScreen(
             if (state.isSelecting) {
                 SelectionHeader(state.selectedIds.size, onCancel = onClearSelection, onSelectAll = onSelectAll)
             } else {
-                TabHeader("Members", subtitle) {
+                TabHeader(stringResource(Res.string.tab_members), subtitle) {
                     MoreMenu(
                         actions = listOf(
-                            MenuAction("Select members") { state.members.firstOrNull()?.let(onToggleSelection) },
-                            MenuAction("Import from file", onClick = onImport),
+                            MenuAction(stringResource(Res.string.select_members)) { state.members.firstOrNull()?.let(onToggleSelection) },
+                            MenuAction(stringResource(Res.string.import_from_file), onClick = onImport),
                         ),
-                        contentDescription = "More member actions",
+                        contentDescription = stringResource(Res.string.more_member_actions),
                     )
-                    AkhadaIconButton(AkhadaIcons.Settings, "Settings", onOpenSettings)
+                    AkhadaIconButton(AkhadaIcons.Settings, stringResource(Res.string.settings), onOpenSettings)
                 }
             }
         }
@@ -92,13 +94,13 @@ fun MembersScreen(
                 when {
                     nothingYet -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         EmptyState(
-                            AkhadaIcons.Users, "No members yet", "Add your first member, or bring them all in from a spreadsheet.",
-                            actionLabel = "Add member", onAction = onAddMember,
+                            AkhadaIcons.Users, stringResource(Res.string.no_members_title), stringResource(Res.string.no_members_body),
+                            actionLabel = stringResource(Res.string.add_member), onAction = onAddMember,
                         )
-                        GhostButton("Import from file", onImport)
+                        GhostButton(stringResource(Res.string.import_from_file), onImport)
                     }
-                    state.query.isNotBlank() -> EmptyState(AkhadaIcons.Search, "No one matches “${state.query.trim()}”", "Check the spelling, or search by phone number.")
-                    else -> EmptyState(AkhadaIcons.Users, "No ${state.filter.label().lowercase()} members", "Members show up here when they match this filter.")
+                    state.query.isNotBlank() -> EmptyState(AkhadaIcons.Search, stringResource(Res.string.no_match_title, state.query.trim()), stringResource(Res.string.no_match_body))
+                    else -> EmptyState(AkhadaIcons.Users, stringResource(Res.string.no_filter_match_title), stringResource(Res.string.no_filter_match_body))
                 }
             }
         }

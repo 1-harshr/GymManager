@@ -1,5 +1,8 @@
 package com.harsh.gymmanager.ui.components
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.pluralStringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,12 +35,12 @@ fun SelectionHeader(count: Int, onCancel: () -> Unit, onSelectAll: () -> Unit, m
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
     ) {
-        AkhadaIconButton(AkhadaIcons.X, "Cancel selection", onCancel)
+        AkhadaIconButton(AkhadaIcons.X, stringResource(Res.string.cancel_selection), onCancel)
         Column(Modifier.weight(1f)) {
-            Text("$count selected", style = AkhadaTheme.typography.screenTitle)
-            Text("Long-press or tap to change", style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
+            Text(pluralStringResource(Res.plurals.selected_count, count, count), style = AkhadaTheme.typography.screenTitle)
+            Text(stringResource(Res.string.selection_hint), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
         }
-        GhostButton("Select all", onSelectAll)
+        GhostButton(stringResource(Res.string.select_all), onSelectAll)
     }
 }
 

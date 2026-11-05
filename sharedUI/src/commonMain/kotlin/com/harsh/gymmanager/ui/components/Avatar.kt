@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.components
 
+import gymmanager.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -25,7 +27,7 @@ fun Avatar(name: String, photoPath: String?, modifier: Modifier = Modifier, size
         contentAlignment = Alignment.Center,
     ) {
         if (photoPath != null) {
-            MemberPhoto(photoPath, contentDescription = "Photo of $name", modifier = Modifier.size(size))
+            MemberPhoto(photoPath, contentDescription = stringResource(Res.string.photo_of, name), modifier = Modifier.size(size))
         } else {
             Text(
                 initials(name),
