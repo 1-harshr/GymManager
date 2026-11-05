@@ -88,6 +88,7 @@ fun PushedHeader(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
+    titleModifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
@@ -96,15 +97,15 @@ fun PushedHeader(
         horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
     ) {
         AkhadaIconButton(AkhadaIcons.ChevronLeft, stringResource(Res.string.back), onBack)
-        HeaderText(title, subtitle, AkhadaTheme.typography.screenTitle, Modifier.weight(1f))
+        HeaderText(title, subtitle, AkhadaTheme.typography.screenTitle, Modifier.weight(1f), titleModifier)
         actions()
     }
 }
 
 @Composable
-private fun HeaderText(title: String, subtitle: String?, style: TextStyle, modifier: Modifier) {
+private fun HeaderText(title: String, subtitle: String?, style: TextStyle, modifier: Modifier, titleModifier: Modifier = Modifier) {
     Column(modifier) {
-        Text(title, style = style, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(title, titleModifier, style = style, maxLines = 1, overflow = TextOverflow.Ellipsis)
         if (subtitle != null) {
             Text(subtitle, style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }

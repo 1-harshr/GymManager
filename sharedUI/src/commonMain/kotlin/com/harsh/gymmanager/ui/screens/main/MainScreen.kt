@@ -5,7 +5,9 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandHorizontally
@@ -32,6 +34,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -51,6 +54,7 @@ import com.harsh.gymmanager.ui.components.FloatingTabBar
 import com.harsh.gymmanager.ui.components.TabItem
 import com.harsh.gymmanager.ui.format.resolve
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
+import com.harsh.gymmanager.ui.motion.AkhadaMotion
 import com.harsh.gymmanager.ui.platform.SystemBackHandler
 import com.harsh.gymmanager.ui.screens.home.HomeScreen
 import com.harsh.gymmanager.ui.screens.members.MembersScreen
@@ -106,7 +110,17 @@ fun MainScreen(
     }
 
     Box(Modifier.fillMaxSize()) {
-        Crossfade(tab, label = "tab") { current ->
+        AnimatedContent(
+            targetState = tab,
+            transitionSpec = {
+                // Tabs sit side by side, so the new one comes from the side it lives on.
+                val forward = targetState > initialState
+                val tabSpec = tween<IntOffset>(AkhadaMotion.TAB_MS, easing = AkhadaMotion.Settle)
+                (slideInHorizontally(tabSpec) { if (forward) it / 8 else -it / 8 } + fadeIn(tween(220, delayMillis = 60))) togetherWith
+                    (slideOutHorizontally(tabSpec) { if (forward) -it / 8 else it / 8 } + fadeOut(tween(140)))
+            },
+            label = "tab",
+        ) { current ->
             when (current) {
                 HOME -> HomeScreen(
                     state = dashboardVm.state.collectAsStateWithLifecycle().value,

@@ -66,6 +66,8 @@ import com.harsh.gymmanager.ui.format.label
 import com.harsh.gymmanager.ui.format.rememberToday
 import com.harsh.gymmanager.ui.format.statusLabel
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
+import com.harsh.gymmanager.ui.motion.SharedKeys
+import com.harsh.gymmanager.ui.motion.sharedElement
 import com.harsh.gymmanager.ui.theme.AkhadaSpace
 import com.harsh.gymmanager.ui.theme.AkhadaTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
@@ -126,7 +128,12 @@ fun MemberDetailScreen(
         verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
     ) {
         item {
-            PushedHeader(member.name, onBack, subtitle = stringResource(Res.string.joined_on, member.joinedOn.formatFull())) {
+            PushedHeader(
+                member.name,
+                onBack,
+                subtitle = stringResource(Res.string.joined_on, member.joinedOn.formatFull()),
+                titleModifier = Modifier.sharedElement(SharedKeys.memberName(memberId)),
+            ) {
                 member.phone?.let { phone ->
                     AkhadaIconButton(AkhadaIcons.Phone, stringResource(Res.string.call_person, member.name), onClick = { uriHandler.openUri("tel:$phone") }, iconSize = 20.dp)
                 }
@@ -144,7 +151,7 @@ fun MemberDetailScreen(
         item {
             AkhadaCard(Modifier.screenGutter()) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.lg)) {
-                    Avatar(member.name, member.photoPath, size = 72.dp)
+                    Avatar(member.name, member.photoPath, Modifier.sharedElement(SharedKeys.memberPhoto(memberId)), size = 72.dp)
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
                         if (member.isArchived) {
                             Badge(stringResource(Res.string.archived), BadgeTone.Expired)

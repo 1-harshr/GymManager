@@ -33,6 +33,8 @@ import com.harsh.gymmanager.ui.format.formatDayMonth
 import com.harsh.gymmanager.ui.format.formatPhone
 import com.harsh.gymmanager.ui.format.statusShortLabel
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
+import com.harsh.gymmanager.ui.motion.SharedKeys
+import com.harsh.gymmanager.ui.motion.sharedElement
 import com.harsh.gymmanager.ui.theme.AkhadaRadius
 import com.harsh.gymmanager.ui.theme.AkhadaSpace
 import com.harsh.gymmanager.ui.theme.AkhadaTheme
@@ -87,9 +89,9 @@ fun MemberRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
         ) {
-            if (selected) SelectedMark() else Avatar(member.name, member.photoPath)
+            if (selected) SelectedMark() else Avatar(member.name, member.photoPath, Modifier.sharedElement(SharedKeys.memberPhoto(member.memberId)))
             Column(Modifier.weight(1f)) {
-                Text(member.name, style = AkhadaTheme.typography.title, color = if (selected) colors.onAccentSoft else colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(member.name, Modifier.sharedElement(SharedKeys.memberName(member.memberId)), style = AkhadaTheme.typography.title, color = if (selected) colors.onAccentSoft else colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(secondary, style = AkhadaTheme.typography.caption, color = if (selected) colors.onAccentSoft else colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
