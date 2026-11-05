@@ -87,7 +87,6 @@ fun SettingsScreen(
             SectionHeader(stringResource(Res.string.section_about), Modifier.padding(top = AkhadaSpace.md))
             AkhadaCard {
                 Text(stringResource(Res.string.version, "1.0"), style = typography.body)
-                Text(stringResource(Res.string.licences), style = typography.caption, color = colors.inkMuted)
             }
             Text(
                 stringResource(Res.string.credits),

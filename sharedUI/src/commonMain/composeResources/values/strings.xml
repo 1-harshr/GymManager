@@ -222,7 +222,6 @@
     <string name="section_about">About</string>
     <string name="credits">Created by musa_fir ❤️ · No rights reserved</string>
     <string name="version">Version %1$s</string>
-    <string name="licences">Fonts: Barlow and Barlow Condensed (SIL Open Font License). Icons: Lucide (ISC License).</string>
     <string name="setup_title">Set up your gym</string>
     <string name="setup_subtitle">You can change this later in Settings</string>
     <string name="gym_details">Gym details</string>
