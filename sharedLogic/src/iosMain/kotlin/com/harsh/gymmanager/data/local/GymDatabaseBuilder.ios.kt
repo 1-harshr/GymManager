@@ -8,7 +8,7 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
 @OptIn(ExperimentalForeignApi::class)
-fun gymDatabaseBuilder(): RoomDatabase.Builder<GymDatabase> {
+fun gymDatabaseBuilder(name: String = DATABASE_NAME): RoomDatabase.Builder<GymDatabase> {
     val documentDirectory = NSFileManager.defaultManager.URLForDirectory(
         directory = NSDocumentDirectory,
         inDomain = NSUserDomainMask,
@@ -16,6 +16,6 @@ fun gymDatabaseBuilder(): RoomDatabase.Builder<GymDatabase> {
         create = false,
         error = null,
     )
-    val dbPath = requireNotNull(documentDirectory?.path) + "/$DATABASE_NAME"
+    val dbPath = requireNotNull(documentDirectory?.path) + "/$name"
     return Room.databaseBuilder<GymDatabase>(name = dbPath)
 }

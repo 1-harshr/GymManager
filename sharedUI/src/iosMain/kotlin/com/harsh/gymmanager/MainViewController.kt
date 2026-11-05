@@ -1,5 +1,9 @@
 package com.harsh.gymmanager
 
+import kotlinx.cinterop.ExperimentalForeignApi
+import platform.Foundation.NSFileManager
+import com.harsh.gymmanager.ui.notifications.NoMorningUpdates
+import com.harsh.gymmanager.data.local.DEMO_DATABASE_NAME
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
@@ -18,13 +22,37 @@ import com.harsh.gymmanager.ui.platform.IosStoredFiles
 import com.harsh.gymmanager.ui.platform.documentsDirectory
 import platform.UIKit.UIViewController
 
+/** A settings file can only be open once, so the real data and demo mode share it. */
+private val settingsStore by lazy { createSettingsDataStore("${documentsDirectory()}/$SETTINGS_FILE_NAME") }
+
+/** The gym's real data. Siri and Shortcuts only ever use this. */
 internal val iosDependencies: AppDependencies by lazy {
     DefaultAppDependencies(
         openDatabase = { buildGymDatabase(gymDatabaseBuilder()) },
-        openSettings = { createSettingsDataStore("${documentsDirectory()}/$SETTINGS_FILE_NAME") },
+        openSettings = { settingsStore },
         storedFiles = IosStoredFiles(),
         createMorningUpdates = { IosMorningUpdates(it) },
         onDeviceModel = InstalledOnDeviceModel,
+    )
+}
+
+/** Sample data for showing the app, in its own database file next to the real one. */
+@OptIn(ExperimentalForeignApi::class)
+private val demoMode by lazy {
+    DemoMode(
+        createDemo = {
+            DefaultAppDependencies(
+                openDatabase = { buildGymDatabase(gymDatabaseBuilder(DEMO_DATABASE_NAME)) },
+                openSettings = { settingsStore },
+                storedFiles = IosStoredFiles(),
+                createMorningUpdates = { NoMorningUpdates },
+                onDeviceModel = InstalledOnDeviceModel,
+            )
+        },
+        deleteDemoFile = {
+            // SQLite keeps side files next to the database, and the driver a lock file.
+            listOf("", "-wal", "-shm", ".lck").forEach { NSFileManager.defaultManager.removeItemAtPath("${documentsDirectory()}/$DEMO_DATABASE_NAME$it", null) }
+        },
     )
 }
 
@@ -34,7 +62,7 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
     var ready by remember { mutableStateOf(false) }
     // UIKit drops the launch screen at the first frame, so a Compose copy of it carries the hold and fade.
     Box(Modifier.fillMaxSize()) {
-        App(iosDependencies, onReady = { ready = true })
+        GymManagerApp(iosDependencies, demoMode, onReady = { ready = true })
         LaunchSplash(appReady = ready)
     }
 }

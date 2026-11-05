@@ -1,19 +1,26 @@
 package com.harsh.gymmanager
 
 import android.content.Context
-import com.harsh.gymmanager.ai.GeminiNanoModel
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import com.harsh.gymmanager.data.local.buildGymDatabase
 import com.harsh.gymmanager.data.local.gymDatabaseBuilder
-import com.harsh.gymmanager.data.settings.SETTINGS_FILE_NAME
-import com.harsh.gymmanager.data.settings.createSettingsDataStore
+import com.harsh.gymmanager.domain.insights.OnDeviceModel
 import com.harsh.gymmanager.notifications.AndroidMorningUpdates
 import com.harsh.gymmanager.ui.platform.AndroidStoredFiles
 
-/** Android's app-wide singletons: the shared container, opened in the app's private storage. */
-class AppContainer(context: Context) : AppDependencies by DefaultAppDependencies(
+/**
+ * Android's app-wide singletons on the gym's real data, in the app's private storage. [settings]
+ * is shared with demo mode, since a settings file can only be open once.
+ */
+class AppContainer(
+    context: Context,
+    settings: () -> DataStore<Preferences>,
+    onDeviceModel: OnDeviceModel,
+) : AppDependencies by DefaultAppDependencies(
     openDatabase = { buildGymDatabase(gymDatabaseBuilder(context.applicationContext)) },
-    openSettings = { createSettingsDataStore(context.applicationContext.filesDir.resolve(SETTINGS_FILE_NAME).absolutePath) },
+    openSettings = settings,
     storedFiles = AndroidStoredFiles(context.applicationContext),
     createMorningUpdates = { AndroidMorningUpdates(context.applicationContext) },
-    onDeviceModel = GeminiNanoModel(),
+    onDeviceModel = onDeviceModel,
 )

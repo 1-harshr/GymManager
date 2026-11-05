@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.components
 
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.focus.FocusDirection
@@ -87,6 +88,10 @@ fun AkhadaTextField(
     capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
     singleLine: Boolean = true,
     imeAction: ImeAction = if (singleLine) ImeAction.Next else ImeAction.Default,
+    /** E.g. [androidx.compose.ui.text.input.PasswordVisualTransformation] to hide what's typed. */
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    /** Called when the keyboard's Done is pressed, after it closes. */
+    onDone: () -> Unit = {},
 ) {
     val colors = AkhadaTheme.colors
     val typography = AkhadaTheme.typography
@@ -105,8 +110,12 @@ fun AkhadaTextField(
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType, capitalization = capitalization, imeAction = imeAction),
             keyboardActions = KeyboardActions(
                 onNext = { if (!focusManager.moveFocus(FocusDirection.Next)) focusManager.clearFocus() },
-                onDone = { focusManager.clearFocus() },
+                onDone = {
+                    focusManager.clearFocus()
+                    onDone()
+                },
             ),
+            visualTransformation = visualTransformation,
             interactionSource = interaction,
             decorationBox = { inner ->
                 Row(

@@ -1,5 +1,22 @@
 package com.harsh.gymmanager
 
+import gymmanager.sharedui.generated.resources.demo_exit
+import gymmanager.sharedui.generated.resources.demo_banner
+import org.jetbrains.compose.resources.stringResource
+import com.harsh.gymmanager.ui.theme.AkhadaSpace
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.ViewModelStore
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.background
@@ -86,6 +103,28 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 
+/**
+ * The app on the gym's real data, or on sample data while [demoMode] runs a demo. Switching
+ * rebuilds every screen with fresh view models, so nothing keeps hold of the other data; a demo is
+ * closed and deleted once its screens are gone.
+ */
+@Composable
+fun GymManagerApp(real: AppDependencies, demoMode: DemoMode, onReady: () -> Unit = {}) {
+    val demo = demoMode.active
+    key(demo) {
+        val owner = remember { object : ViewModelStoreOwner { override val viewModelStore = ViewModelStore() } }
+        DisposableEffect(Unit) {
+            onDispose {
+                owner.viewModelStore.clear()
+                demo?.let(demoMode::release)
+            }
+        }
+        CompositionLocalProvider(LocalViewModelStoreOwner provides owner, LocalDemoMode provides demoMode) {
+            App(demo ?: real, onReady)
+        }
+    }
+}
+
 @Composable
 fun App(dependencies: AppDependencies, onReady: () -> Unit = {}) {
     val settingsVm = viewModel { SettingsViewModel(dependencies.settingsUseCases) }
@@ -95,7 +134,9 @@ fun App(dependencies: AppDependencies, onReady: () -> Unit = {}) {
         ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
     }
-    SystemBarsFor(dark)
+    val inDemo = LocalDemoMode.current?.active != null
+    // The demo banner is clay, so the status bar icons go light on it.
+    SystemBarsFor(dark || inDemo)
     if (settings != null) LaunchedEffect(Unit) { onReady() }
     // String resources follow the overridden configuration, so switching language keeps the current screen.
     val tag = settings?.language?.tag
@@ -103,9 +144,13 @@ fun App(dependencies: AppDependencies, onReady: () -> Unit = {}) {
     CompositionLocalProvider(LocalAppLocale provides tag, LocalLanguage provides language) {
         val content: @Composable () -> Unit = {
             AkhadaTheme(darkTheme = dark) {
-                Box(Modifier.fillMaxSize().background(AkhadaTheme.colors.bg)) {
-                    // Wait for stored settings so first-run setup never flashes on later launches.
-                    if (settings != null) AppContent(dependencies, settings, settingsVm)
+                Column(Modifier.fillMaxSize().background(AkhadaTheme.colors.bg)) {
+                    if (inDemo) DemoBanner()
+                    // Below the banner, screens don't need their own room for the status bar.
+                    Box(Modifier.weight(1f).then(if (inDemo) Modifier.consumeWindowInsets(WindowInsets.statusBars) else Modifier)) {
+                        // Wait for stored settings so first-run setup never flashes on later launches.
+                        if (settings != null) AppContent(dependencies, settings, settingsVm)
+                    }
                 }
             }
         }
@@ -293,6 +338,22 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
             }
             // Sits above the floating tab bar.
             AkhadaSnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 88.dp))
+        }
+    }
+}
+
+/** Always on screen during a demo, so sample data is never mistaken for the gym's records. */
+@Composable
+private fun DemoBanner() {
+    val colors = AkhadaTheme.colors
+    val demoMode = LocalDemoMode.current ?: return
+    Row(
+        Modifier.fillMaxWidth().background(colors.accent).statusBarsPadding().padding(start = AkhadaSpace.gutter, end = AkhadaSpace.sm),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(stringResource(Res.string.demo_banner), Modifier.weight(1f), style = AkhadaTheme.typography.bodyStrong, color = colors.onAccent)
+        TextButton(onClick = demoMode::exit) {
+            Text(stringResource(Res.string.demo_exit), style = AkhadaTheme.typography.bodyStrong, color = colors.onAccent)
         }
     }
 }

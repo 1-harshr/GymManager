@@ -50,7 +50,8 @@ class DefaultAppDependencies(
     private val clock: Clock = Clock.System,
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
 ) : AppDependencies {
-    private val database by lazy(openDatabase)
+    private var databaseOpened = false
+    private val database by lazy { openDatabase().also { databaseOpened = true } }
 
     private val memberRepository by lazy { MemberRepositoryImpl(database.memberDao(), clock, timeZone) }
     private val planRepository by lazy { PlanRepositoryImpl(database.planDao(), clock) }
@@ -90,4 +91,9 @@ class DefaultAppDependencies(
         InboxUseCases(InboxRepositoryImpl(database.inboxDao()), memberRepository, membershipRepository, clock, timeZone)
     }
     override val suggestions by lazy { SuggestionsUseCase(UsageRepositoryImpl(database.usageDao())) }
+
+    /** Closes the database, if it was opened; these dependencies can't be used after. */
+    fun close() {
+        if (databaseOpened) database.close()
+    }
 }

@@ -1,5 +1,12 @@
 package com.harsh.gymmanager.ui.screens.settings
 
+import org.jetbrains.compose.resources.StringResource
+import com.harsh.gymmanager.ui.components.AkhadaTextField
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import com.harsh.gymmanager.LocalDemoMode
+import com.harsh.gymmanager.DemoMode
 import gymmanager.sharedui.generated.resources.credits
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.Arrangement
@@ -132,6 +139,11 @@ fun SettingsScreen(
             SectionHeader(stringResource(Res.string.section_data), Modifier.padding(top = AkhadaSpace.md))
             BackupCard(settings)
 
+            LocalDemoMode.current?.let { demoMode ->
+                SectionHeader(stringResource(Res.string.section_demo), Modifier.padding(top = AkhadaSpace.md))
+                DemoCard(demoMode)
+            }
+
             SectionHeader(stringResource(Res.string.section_about), Modifier.padding(top = AkhadaSpace.md))
             AkhadaCard {
                 Text(stringResource(Res.string.version, "1.0"), style = typography.body)
@@ -241,6 +253,75 @@ private fun MorningUpdate.timeLabel(): String {
     return stringResource(if (hour < 12) Res.string.time_am else Res.string.time_pm, hour12, minutes)
 }
 
+/**
+ * Sample data for showing the app, opened in its own space after the demo password. During a demo
+ * the card offers the way back instead.
+ */
+@Composable
+private fun DemoCard(demoMode: DemoMode) {
+    val colors = AkhadaTheme.colors
+    val typography = AkhadaTheme.typography
+    val inDemo = demoMode.active != null
+    var asking by remember { mutableStateOf(false) }
+    AkhadaCard {
+        Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+            Text(stringResource(Res.string.demo_title), style = typography.bodyStrong)
+            Text(stringResource(if (inDemo) Res.string.demo_active_body else Res.string.demo_body), style = typography.body, color = colors.inkMuted)
+        }
+        if (inDemo) {
+            AkhadaButton(stringResource(Res.string.demo_exit), demoMode::exit, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+        } else {
+            AkhadaButton(stringResource(Res.string.demo_start), { asking = true }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+        }
+    }
+    if (asking) DemoPasswordSheet(demoMode, onDismiss = { asking = false })
+}
+
+/** Asks for the demo password, then builds the demo; the app switches to it when ready. */
+@Composable
+private fun DemoPasswordSheet(demoMode: DemoMode, onDismiss: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    var password by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<StringResource?>(null) }
+    var starting by remember { mutableStateOf(false) }
+    fun start() {
+        if (starting) return
+        if (!demoMode.isPassword(password)) {
+            error = Res.string.demo_wrong_password
+            return
+        }
+        starting = true
+        scope.launch {
+            demoMode.start().onFailure {
+                starting = false
+                error = Res.string.demo_failed
+            }
+        }
+    }
+    AkhadaBottomSheet(onDismiss = { if (!starting) onDismiss() }) {
+        Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+            Text(stringResource(Res.string.demo_start), style = AkhadaTheme.typography.title)
+            Text(stringResource(Res.string.demo_sheet_body), style = AkhadaTheme.typography.body, color = AkhadaTheme.colors.inkMuted)
+        }
+        AkhadaTextField(
+            password,
+            { password = it.filter(Char::isDigit).take(8); error = null },
+            stringResource(Res.string.demo_password),
+            keyboardType = KeyboardType.NumberPassword,
+            visualTransformation = PasswordVisualTransformation(),
+            error = error?.let { stringResource(it) },
+            imeAction = ImeAction.Done,
+            onDone = ::start,
+        )
+        AkhadaButton(
+            stringResource(if (starting) Res.string.demo_starting else Res.string.demo_start),
+            ::start,
+            Modifier.fillMaxWidth(),
+            enabled = !starting && password.isNotEmpty(),
+        )
+    }
+}
+
 /** Saving a backup file and restoring one; restoring asks first, since it replaces everything. */
 @Composable
 private fun BackupCard(settings: AppSettings) {
@@ -262,6 +343,14 @@ private fun BackupCard(settings: AppSettings) {
         }
     }
 
+    // Sample data must never become a backup, or be restored over.
+    if (LocalDemoMode.current?.active != null) {
+        AkhadaCard {
+            Text(stringResource(Res.string.data_title), style = typography.bodyStrong)
+            Text(stringResource(Res.string.backups_off_in_demo), style = typography.body, color = colors.inkMuted)
+        }
+        return
+    }
     AkhadaCard {
         Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
             Text(stringResource(Res.string.data_title), style = typography.bodyStrong)

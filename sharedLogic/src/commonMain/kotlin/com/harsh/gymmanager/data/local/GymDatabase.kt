@@ -27,6 +27,9 @@ import kotlinx.coroutines.IO
 
 const val DATABASE_NAME = "gym.db"
 
+/** Sample data for demos, next to the real file and never mixed with it. */
+const val DEMO_DATABASE_NAME = "gym-demo.db"
+
 @Database(
     entities = [
         MemberEntity::class, PlanEntity::class, MembershipEntity::class, PaymentEntity::class, MessageLogEntity::class,

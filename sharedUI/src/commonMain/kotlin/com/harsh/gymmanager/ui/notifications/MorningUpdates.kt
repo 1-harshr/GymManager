@@ -22,6 +22,11 @@ interface MorningUpdateScheduler {
     suspend fun sync(settings: AppSettings)
 }
 
+/** For demo mode: sample data never schedules the owner's morning update. */
+object NoMorningUpdates : MorningUpdateScheduler {
+    override suspend fun sync(settings: AppSettings) = Unit
+}
+
 data class NotificationText(val title: String, val body: String)
 
 /** The notification in the current string-resource language, one fact per line. */

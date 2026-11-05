@@ -23,9 +23,9 @@ class MainActivity : ComponentActivity() {
             provider.iconView.animate().scaleX(1.08f).scaleY(1.08f).setDuration(exit).start()
             provider.view.animate().alpha(0f).setDuration(exit).withEndAction { provider.remove() }.start()
         }
-        val container = (application as GymManagerApplication).container
+        val app = application as GymManagerApplication
         setContent {
-            App(container, onReady = { ready = true })
+            GymManagerApp(app.container, app.demoMode, onReady = { ready = true })
         }
     }
 }
