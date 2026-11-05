@@ -21,12 +21,18 @@ fun rememberUsageStats(): State<UsageStats> {
     return produceState(UsageStats()) { value = deps.suggestions.stats() }
 }
 
-/** Amount chips for a field holding [text]; picking one writes its amount, or clears it to pay later. */
+/**
+ * Amount chips for a field holding [text]; picking one writes its amount, or clears it to pay
+ * later. The amount already in the field gets no chip.
+ */
 @Composable
 fun AmountChips(suggestions: List<AmountSuggestion>, text: String, onPick: (String) -> Unit) {
     val current = parseRupees(text)
+    val shown = suggestions.filterNot {
+        if (it.kind == AmountSuggestion.Kind.PAY_LATER) text.isBlank() else current == it.amount
+    }
     SuggestionChips(
-        labels = suggestions.map {
+        labels = shown.map {
             when (it.kind) {
                 AmountSuggestion.Kind.FULL -> stringResource(Res.string.chip_full, formatRupees(it.amount))
                 AmountSuggestion.Kind.HALF -> stringResource(Res.string.chip_half, formatRupees(it.amount))
@@ -34,9 +40,6 @@ fun AmountChips(suggestions: List<AmountSuggestion>, text: String, onPick: (Stri
                 AmountSuggestion.Kind.USUAL -> formatRupees(it.amount)
             }
         },
-        selected = suggestions.indexOfFirst {
-            if (it.kind == AmountSuggestion.Kind.PAY_LATER) text.isBlank() else current == it.amount
-        }.takeIf { it >= 0 },
-        onPick = { i -> suggestions[i].let { onPick(if (it.kind == AmountSuggestion.Kind.PAY_LATER) "" else it.amount.toString()) } },
+        onPick = { i -> shown[i].let { onPick(if (it.kind == AmountSuggestion.Kind.PAY_LATER) "" else it.amount.toString()) } },
     )
 }

@@ -9,7 +9,6 @@ class UsageRepositoryImpl(private val dao: UsageDao) : UsageRepository {
         planUses = dao.planUses().associate { it.value to it.uses },
         paymentAmounts = dao.paymentAmounts(LIMIT).map { it.value },
         discounts = dao.discounts(LIMIT).map { it.value },
-        saleLengths = dao.saleLengths(LIMIT).map { it.value.toInt() },
     )
 
     private companion object {

@@ -35,7 +35,7 @@ class UsageRepositoryTest {
     }
 
     @Test
-    fun countsPlansAmountsDiscountsAndLengths() = runTest {
+    fun countsPlansAmountsAndDiscounts() = runTest {
         val members = MemberUseCases(MemberRepositoryImpl(db.memberDao(), clock, tz), clock, tz)
         val plans = PlanUseCases(PlanRepositoryImpl(db.planDao(), clock))
         val memberships = MembershipUseCases(MembershipRepositoryImpl(db.membershipDao(), clock), clock, tz)
@@ -52,6 +52,5 @@ class UsageRepositoryTest {
         assertEquals(mapOf(monthly.id to 2, trial.id to 1), stats.planUses)
         assertEquals(listOf(1300L, 100L), stats.paymentAmounts)
         assertEquals(listOf(200L), stats.discounts)
-        assertEquals(listOf(30, 1), stats.saleLengths)
     }
 }

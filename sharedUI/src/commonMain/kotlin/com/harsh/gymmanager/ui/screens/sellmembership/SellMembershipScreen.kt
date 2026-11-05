@@ -1,10 +1,8 @@
 package com.harsh.gymmanager.ui.screens.sellmembership
 
+import androidx.compose.ui.text.style.TextDecoration
 import com.harsh.gymmanager.presentation.parseRupees
-import com.harsh.gymmanager.ui.format.durationLabel
-import com.harsh.gymmanager.domain.model.DurationUnit
 import com.harsh.gymmanager.domain.suggestions.mostUsedFirst
-import com.harsh.gymmanager.domain.suggestions.lengthSuggestions
 import com.harsh.gymmanager.domain.suggestions.discountSuggestions
 import com.harsh.gymmanager.domain.suggestions.amountSuggestions
 import com.harsh.gymmanager.ui.components.rememberUsageStats
@@ -103,28 +101,14 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
                     DateField(state.startDate, { it?.let(vm::onStartDateChange) }, stringResource(Res.string.starts), Modifier.weight(1f))
                     DateField(state.endDate, { it?.let(vm::onEndDateChange) }, stringResource(Res.string.ends), Modifier.weight(1f))
                 }
+                AkhadaTextField(state.daysText, vm::onDaysChange, stringResource(Res.string.length_days), keyboardType = KeyboardType.Number)
+                AkhadaTextField(state.priceText, vm::onPriceChange, stringResource(Res.string.price), prefix = "₹", keyboardType = KeyboardType.Number)
+                // Price, then the discount with its quick picks, then what that leaves to pay.
                 Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-                    AkhadaTextField(state.daysText, vm::onDaysChange, stringResource(Res.string.length_days), keyboardType = KeyboardType.Number)
-                    val lengths = lengthSuggestions(usage)
-                    SuggestionChips(
-                        lengths.map { durationLabel(it, DurationUnit.DAYS) },
-                        selected = lengths.indexOf(state.daysText.toIntOrNull()).takeIf { it >= 0 },
-                        onPick = { vm.onDaysChange(lengths[it].toString()) },
-                    )
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                        AkhadaTextField(state.priceText, vm::onPriceChange, stringResource(Res.string.price), Modifier.weight(1f), prefix = "₹", keyboardType = KeyboardType.Number)
-                        AkhadaTextField(state.discountText, vm::onDiscountChange, stringResource(Res.string.discount), Modifier.weight(1f), optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = "0")
-                    }
-                    val discounts = discountSuggestions(parseRupees(state.priceText) ?: 0, usage)
-                    val chosen = discounts.indexOf(parseRupees(state.discountText)).takeIf { it >= 0 }
-                    SuggestionChips(
-                        discounts.map { stringResource(Res.string.chip_discount, formatRupees(it)) },
-                        selected = chosen,
-                        // Tapping the chosen discount again takes it off.
-                        onPick = { vm.onDiscountChange(if (it == chosen) "" else discounts[it].toString()) },
-                    )
+                    AkhadaTextField(state.discountText, vm::onDiscountChange, stringResource(Res.string.discount), optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = "0")
+                    val discounts = discountSuggestions(parseRupees(state.priceText) ?: 0, usage).filter { it != parseRupees(state.discountText) }
+                    SuggestionChips(discounts.map { stringResource(Res.string.chip_discount, formatRupees(it)) }, onPick = { vm.onDiscountChange(discounts[it].toString()) })
+                    DiscountedCharge(parseRupees(state.priceText), state.amountCharged)
                 }
                 if (state.isCustomised) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
@@ -188,5 +172,19 @@ private fun SummaryLine(label: String, value: String, due: Boolean = false) {
             style = AkhadaTheme.typography.bodyStrong.copy(fontFeatureSettings = "tnum"),
             color = if (due) AkhadaTheme.colors.statusDue else AkhadaTheme.colors.ink,
         )
+    }
+}
+
+/** "~~₹1,500~~ ₹1,300 to pay": shown once a discount brings the charge below the price. */
+@Composable
+private fun DiscountedCharge(price: Long?, charged: Long?) {
+    if (price == null || charged == null || charged >= price) return
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+        Text(
+            formatRupees(price),
+            style = AkhadaTheme.typography.body.copy(textDecoration = TextDecoration.LineThrough),
+            color = AkhadaTheme.colors.inkMuted,
+        )
+        Text(stringResource(Res.string.discounted_to_pay, formatRupees(charged)), style = AkhadaTheme.typography.bodyStrong)
     }
 }

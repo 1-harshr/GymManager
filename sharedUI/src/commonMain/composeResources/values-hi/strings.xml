@@ -288,6 +288,7 @@
     <string name="chip_discount">%1$s छूट</string>
     <string name="show_as_grid">ग्रिड में दिखाएँ</string>
     <string name="show_as_list">सूची में दिखाएँ</string>
+    <string name="discounted_to_pay">%1$s देना है</string>
     <string name="section_about">जानकारी</string>
     <string name="version">वर्ज़न %1$s</string>
     <string name="credits">musa_fir ने ❤️ से बनाया · कोई अधिकार सुरक्षित नहीं</string>

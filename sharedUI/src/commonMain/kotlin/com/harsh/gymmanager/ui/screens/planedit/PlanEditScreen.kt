@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.planedit
 
+import androidx.compose.ui.text.input.ImeAction
 import com.harsh.gymmanager.ui.format.durationLabel
 import com.harsh.gymmanager.domain.suggestions.PLAN_LENGTHS
 import com.harsh.gymmanager.ui.components.SuggestionChips
@@ -79,18 +80,18 @@ fun PlanEditScreen(planId: Long?, onBack: () -> Unit, onSaved: () -> Unit) {
                     Modifier.weight(1.2f).padding(bottom = if (state.durationError != null) 24.dp else 6.dp),
                 )
             }
+            val lengths = PLAN_LENGTHS.filterNot { (value, unit) -> state.durationText == value.toString() && state.durationUnit == unit }
             SuggestionChips(
-                PLAN_LENGTHS.map { (value, unit) -> durationLabel(value, unit) },
-                selected = PLAN_LENGTHS.indexOfFirst { (value, unit) -> state.durationText == value.toString() && state.durationUnit == unit }.takeIf { it >= 0 },
+                lengths.map { (value, unit) -> durationLabel(value, unit) },
                 onPick = { i ->
-                    val (value, unit) = PLAN_LENGTHS[i]
+                    val (value, unit) = lengths[i]
                     vm.onDurationChange(value.toString())
                     vm.onDurationUnitChange(unit)
                 },
             )
             AkhadaTextField(
                 state.priceText, vm::onPriceChange, stringResource(Res.string.price),
-                error = state.priceError?.asString(), prefix = "₹", keyboardType = KeyboardType.Number,
+                error = state.priceError?.asString(), prefix = "₹", keyboardType = KeyboardType.Number, imeAction = ImeAction.Done,
             )
             if (state.isEditing) {
                 Text(

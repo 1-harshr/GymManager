@@ -12,13 +12,12 @@ class SuggestionsTest {
         planUses = mapOf(3L to 9, 1L to 2),
         paymentAmounts = listOf(1000, 1500, 300),
         discounts = listOf(150, 100),
-        saleLengths = listOf(31, 30),
     )
 
     @Test
-    fun amountsStartWithFullThenWhatsUsualThenHalf() {
+    fun amountsStartWithFullAndHalfThenWhatsUsual() {
         val chips = amountSuggestions(due = 1500, stats = stats)
-        assertEquals(listOf(1500L to Kind.FULL, 1000L to Kind.USUAL, 300L to Kind.USUAL, 750L to Kind.HALF), chips.map { it.amount to it.kind })
+        assertEquals(listOf(1500L to Kind.FULL, 750L to Kind.HALF, 1000L to Kind.USUAL, 300L to Kind.USUAL), chips.map { it.amount to it.kind })
     }
 
     @Test
@@ -34,10 +33,9 @@ class SuggestionsTest {
     }
 
     @Test
-    fun discountsAndLengthsPutTheOwnersHabitsFirst() {
+    fun discountsPutTheOwnersHabitsFirst() {
         assertEquals(listOf(150L, 100L, 200L, 500L), discountSuggestions(price = 1500, stats = stats))
         assertEquals(listOf(150L, 100L, 200L), discountSuggestions(price = 300, stats = stats), "never the whole price")
-        assertEquals(listOf(31, 30, 45, 90), lengthSuggestions(stats))
     }
 
     @Test

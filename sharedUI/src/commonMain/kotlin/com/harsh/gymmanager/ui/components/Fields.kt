@@ -1,9 +1,12 @@
 package com.harsh.gymmanager.ui.components
 
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.Surface
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.BorderStroke
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
@@ -65,7 +68,11 @@ private fun FieldError(error: String?) {
     if (error != null) Text(error, style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.statusDue)
 }
 
-/** A labelled input on a filled ground. A [prefix] such as "₹" turns it into an amount field. */
+/**
+ * A labelled input on a filled ground. A [prefix] such as "₹" turns it into an amount field.
+ * The keyboard's Next moves to the following field (or closes the keyboard when there's none);
+ * give the last field of a form [ImeAction.Done].
+ */
 @Composable
 fun AkhadaTextField(
     value: String,
@@ -79,10 +86,12 @@ fun AkhadaTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
     singleLine: Boolean = true,
+    imeAction: ImeAction = if (singleLine) ImeAction.Next else ImeAction.Default,
 ) {
     val colors = AkhadaTheme.colors
     val typography = AkhadaTheme.typography
     val interaction = remember { MutableInteractionSource() }
+    val focusManager = LocalFocusManager.current
     val focused by interaction.collectIsFocusedAsState()
     Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         FieldLabel(label, optional)
@@ -93,7 +102,11 @@ fun AkhadaTextField(
             minLines = if (singleLine) 1 else 3,
             textStyle = typography.body.copy(color = colors.ink),
             cursorBrush = SolidColor(colors.ink),
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType, capitalization = capitalization),
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType, capitalization = capitalization, imeAction = imeAction),
+            keyboardActions = KeyboardActions(
+                onNext = { if (!focusManager.moveFocus(FocusDirection.Next)) focusManager.clearFocus() },
+                onDone = { focusManager.clearFocus() },
+            ),
             interactionSource = interaction,
             decorationBox = { inner ->
                 Row(
@@ -235,26 +248,25 @@ fun AkhadaDatePickerDialog(
 }
 
 /**
- * Quick picks under a field, most used first. The chip matching the field's current value is
- * filled in ink; tapping one fills the field.
+ * Values to fill a field with in one tap, most likely first. Callers leave out whatever the field
+ * already holds, so every chip changes something. Tinted in the accent so they read as quick
+ * fills, not as the filter chips on lists; they wrap rather than scroll, so none hide off-screen.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SuggestionChips(labels: List<String>, selected: Int?, onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
+fun SuggestionChips(labels: List<String>, onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
     if (labels.isEmpty()) return
     val colors = AkhadaTheme.colors
-    Row(modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+    FlowRow(
+        modifier,
+        horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm),
+        verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm),
+    ) {
         labels.forEachIndexed { index, label ->
-            val on = index == selected
-            Surface(
-                onClick = { onPick(index) },
-                shape = AkhadaRadius.pillShape,
-                color = if (on) colors.ink else colors.surface,
-                contentColor = if (on) colors.onInk else colors.ink,
-                border = if (on) null else BorderStroke(1.dp, colors.line),
-            ) {
+            Surface(onClick = { onPick(index) }, shape = AkhadaRadius.pillShape, color = colors.accentSoft, contentColor = colors.onAccentSoft) {
                 Text(
                     label,
-                    Modifier.heightIn(min = 36.dp).padding(horizontal = AkhadaSpace.md, vertical = AkhadaSpace.sm),
+                    Modifier.heightIn(min = 32.dp).padding(horizontal = AkhadaSpace.md, vertical = 6.dp),
                     style = AkhadaTheme.typography.caption.copy(fontWeight = AkhadaTheme.typography.bodyStrong.fontWeight),
                 )
             }

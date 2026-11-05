@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.memberdetail
 
+import androidx.compose.ui.text.input.ImeAction
 import com.harsh.gymmanager.domain.suggestions.amountSuggestions
 import com.harsh.gymmanager.ui.components.rememberUsageStats
 import com.harsh.gymmanager.ui.components.AmountChips
@@ -300,7 +301,7 @@ private fun PaymentSheet(
         }
         SegmentedControl(PaymentMode.entries, form.mode, { it?.let(onModeChange) }, { it.label() })
         DateField(form.paidOn, { it?.let(onDateChange) }, stringResource(Res.string.paid_on_label), latest = today)
-        AkhadaTextField(form.note, onNoteChange, stringResource(Res.string.note), optional = true, placeholder = stringResource(Res.string.payment_note_hint))
+        AkhadaTextField(form.note, onNoteChange, stringResource(Res.string.note), optional = true, placeholder = stringResource(Res.string.payment_note_hint), imeAction = ImeAction.Done)
         val amount = com.harsh.gymmanager.presentation.parseRupees(form.amountText)
         AkhadaButton(
             if (form.isSaving) stringResource(Res.string.saving) else if (amount != null && amount > 0) stringResource(Res.string.record_amount, formatRupees(amount)) else stringResource(Res.string.record_payment),

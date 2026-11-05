@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.components
 
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.foundation.text.KeyboardActions
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
@@ -37,6 +39,7 @@ import com.harsh.gymmanager.ui.theme.AkhadaTheme
 @Composable
 fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier, placeholder: String? = null) {
     val colors = AkhadaTheme.colors
+    val focusManager = LocalFocusManager.current
     BasicTextField(
         value = query,
         onValueChange = onQueryChange,
@@ -44,6 +47,8 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier
         textStyle = AkhadaTheme.typography.body.copy(color = colors.ink),
         cursorBrush = SolidColor(colors.ink),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        // Results filter as you type, so the search key just puts the keyboard away.
+        keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
         modifier = modifier.fillMaxWidth(),
         decorationBox = { inner ->
             Row(

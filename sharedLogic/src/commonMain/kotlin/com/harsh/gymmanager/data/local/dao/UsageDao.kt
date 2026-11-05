@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import com.harsh.gymmanager.data.local.entity.UsageRow
 
-/** What the owner does most often, for ordering choices and suggesting values. Most used first. */
+/** What the owner does most often, for ordering plans and suggesting amounts. Most used first. */
 @Dao
 interface UsageDao {
     @Query("SELECT planId AS value, COUNT(*) AS uses FROM memberships WHERE planId IS NOT NULL GROUP BY planId ORDER BY uses DESC")
@@ -15,8 +15,4 @@ interface UsageDao {
 
     @Query("SELECT discount AS value, COUNT(*) AS uses FROM memberships WHERE discount > 0 GROUP BY discount ORDER BY uses DESC, discount DESC LIMIT :limit")
     suspend fun discounts(limit: Int): List<UsageRow>
-
-    /** Dates are stored as epoch days, so the difference is the length; both ends count. */
-    @Query("SELECT endDate - startDate + 1 AS value, COUNT(*) AS uses FROM memberships GROUP BY value ORDER BY uses DESC, value LIMIT :limit")
-    suspend fun saleLengths(limit: Int): List<UsageRow>
 }

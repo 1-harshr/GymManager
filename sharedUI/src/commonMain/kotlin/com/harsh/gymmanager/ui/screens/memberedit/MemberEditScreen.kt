@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.memberedit
 
+import androidx.compose.ui.text.input.ImeAction
 import com.harsh.gymmanager.ui.components.rememberDiscardGuard
 import kotlinx.datetime.minus
 import kotlinx.datetime.DateTimeUnit
@@ -100,6 +101,8 @@ fun MemberEditScreen(memberId: Long?, onBack: () -> Unit, onSaved: (Long, Boolea
                 AkhadaTextField(
                     form.phone, vm::onPhoneChange, stringResource(Res.string.phone),
                     optional = true, keyboardType = KeyboardType.Phone, placeholder = stringResource(Res.string.phone_hint),
+                    // The next few answers are taps, not typing.
+                    imeAction = ImeAction.Done,
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {

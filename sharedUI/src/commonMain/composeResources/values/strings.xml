@@ -288,6 +288,7 @@
     <string name="chip_discount">%1$s off</string>
     <string name="show_as_grid">Show as grid</string>
     <string name="show_as_list">Show as list</string>
+    <string name="discounted_to_pay">%1$s to pay</string>
     <string name="section_about">About</string>
     <string name="version">Version %1$s</string>
     <string name="credits">Created by musa_fir ❤️ · No rights reserved</string>

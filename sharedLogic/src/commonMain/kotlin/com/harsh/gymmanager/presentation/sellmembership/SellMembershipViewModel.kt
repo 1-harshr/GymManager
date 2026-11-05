@@ -54,12 +54,12 @@ data class SellMembershipUiState(
     private val discount: Long? get() = if (discountText.isBlank()) 0 else parseRupees(discountText)
     private val firstPayment: Long? get() = if (firstPaymentText.isBlank()) 0 else parseRupees(firstPaymentText)
 
-    /** True when this sale's length, price or discount differs from the chosen plan. */
+    /** True when this sale's length or price differs from the chosen plan. A discount is normal, not a change. */
     val isCustomised: Boolean
         get() {
             val plan = selectedPlan ?: return false
             val start = startDate ?: return false
-            return endDate != plan.endDateFor(start) || price != plan.defaultPrice || (discount ?: 0) != 0L
+            return endDate != plan.endDateFor(start) || price != plan.defaultPrice
         }
 
     /** Price minus discount, or null while the inputs aren't valid numbers. */
@@ -183,13 +183,13 @@ class SellMembershipViewModel(
         )
     }
 
-    /** Puts length, price and discount back to the plan's, keeping the start date. */
+    /** Puts length and price back to the plan's, keeping the start date and any discount. */
     fun resetToPlan() {
         val plan = _state.value.selectedPlan ?: return
         _state.update {
             val start = it.startDate ?: return@update it
             val end = plan.endDateFor(start)
-            it.copy(endDate = end, daysText = lengthInDays(start, end).toString(), priceText = plan.defaultPrice.toString(), discountText = "", errorMessage = null, hasChanges = true)
+            it.copy(endDate = end, daysText = lengthInDays(start, end).toString(), priceText = plan.defaultPrice.toString(), errorMessage = null, hasChanges = true)
                 .withPaidInFull()
         }
     }
