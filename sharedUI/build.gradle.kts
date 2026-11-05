@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -35,6 +36,7 @@ kotlin {
             implementation(libs.androidx.camera.camera2)
             implementation(libs.androidx.camera.lifecycle)
             implementation(libs.androidx.camera.compose)
+            implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies {
             api(project(":sharedLogic"))
@@ -46,6 +48,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.androidx.navigation.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

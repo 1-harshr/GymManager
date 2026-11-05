@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.theme
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 
@@ -46,3 +47,7 @@ object AkhadaElevation {
     /** Only things that float over content: tab bar, add button, snackbar. */
     val float = 12.dp
 }
+
+/** The screen side gutter, for rows that sit directly on `bg`. */
+fun androidx.compose.ui.Modifier.screenGutter() =
+    this.then(androidx.compose.ui.Modifier.padding(horizontal = AkhadaSpace.gutter))

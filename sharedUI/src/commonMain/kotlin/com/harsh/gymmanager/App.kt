@@ -1,110 +1,115 @@
 package com.harsh.gymmanager
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.harsh.gymmanager.ui.components.AddButton
-import com.harsh.gymmanager.ui.components.FloatingTabBar
-import com.harsh.gymmanager.ui.components.TabItem
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSize
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.harsh.gymmanager.navigation.MainRoute
+import com.harsh.gymmanager.navigation.MemberDetailRoute
+import com.harsh.gymmanager.navigation.MemberEditRoute
+import com.harsh.gymmanager.navigation.PlanEditRoute
+import com.harsh.gymmanager.navigation.SellMembershipRoute
+import com.harsh.gymmanager.navigation.SettingsRoute
+import com.harsh.gymmanager.ui.LocalSnackbar
+import com.harsh.gymmanager.ui.components.AkhadaSnackbarHost
+import com.harsh.gymmanager.ui.screens.main.MainScreen
+import com.harsh.gymmanager.ui.screens.memberdetail.MemberDetailScreen
+import com.harsh.gymmanager.ui.screens.memberedit.MemberEditScreen
+import com.harsh.gymmanager.ui.screens.planedit.PlanEditScreen
+import com.harsh.gymmanager.ui.screens.sellmembership.SellMembershipScreen
+import com.harsh.gymmanager.ui.screens.settings.SettingsScreen
 import com.harsh.gymmanager.ui.theme.AkhadaTheme
-import gymmanager.sharedui.generated.resources.Res
-import gymmanager.sharedui.generated.resources.akhada_logo
-import org.jetbrains.compose.resources.painterResource
+import kotlinx.coroutines.launch
 
-private val MainTabs = listOf(
-    TabItem("Home", AkhadaIcons.Home),
-    TabItem("Members", AkhadaIcons.Users),
-    TabItem("Plans", AkhadaIcons.Tag),
-)
-private const val MEMBERS_TAB = 1
+private const val PUSH_MS = 250
 
 @Composable
-@Preview
-fun App() {
+fun App(dependencies: AppDependencies) {
     AkhadaTheme {
-        var tab by rememberSaveable { mutableIntStateOf(0) }
-        Box(Modifier.fillMaxSize().background(AkhadaTheme.colors.bg)) {
-            // Placeholder content until the real screens are built.
-            Column(
-                Modifier.statusBarsPadding().padding(horizontal = AkhadaSpace.gutter, vertical = AkhadaSpace.md),
-                verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xl),
-            ) {
-                ScreenHeader(
-                    title = MainTabs[tab].label,
-                    subtitle = if (tab == 0) "Akhada Gym & MMA" else "Coming next",
-                )
-                Surface(shape = AkhadaRadius.cardShape, color = AkhadaTheme.colors.surface) {
-                    Text(
-                        "This screen is next on the list. Drag across the tab bar to switch tabs.",
-                        Modifier.padding(AkhadaSpace.lg),
-                        style = AkhadaTheme.typography.body,
-                        color = AkhadaTheme.colors.inkMuted,
-                    )
-                }
-            }
-            Row(
-                Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = AkhadaSpace.md),
-                horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                FloatingTabBar(tabs = MainTabs, selected = tab, onSelect = { tab = it })
-                AnimatedVisibility(tab == MEMBERS_TAB, enter = fadeIn() + scaleIn(), exit = fadeOut() + scaleOut()) {
-                    AddButton(onClick = {}, contentDescription = "Add member")
-                }
-            }
-        }
-    }
-}
+        val snackbar = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val nav = rememberNavController()
+        fun toast(message: String) = scope.launch { snackbar.showSnackbar(message) }
 
-@Composable
-private fun ScreenHeader(title: String, subtitle: String) {
-    val colors = AkhadaTheme.colors
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-        Image(
-            painterResource(Res.drawable.akhada_logo),
-            contentDescription = "Akhada Gym & MMA logo",
-            modifier = Modifier.size(AkhadaSize.logo).clip(CircleShape).background(colors.logoGround),
-            contentScale = ContentScale.Crop,
-        )
-        Column(Modifier.weight(1f)) {
-            Text(title, style = AkhadaTheme.typography.screenTitle, color = colors.ink)
-            Text(subtitle, style = AkhadaTheme.typography.caption, color = colors.inkMuted)
-        }
-        Surface(shape = CircleShape, color = colors.surfaceSunken, modifier = Modifier.size(AkhadaSize.iconButton)) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(AkhadaIcons.Settings, contentDescription = "Settings", Modifier.size(22.dp), tint = colors.ink)
+        CompositionLocalProvider(LocalAppDependencies provides dependencies, LocalSnackbar provides snackbar) {
+            Box(Modifier.fillMaxSize().background(AkhadaTheme.colors.bg)) {
+                NavHost(
+                    navController = nav,
+                    startDestination = MainRoute,
+                    enterTransition = { slideIntoContainer(SlideDirection.Start, tween(PUSH_MS)) },
+                    exitTransition = { fadeOut(tween(PUSH_MS)) },
+                    popEnterTransition = { fadeIn(tween(PUSH_MS)) },
+                    popExitTransition = { slideOutOfContainer(SlideDirection.End, tween(PUSH_MS)) },
+                ) {
+                    composable<MainRoute> {
+                        MainScreen(
+                            onOpenMember = { nav.navigate(MemberDetailRoute(it)) },
+                            onAddMember = { nav.navigate(MemberEditRoute()) },
+                            onOpenPlan = { nav.navigate(PlanEditRoute(it)) },
+                            onOpenSettings = { nav.navigate(SettingsRoute) },
+                        )
+                    }
+                    composable<MemberDetailRoute> { entry ->
+                        val id = entry.toRoute<MemberDetailRoute>().memberId
+                        MemberDetailScreen(
+                            memberId = id,
+                            onBack = { nav.popBackStack() },
+                            onEdit = { nav.navigate(MemberEditRoute(id)) },
+                            onSellMembership = { nav.navigate(SellMembershipRoute(id)) },
+                        )
+                    }
+                    composable<MemberEditRoute> { entry ->
+                        MemberEditScreen(
+                            memberId = entry.toRoute<MemberEditRoute>().memberId,
+                            onBack = { nav.popBackStack() },
+                            onSaved = { id, isNew ->
+                                if (isNew) {
+                                    // Go straight to the new member so a membership can be sold next.
+                                    nav.navigate(MemberDetailRoute(id)) { popUpTo<MemberEditRoute> { inclusive = true } }
+                                    toast("Member added")
+                                } else {
+                                    nav.popBackStack()
+                                    toast("Changes saved")
+                                }
+                            },
+                        )
+                    }
+                    composable<SellMembershipRoute> { entry ->
+                        SellMembershipScreen(
+                            memberId = entry.toRoute<SellMembershipRoute>().memberId,
+                            onBack = { nav.popBackStack() },
+                            onSold = { nav.popBackStack(); toast("Membership saved") },
+                            onAddPlan = { nav.navigate(PlanEditRoute()) },
+                        )
+                    }
+                    composable<PlanEditRoute> { entry ->
+                        PlanEditScreen(
+                            planId = entry.toRoute<PlanEditRoute>().planId,
+                            onBack = { nav.popBackStack() },
+                            onSaved = { nav.popBackStack(); toast("Plan saved") },
+                        )
+                    }
+                    composable<SettingsRoute> { SettingsScreen(onBack = { nav.popBackStack() }) }
+                }
+                // Sits above the floating tab bar.
+                AkhadaSnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 88.dp))
             }
         }
     }

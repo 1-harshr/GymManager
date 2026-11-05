@@ -18,7 +18,7 @@ import kotlinx.datetime.TimeZone
 import kotlin.time.Clock
 
 /** App-wide singletons, created lazily on first use. ViewModels depend on the use cases only. */
-class AppContainer(context: Context) {
+class AppContainer(context: Context) : AppDependencies {
     private val appContext = context.applicationContext
     private val clock: Clock = Clock.System
     private val timeZone: TimeZone = TimeZone.currentSystemDefault()
@@ -30,12 +30,12 @@ class AppContainer(context: Context) {
     private val membershipRepository by lazy { MembershipRepositoryImpl(database.membershipDao(), clock) }
     private val paymentRepository by lazy { PaymentRepositoryImpl(database.paymentDao(), clock) }
 
-    val memberUseCases by lazy { MemberUseCases(memberRepository, clock, timeZone) }
-    val planUseCases by lazy { PlanUseCases(planRepository) }
-    val membershipUseCases by lazy { MembershipUseCases(membershipRepository, clock, timeZone) }
-    val paymentUseCases by lazy { PaymentUseCases(paymentRepository, clock, timeZone) }
-    val observeMemberDetail by lazy {
+    override val memberUseCases by lazy { MemberUseCases(memberRepository, clock, timeZone) }
+    override val planUseCases by lazy { PlanUseCases(planRepository) }
+    override val membershipUseCases by lazy { MembershipUseCases(membershipRepository, clock, timeZone) }
+    override val paymentUseCases by lazy { PaymentUseCases(paymentRepository, clock, timeZone) }
+    override val observeMemberDetail by lazy {
         ObserveMemberDetailUseCase(memberRepository, membershipRepository, clock, timeZone)
     }
-    val observeDashboard by lazy { ObserveDashboardUseCase(memberRepository, paymentRepository, clock, timeZone) }
+    override val observeDashboard by lazy { ObserveDashboardUseCase(memberRepository, paymentRepository, clock, timeZone) }
 }

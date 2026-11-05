@@ -64,6 +64,24 @@ object AkhadaIcons {
         )
     }
     val X by lazy { lucide("X", "M18 6 6 18", "m6 6 12 12") }
+    val MoreVertical by lazy { lucide("MoreVertical", circle(12f, 12f, 1f), circle(12f, 5f, 1f), circle(12f, 19f, 1f)) }
+    val Camera by lazy {
+        lucide(
+            "Camera",
+            "M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z",
+            circle(12f, 13f, 3f),
+        )
+    }
+    val SwitchCamera by lazy {
+        lucide(
+            "SwitchCamera",
+            "M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5",
+            "M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5",
+            circle(12f, 12f, 3f),
+            "m18 22-3-3 3-3",
+            "m6 2 3 3-3 3",
+        )
+    }
 }
 
 /** An SVG circle as path data, since Lucide draws some shapes with <circle>. */
