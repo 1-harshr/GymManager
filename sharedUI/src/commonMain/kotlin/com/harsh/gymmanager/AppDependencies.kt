@@ -1,6 +1,7 @@
 package com.harsh.gymmanager
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.harsh.gymmanager.domain.assistant.GymAssistant
 import com.harsh.gymmanager.domain.backup.BackupUseCases
 import com.harsh.gymmanager.domain.messaging.MessagingUseCases
 import com.harsh.gymmanager.domain.usecase.BulkRenewUseCase
@@ -13,7 +14,7 @@ import com.harsh.gymmanager.domain.usecase.PaymentUseCases
 import com.harsh.gymmanager.domain.usecase.PlanUseCases
 import com.harsh.gymmanager.domain.usecase.SettingsUseCases
 
-/** What the screens need from the app; the Android app's AppContainer provides it. */
+/** What the screens and voice assistants need from the app; each platform provides it. */
 interface AppDependencies {
     val memberUseCases: MemberUseCases
     val planUseCases: PlanUseCases
@@ -26,6 +27,7 @@ interface AppDependencies {
     val settingsUseCases: SettingsUseCases
     val messaging: MessagingUseCases
     val backup: BackupUseCases
+    val assistant: GymAssistant
 }
 
 val LocalAppDependencies = staticCompositionLocalOf<AppDependencies> { error("AppDependencies not provided") }
