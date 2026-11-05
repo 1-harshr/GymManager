@@ -20,6 +20,8 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "SharedUI"
             isStatic = true
+            // Lets Siri and Shortcuts code in Swift use the assistant's result types by their own names.
+            export(project(":sharedLogic"))
         }
     }
     android {

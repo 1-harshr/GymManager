@@ -10,6 +10,7 @@ import com.harsh.gymmanager.data.repository.MessageLogRepositoryImpl
 import com.harsh.gymmanager.data.repository.PaymentRepositoryImpl
 import com.harsh.gymmanager.data.repository.PlanRepositoryImpl
 import com.harsh.gymmanager.data.settings.DataStoreSettingsRepository
+import com.harsh.gymmanager.domain.assistant.GymAssistant
 import com.harsh.gymmanager.domain.backup.BackupUseCases
 import com.harsh.gymmanager.domain.backup.StoredFiles
 import com.harsh.gymmanager.domain.messaging.MessagingUseCases
@@ -62,5 +63,8 @@ class DefaultAppDependencies(
     }
     override val messaging by lazy {
         MessagingUseCases(memberRepository, membershipRepository, settingsRepository, messageLogRepository, clock, timeZone)
+    }
+    override val assistant by lazy {
+        GymAssistant(memberUseCases, planUseCases, membershipUseCases, paymentUseCases, observeDashboard)
     }
 }

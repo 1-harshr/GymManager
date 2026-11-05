@@ -17,7 +17,7 @@ import com.harsh.gymmanager.ui.platform.IosStoredFiles
 import com.harsh.gymmanager.ui.platform.documentsDirectory
 import platform.UIKit.UIViewController
 
-private val iosDependencies: AppDependencies by lazy {
+internal val iosDependencies: AppDependencies by lazy {
     DefaultAppDependencies(
         openDatabase = { buildGymDatabase(gymDatabaseBuilder()) },
         openSettings = { createSettingsDataStore("${documentsDirectory()}/$SETTINGS_FILE_NAME") },
