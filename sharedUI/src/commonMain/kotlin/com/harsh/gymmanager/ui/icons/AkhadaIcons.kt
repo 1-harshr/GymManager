@@ -66,6 +66,26 @@ object AkhadaIcons {
     val ChevronRight by lazy { lucide("ChevronRight", "m9 18 6-6-6-6") }
     val ChevronLeft by lazy { lucide("ChevronLeft", "m15 18-6-6 6-6") }
     val Check by lazy { lucide("Check", "M20 6 9 17l-5-5") }
+    val Bell by lazy {
+        lucide(
+            "Bell",
+            "M10.268 21a2 2 0 0 0 3.464 0",
+            "M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326",
+        )
+    }
+    val Sparkles by lazy {
+        lucide(
+            "Sparkles",
+            "M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z",
+            "M20 3v4",
+            "M22 5h-4",
+            "M4 17v2",
+            "M5 18H3",
+        )
+    }
+    val Clock by lazy { lucide("Clock", circle(12f, 12f, 10f), "M12 6v6l4 2") }
+    val TrendingUp by lazy { lucide("TrendingUp", "M16 7h6v6", "m22 7-8.5 8.5-5-5L2 17") }
+    val TrendingDown by lazy { lucide("TrendingDown", "M16 17h6v-6", "m22 17-8.5-8.5-5 5L2 7") }
     val Calendar by lazy {
         lucide(
             "Calendar",

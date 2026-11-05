@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.harsh.gymmanager.domain.model.AppLanguage
 import com.harsh.gymmanager.domain.model.AppSettings
 import com.harsh.gymmanager.domain.model.GymProfile
+import com.harsh.gymmanager.domain.model.HomeFeatures
 import com.harsh.gymmanager.domain.model.MorningUpdate
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.domain.repository.SettingsRepository
@@ -36,6 +37,8 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
         val lastBackupAt = longPreferencesKey("last_backup_at")
         val morningUpdateEnabled = booleanPreferencesKey("morning_update_enabled")
         val morningUpdateMinute = intPreferencesKey("morning_update_minute")
+        val aiInsights = booleanPreferencesKey("home_ai_insights")
+        val collectionsChart = booleanPreferencesKey("home_collections_chart")
     }
 
     override fun observe(): Flow<AppSettings> = store.data.map { prefs ->
@@ -50,6 +53,10 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
                 enabled = prefs[Keys.morningUpdateEnabled] ?: false,
                 minuteOfDay = prefs[Keys.morningUpdateMinute]
                     ?.takeIf { it in 0 until MorningUpdate.MINUTES_PER_DAY } ?: MorningUpdate.DEFAULT_MINUTE_OF_DAY,
+            ),
+            homeFeatures = HomeFeatures(
+                aiInsights = prefs[Keys.aiInsights] ?: false,
+                collectionsChart = prefs[Keys.collectionsChart] ?: false,
             ),
         )
     }.distinctUntilChanged()
@@ -78,6 +85,13 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
         store.edit {
             it[Keys.morningUpdateEnabled] = update.enabled
             it[Keys.morningUpdateMinute] = update.minuteOfDay
+        }
+    }
+
+    override suspend fun setHomeFeatures(features: HomeFeatures) {
+        store.edit {
+            it[Keys.aiInsights] = features.aiInsights
+            it[Keys.collectionsChart] = features.collectionsChart
         }
     }
 }

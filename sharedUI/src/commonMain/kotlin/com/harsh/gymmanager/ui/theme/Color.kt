@@ -26,6 +26,8 @@ data class AkhadaColors(
     val statusDue: Color,
     val statusDueSoft: Color,
     val scrim: Color,
+    /** A chart's comparison series (e.g. last month) beside the accent; checked for colour-blind separation. */
+    val chartReference: Color,
     /** The logo is black on light grey, so it always sits on white. */
     val logoGround: Color,
     val isDark: Boolean,
@@ -52,6 +54,7 @@ val AkhadaLightColors = AkhadaColors(
     statusDue = Color(0xFFBC2C25),
     statusDueSoft = Color(0xFFFBE3E1),
     scrim = Color(0x66121213),
+    chartReference = Color(0xFF5C5C61),
     logoGround = Color(0xFFFFFFFF),
     isDark = false,
 )
@@ -77,6 +80,7 @@ val AkhadaDarkColors = AkhadaColors(
     statusDue = Color(0xFFFF8077),
     statusDueSoft = Color(0xFF3D1613),
     scrim = Color(0x99000000),
+    chartReference = Color(0xFF7C7C82),
     logoGround = Color(0xFFFFFFFF),
     isDark = true,
 )

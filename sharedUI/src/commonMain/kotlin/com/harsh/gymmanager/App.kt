@@ -40,6 +40,8 @@ import com.harsh.gymmanager.navigation.SellMembershipRoute
 import com.harsh.gymmanager.navigation.SettingsRoute
 import com.harsh.gymmanager.presentation.settings.SettingsViewModel
 import com.harsh.gymmanager.navigation.RemindersRoute
+import com.harsh.gymmanager.navigation.InboxRoute
+import com.harsh.gymmanager.ui.screens.inbox.InboxScreen
 import com.harsh.gymmanager.ui.screens.reminders.RemindersScreen
 import com.harsh.gymmanager.ui.messaging.WhatsAppSheet
 import com.harsh.gymmanager.ui.LocalWhatsApp
@@ -163,6 +165,8 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                                     onBulkRenew = { nav.navigate(BulkRenewRoute(it)) },
                                     onImportMembers = { nav.navigate(ImportMembersRoute) },
                                     onOpenReminders = { nav.navigate(RemindersRoute) },
+                                    onOpenInbox = { nav.navigate(InboxRoute) },
+                                    homeFeatures = settings.homeFeatures,
                                 )
                             }
                         }
@@ -261,6 +265,11 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                                 RemindersScreen(onBack = { nav.popBackStack() }, onOpenMember = { nav.navigate(MemberDetailRoute(it)) })
                             }
                         }
+                        composable<InboxRoute> {
+                            Destination {
+                                InboxScreen(onBack = { nav.popBackStack() }, onOpenMember = { nav.navigate(MemberDetailRoute(it)) })
+                            }
+                        }
                         composable<SettingsRoute> {
                             Destination {
                                 SettingsScreen(
@@ -270,6 +279,7 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                                     onThemeChange = settingsVm::onThemeChange,
                                     onLanguageChange = settingsVm::onLanguageChange,
                                     onMorningUpdateChange = settingsVm::onMorningUpdateChange,
+                                    onHomeFeaturesChange = settingsVm::onHomeFeaturesChange,
                                 )
                             }
                         }

@@ -5,12 +5,14 @@ import com.harsh.gymmanager.data.local.entity.MemberSummaryView
 import com.harsh.gymmanager.data.local.entity.MembershipEntity
 import com.harsh.gymmanager.data.local.entity.MembershipWithPayments
 import com.harsh.gymmanager.data.local.entity.PaymentEntity
+import com.harsh.gymmanager.data.local.entity.PaymentRecordRow
 import com.harsh.gymmanager.data.local.entity.PlanEntity
 import com.harsh.gymmanager.domain.membershipStatus
 import com.harsh.gymmanager.domain.model.Member
 import com.harsh.gymmanager.domain.model.MemberSummary
 import com.harsh.gymmanager.domain.model.Membership
 import com.harsh.gymmanager.domain.model.Payment
+import com.harsh.gymmanager.domain.model.PaymentRecord
 import com.harsh.gymmanager.domain.model.Plan
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
@@ -114,4 +116,14 @@ fun Membership.toEntity(createdAt: Instant) = MembershipEntity(
     discount = discount,
     notes = notes?.trim()?.ifEmpty { null },
     createdAt = createdAt,
+)
+
+fun PaymentRecordRow.toDomain() = PaymentRecord(
+    paymentId = paymentId,
+    memberId = memberId,
+    memberName = memberName,
+    planName = planName,
+    amount = amount,
+    mode = mode,
+    paidOn = paidOn,
 )

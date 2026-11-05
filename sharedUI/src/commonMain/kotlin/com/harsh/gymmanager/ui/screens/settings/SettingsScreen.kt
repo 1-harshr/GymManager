@@ -29,8 +29,6 @@ import com.harsh.gymmanager.ui.platform.rememberBackupSaver
 import com.harsh.gymmanager.ui.platform.rememberNotificationPermission
 import com.harsh.gymmanager.ui.components.AkhadaBottomSheet
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberTimePickerState
@@ -47,10 +45,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.harsh.gymmanager.domain.model.AppLanguage
 import com.harsh.gymmanager.domain.model.AppSettings
+import com.harsh.gymmanager.domain.model.HomeFeatures
 import com.harsh.gymmanager.domain.model.MorningUpdate
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.ui.components.AkhadaButton
 import com.harsh.gymmanager.ui.components.AkhadaCard
+import com.harsh.gymmanager.ui.components.AkhadaSwitch
 import com.harsh.gymmanager.ui.components.ButtonKind
 import com.harsh.gymmanager.ui.components.GymLogo
 import com.harsh.gymmanager.ui.components.PushedHeader
@@ -71,6 +71,7 @@ fun SettingsScreen(
     onThemeChange: (ThemeMode) -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
     onMorningUpdateChange: (MorningUpdate) -> Unit,
+    onHomeFeaturesChange: (HomeFeatures) -> Unit,
 ) {
     val colors = AkhadaTheme.colors
     val typography = AkhadaTheme.typography
@@ -110,6 +111,21 @@ fun SettingsScreen(
                 SegmentedControl(AppLanguage.entries, settings.language, { it?.let(onLanguageChange) }, { languageLabels.getValue(it) })
             }
 
+            SectionHeader(stringResource(Res.string.section_home_screen), Modifier.padding(top = AkhadaSpace.md))
+            AkhadaCard {
+                val features = settings.homeFeatures
+                SwitchRow(
+                    stringResource(Res.string.ai_insights),
+                    stringResource(Res.string.ai_insights_body),
+                    features.aiInsights,
+                ) { onHomeFeaturesChange(features.copy(aiInsights = it)) }
+                SwitchRow(
+                    stringResource(Res.string.collections_chart),
+                    stringResource(Res.string.collections_chart_body),
+                    features.collectionsChart,
+                ) { onHomeFeaturesChange(features.copy(collectionsChart = it)) }
+            }
+
             SectionHeader(stringResource(Res.string.section_notifications), Modifier.padding(top = AkhadaSpace.md))
             MorningUpdateCard(settings.morningUpdate, onMorningUpdateChange)
 
@@ -128,6 +144,18 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth().padding(top = AkhadaSpace.sm),
             )
         }
+    }
+}
+
+/** A setting that's on or off: its name, what it does, and the switch. */
+@Composable
+private fun SwitchRow(title: String, body: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+            Text(title, style = AkhadaTheme.typography.bodyStrong)
+            Text(body, style = AkhadaTheme.typography.body, color = AkhadaTheme.colors.inkMuted)
+        }
+        AkhadaSwitch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 
@@ -150,13 +178,9 @@ private fun MorningUpdateCard(update: MorningUpdate, onChange: (MorningUpdate) -
                 Text(stringResource(Res.string.morning_update), style = typography.bodyStrong)
                 Text(stringResource(Res.string.morning_update_body), style = typography.body, color = colors.inkMuted)
             }
-            Switch(
+            AkhadaSwitch(
                 checked = update.enabled,
                 onCheckedChange = { on -> if (on) askPermission() else onChange(update.copy(enabled = false)) },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = colors.onInk, checkedTrackColor = colors.ink,
-                    uncheckedThumbColor = colors.inkMuted, uncheckedTrackColor = colors.surfaceSunken, uncheckedBorderColor = colors.surfaceSunken,
-                ),
             )
         }
         if (update.enabled) {

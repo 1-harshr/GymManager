@@ -10,7 +10,6 @@
     <string name="saving">सेव हो रहा है…</string>
     <string name="save_changes">बदलाव सेव करें</string>
     <string name="optional">वैकल्पिक</string>
-    <string name="see_all">सभी देखें</string>
     <string name="edit">बदलें</string>
     <string name="archive">आर्काइव करें</string>
     <string name="restore">वापस लाएँ</string>
@@ -41,7 +40,6 @@
     <string name="no_membership_yet">अभी कोई सदस्यता नहीं</string>
     <string name="amount_due">%1$s बकाया</string>
     <string name="nothing_due">कुछ बकाया नहीं</string>
-    <string name="still_due">%1$s अभी बकाया</string>
     <string name="gender_male">पुरुष</string>
     <string name="gender_female">महिला</string>
     <string name="gender_other">अन्य</string>
@@ -54,9 +52,6 @@
     <string name="stat_expiring_week">इस हफ़्ते खत्म</string>
     <string name="stat_expired">समाप्त</string>
     <string name="stat_dues">बकाया · %1$d</string>
-    <string name="section_expiring_week">इस हफ़्ते खत्म होने वाले</string>
-    <string name="no_one_expires_title">इस हफ़्ते किसी की सदस्यता खत्म नहीं</string>
-    <string name="no_one_expires_body">अगले 7 दिनों में खत्म होने वाली सदस्यताएँ यहाँ दिखेंगी।</string>
     <string name="search_hint">नाम या फ़ोन से खोजें</string>
     <string name="clear_search">खोज हटाएँ</string>
     <string name="filter_all">सभी</string>
@@ -233,6 +228,56 @@
     <string name="morning_more_names">%1$s और %2$d अन्य</string>
     <string name="morning_no_dues">कुछ बकाया नहीं</string>
     <string name="morning_collected">इस महीने %1$s मिला</string>
+    <string name="section_recent_payments">हाल के भुगतान</string>
+    <string name="no_payments_title">अभी कोई भुगतान नहीं</string>
+    <string name="no_payments_body">आप जो भुगतान दर्ज करेंगे, वे यहाँ दिखेंगे।</string>
+    <string name="day_today">आज</string>
+    <string name="day_yesterday">कल</string>
+    <string name="brief_title">आज का सार</string>
+    <string name="brief_ai">फ़ोन पर AI</string>
+    <string name="brief_pace_ahead">अब तक %1$s मिला, इस तारीख तक %3$s से %2$d%% ज़्यादा।</string>
+    <string name="brief_pace_behind">अब तक %1$s मिला, इस तारीख तक %3$s से %2$d%% कम।</string>
+    <string name="brief_pace_plain">इस महीने अब तक %1$s मिला।</string>
+    <string name="brief_due">%1$s पर %3$s से %2$s बकाया है, आज याद दिला दें।</string>
+    <string name="brief_win_back">%1$s ने %2$s के बाद रिन्यू नहीं किया; एक कॉल से वापस आ सकते हैं।</string>
+    <string name="brief_forecast">बकाया मिलने और रिन्यूअल होने पर %1$s तक पहुँच सकते हैं।</string>
+    <string name="brief_quiet">आज कुछ ज़रूरी नहीं।</string>
+    <string name="pace_ahead">%2$s से %1$d%% आगे</string>
+    <string name="pace_behind">%2$s से %1$d%% पीछे</string>
+    <string name="pace_level">%1$s के बराबर</string>
+    <string name="pace_no_compare">%1$s से तुलना के लिए कुछ नहीं</string>
+    <string name="pace_by_date">इस तारीख तक</string>
+    <string name="chart_day">%1$d तारीख</string>
+    <string name="chart_description">महीने भर की वसूली: %2$s में अब तक %1$s, इसी तारीख तक %4$s में %3$s।</string>
+    <string name="forecast_title">संभावित</string>
+    <string name="forecast_collected">मिल चुका</string>
+    <string name="forecast_dues">बकाया</string>
+    <string name="forecast_note">अगर हर बकाया मिल जाए और इस महीने खत्म होने वाली हर सदस्यता रिन्यू हो।</string>
+    <string name="renewals_title">रिन्यूअल</string>
+    <string name="renewals_none">इस हफ़्ते कोई खत्म नहीं</string>
+    <string name="renewal_rate">पिछले %3$d दिनों में %2$d में से %1$d ने रिन्यू किया (%4$d%%)</string>
+    <string name="renewal_rate_none">पिछले %1$d दिनों में कोई सदस्यता खत्म नहीं हुई</string>
+    <string name="attention_title">ध्यान दें</string>
+    <string name="oldest_dues">सबसे पुराना बकाया</string>
+    <string name="win_back">वापस लाएँ</string>
+    <string name="more_count">+%1$d और</string>
+    <string name="inbox_title">सूचनाएँ</string>
+    <string name="open_alerts">सूचनाएँ</string>
+    <string name="open_alerts_unread">सूचनाएँ, %1$d नई</string>
+    <string name="inbox_empty_title">कोई सूचना नहीं</string>
+    <string name="inbox_empty_body">आज खत्म होने वाली सदस्यताएँ, रिन्यू न करने वाले सदस्य और पुराने बकाये यहाँ दिखेंगे।</string>
+    <string name="inbox_earlier">पहले</string>
+    <string name="alert_ends_today">%1$s की सदस्यता आज खत्म हो रही है</string>
+    <string name="alert_ends_today_detail">रिन्यूअल %1$s का</string>
+    <string name="alert_lapsed">%1$s की सदस्यता %2$s को खत्म हुई</string>
+    <string name="alert_lapsed_detail">अभी रिन्यू नहीं हुई</string>
+    <string name="alert_due">%1$s पर %3$s से %2$s बकाया</string>
+    <string name="alert_due_detail">2 हफ़्ते या ज़्यादा से बकाया</string>
+    <string name="section_home_screen">होम स्क्रीन</string>
+    <string name="ai_insights">AI जानकारी</string>
+    <string name="ai_insights_body">रोज़ का छोटा सार, इस महीने का अनुमान, रिन्यूअल और किस पर ध्यान देना है। सब इसी फ़ोन पर बनता है; कुछ भी बाहर नहीं जाता।</string>
+    <string name="collections_chart">वसूली चार्ट</string>
+    <string name="collections_chart_body">इस महीने की वसूली की पिछले महीने से रोज़ाना तुलना।</string>
     <string name="section_about">जानकारी</string>
     <string name="version">वर्ज़न %1$s</string>
     <string name="credits">musa_fir ने ❤️ से बनाया · कोई अधिकार सुरक्षित नहीं</string>
@@ -447,5 +492,25 @@
     <plurals name="morning_dues">
         <item quantity="one">%2$d सदस्य पर %1$s बकाया</item>
         <item quantity="other">%2$d सदस्यों पर %1$s बकाया</item>
+    </plurals>
+    <plurals name="brief_renewals">
+        <item quantity="one">%3$s की सदस्यता (%2$s) इस हफ़्ते खत्म हो रही है।</item>
+        <item quantity="other">इस हफ़्ते %2$s की %1$d सदस्यताएँ खत्म होंगी, पहली %3$s की।</item>
+    </plurals>
+    <plurals name="forecast_renewals">
+        <item quantity="one">इस महीने %1$d रिन्यूअल</item>
+        <item quantity="other">इस महीने %1$d रिन्यूअल</item>
+    </plurals>
+    <plurals name="renewals_at_stake">
+        <item quantity="one">इस हफ़्ते %1$d खत्म · %2$s</item>
+        <item quantity="other">इस हफ़्ते %1$d खत्म · %2$s</item>
+    </plurals>
+    <plurals name="owed_days">
+        <item quantity="one">%1$d दिन</item>
+        <item quantity="other">%1$d दिन</item>
+    </plurals>
+    <plurals name="ended_days_ago">
+        <item quantity="one">%1$d दिन पहले खत्म</item>
+        <item quantity="other">%1$d दिन पहले खत्म</item>
     </plurals>
 </resources>

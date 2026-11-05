@@ -4,11 +4,22 @@ import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.harsh.gymmanager.LocalAppDependencies
+import com.harsh.gymmanager.ui.LocalLanguage
 import com.harsh.gymmanager.ui.components.AkhadaCard
 import com.harsh.gymmanager.ui.theme.AkhadaRadius
 import org.jetbrains.compose.resources.pluralStringResource
@@ -17,26 +28,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.harsh.gymmanager.domain.model.MemberSummary
-import com.harsh.gymmanager.domain.usecase.MemberFilter
+import com.harsh.gymmanager.domain.model.HomeFeatures
 import com.harsh.gymmanager.presentation.dashboard.DashboardUiState
 import com.harsh.gymmanager.presentation.formatRupees
 import com.harsh.gymmanager.ui.LocalGym
 import com.harsh.gymmanager.ui.components.AkhadaIconButton
 import com.harsh.gymmanager.ui.components.BadgeTone
-import com.harsh.gymmanager.ui.components.EmptyState
-import com.harsh.gymmanager.ui.components.HeroTile
-import com.harsh.gymmanager.ui.components.MemberRow
-import com.harsh.gymmanager.ui.components.SectionHeader
 import com.harsh.gymmanager.ui.components.StatTile
 import com.harsh.gymmanager.ui.components.TabHeader
 import com.harsh.gymmanager.ui.format.formatWeekday
-import com.harsh.gymmanager.ui.format.monthName
 import com.harsh.gymmanager.ui.format.rememberToday
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
 import com.harsh.gymmanager.ui.theme.AkhadaSize
@@ -44,16 +47,32 @@ import com.harsh.gymmanager.ui.theme.AkhadaSpace
 import com.harsh.gymmanager.ui.theme.AkhadaTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 
+/**
+ * The owner's morning view: how collections are going, the counts, and recent payments. With
+ * [HomeFeatures.aiInsights] on it adds a short brief (written by the phone's own model where it
+ * has one), the month's outlook, renewals and who needs attention; the chart has its own switch.
+ */
 @Composable
 fun HomeScreen(
     state: DashboardUiState,
-    onOpenMembers: (MemberFilter) -> Unit,
-    onOpenMember: (MemberSummary) -> Unit,
+    onOpenMember: (Long) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenReminders: () -> Unit,
+    onOpenInbox: () -> Unit,
+    features: HomeFeatures,
 ) {
     val today = rememberToday()
     val board = state.dashboard
+    val insights = state.insights
+    val deps = LocalAppDependencies.current
+    val gymName = LocalGym.current.name
+    val language = LocalLanguage.current
+    var aiBrief by remember { mutableStateOf<String?>(null) }
+    // The phone's model only writes English, and only once the owner has turned insights on.
+    LaunchedEffect(insights, language, gymName, features.aiInsights) {
+        aiBrief = if (features.aiInsights && insights != null && language == "en") deps.brief.write(insights, gymName) else null
+    }
+
     LazyColumn(
         Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = AkhadaSize.contentBottomClearance),
@@ -61,46 +80,64 @@ fun HomeScreen(
     ) {
         item {
             TabHeader(
-                title = LocalGym.current.name,
+                title = gymName,
                 subtitle = today.formatWeekday(),
                 titleStyle = AkhadaTheme.typography.title,
-            ) { AkhadaIconButton(AkhadaIcons.Settings, stringResource(Res.string.settings), onOpenSettings) }
+            ) {
+                BellButton(state.unreadAlerts, onOpenInbox)
+                AkhadaIconButton(AkhadaIcons.Settings, stringResource(Res.string.settings), onOpenSettings)
+            }
         }
-        if (board == null) return@LazyColumn
+        if (board == null || insights == null) return@LazyColumn
+        if (features.aiInsights) item { Box(Modifier.screenGutter()) { BriefCard(insights, aiBrief) } }
+        item { Box(Modifier.screenGutter()) { CollectionsCard(insights.pace, insights.today, showChart = features.collectionsChart) } }
         item {
             Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                HeroTile(
-                    label = stringResource(Res.string.collected_in, today.monthName()),
-                    value = formatRupees(board.revenueThisMonth),
-                    caption = if (board.totalDue > 0) stringResource(Res.string.still_due, formatRupees(board.totalDue)) else stringResource(Res.string.nothing_due),
-                )
                 Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                    StatTile(stringResource(Res.string.stat_active), board.activeCount.toString(), BadgeTone.Active, { onOpenMembers(MemberFilter.ACTIVE) }, Modifier.weight(1f))
-                    StatTile(stringResource(Res.string.stat_expiring_week), board.expiringSoon.size.toString(), BadgeTone.Expiring, { onOpenMembers(MemberFilter.EXPIRING_SOON) }, Modifier.weight(1f))
+                    StatTile(stringResource(Res.string.stat_active), board.activeCount.toString(), BadgeTone.Active, Modifier.weight(1f))
+                    StatTile(stringResource(Res.string.stat_expiring_week), board.expiringSoon.size.toString(), BadgeTone.Expiring, Modifier.weight(1f))
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                    StatTile(stringResource(Res.string.stat_expired), board.expiredCount.toString(), BadgeTone.Expired, { onOpenMembers(MemberFilter.EXPIRED) }, Modifier.weight(1f))
-                    StatTile(stringResource(Res.string.stat_dues, board.membersWithDuesCount), formatRupees(board.totalDue), BadgeTone.Due, { onOpenMembers(MemberFilter.WITH_DUES) }, Modifier.weight(1f))
+                    StatTile(stringResource(Res.string.stat_expired), board.expiredCount.toString(), BadgeTone.Expired, Modifier.weight(1f))
+                    StatTile(stringResource(Res.string.stat_dues, board.membersWithDuesCount), formatRupees(board.totalDue), BadgeTone.Due, Modifier.weight(1f))
                 }
                 if (state.remindersToSend > 0) RemindersTile(state.remindersToSend, onOpenReminders)
             }
         }
-        item {
-            SectionHeader(
-                stringResource(Res.string.section_expiring_week),
-                Modifier.screenGutter().padding(top = AkhadaSpace.md),
-                action = if (board.expiringSoon.isNotEmpty()) stringResource(Res.string.see_all) else null,
-                onAction = { onOpenMembers(MemberFilter.EXPIRING_SOON) },
-            )
+        if (features.aiInsights) {
+            item { Box(Modifier.screenGutter()) { ForecastCard(insights.forecast) } }
+            item { Box(Modifier.screenGutter()) { RenewalsCard(insights.renewals, insights.today, onOpenMember) } }
+            if (insights.oldestDues.isNotEmpty() || insights.winBack.isNotEmpty()) {
+                item { Box(Modifier.screenGutter()) { AttentionCard(insights, onOpenMember) } }
+            }
         }
-        if (board.expiringSoon.isEmpty()) {
-            item {
-                EmptyState(AkhadaIcons.Calendar, stringResource(Res.string.no_one_expires_title), stringResource(Res.string.no_one_expires_body))
-            }
-        } else {
-            items(board.expiringSoon, key = { it.memberId }) { member ->
-                MemberRow(member, today, onClick = { onOpenMember(member) }, modifier = Modifier.screenGutter())
-            }
+        item { Box(Modifier.screenGutter()) { RecentPaymentsCard(state.recentPayments, insights.today, onOpenMember) } }
+    }
+}
+
+/** Opens the inbox; a badge counts unread alerts. */
+@Composable
+private fun BellButton(unread: Int, onClick: () -> Unit) {
+    val colors = AkhadaTheme.colors
+    Box {
+        AkhadaIconButton(
+            AkhadaIcons.Bell,
+            if (unread > 0) stringResource(Res.string.open_alerts_unread, unread) else stringResource(Res.string.open_alerts),
+            onClick,
+        )
+        if (unread > 0) {
+            Text(
+                if (unread > 9) "9+" else unread.toString(),
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = 4.dp, y = (-2).dp)
+                    .defaultMinSize(minWidth = 18.dp)
+                    .background(colors.accent, AkhadaRadius.pillShape)
+                    .padding(horizontal = 5.dp),
+                style = AkhadaTheme.typography.tab,
+                color = colors.onAccent,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }

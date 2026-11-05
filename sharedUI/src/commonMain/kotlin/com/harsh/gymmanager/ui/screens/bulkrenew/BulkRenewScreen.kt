@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,6 +28,7 @@ import com.harsh.gymmanager.presentation.bulkrenew.BulkRenewViewModel
 import com.harsh.gymmanager.presentation.formatRupees
 import com.harsh.gymmanager.ui.components.AkhadaButton
 import com.harsh.gymmanager.ui.components.AkhadaCard
+import com.harsh.gymmanager.ui.components.AkhadaSwitch
 import com.harsh.gymmanager.ui.components.Avatar
 import com.harsh.gymmanager.ui.components.EmptyState
 import com.harsh.gymmanager.ui.components.PlanCard
@@ -81,13 +80,9 @@ fun BulkRenewScreen(memberIds: Set<Long>, onBack: () -> Unit, onDone: (Int) -> U
                             color = colors.inkMuted,
                         )
                     }
-                    Switch(
+                    AkhadaSwitch(
                         checked = state.markPaid,
                         onCheckedChange = vm::onMarkPaidChange,
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = colors.onInk, checkedTrackColor = colors.ink,
-                            uncheckedThumbColor = colors.inkMuted, uncheckedTrackColor = colors.surfaceSunken, uncheckedBorderColor = colors.surfaceSunken,
-                        ),
                     )
                 }
                 if (state.markPaid) {

@@ -10,6 +10,7 @@ import com.harsh.gymmanager.domain.usecase.MembershipUseCases
 import com.harsh.gymmanager.domain.usecase.ObserveDashboardUseCase
 import com.harsh.gymmanager.domain.usecase.PaymentUseCases
 import com.harsh.gymmanager.domain.usecase.PlanUseCases
+import com.harsh.gymmanager.domain.usecase.mostUrgentFirst
 import kotlinx.coroutines.flow.first
 
 /** Up to [limit] members of a longer list; [totalCount] is how many matched in all. */
@@ -48,16 +49,8 @@ class GymAssistant(
 
     /** Most urgent first: soonest expiry, latest lapse, or largest due. */
     @Throws(Exception::class)
-    suspend fun members(filter: MemberFilter, limit: Int = MAX_RESULTS): MemberList {
-        val matching = members.observeMembers(filter = filter).first()
-        val sorted = when (filter) {
-            MemberFilter.EXPIRING_SOON -> matching.sortedBy { it.latestEndDate }
-            MemberFilter.EXPIRED -> matching.sortedByDescending { it.latestEndDate }
-            MemberFilter.WITH_DUES -> matching.sortedByDescending { it.amountDue }
-            else -> matching
-        }
-        return sorted.toMemberList(limit)
-    }
+    suspend fun members(filter: MemberFilter, limit: Int = MAX_RESULTS): MemberList =
+        members.observeMembers(filter = filter).first().mostUrgentFirst(filter).toMemberList(limit)
 
     /** Plans that can be sold now. */
     @Throws(Exception::class)

@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.harsh.gymmanager.data.local.GymDatabase
 import com.harsh.gymmanager.data.repository.BackupRepositoryImpl
+import com.harsh.gymmanager.data.repository.InboxRepositoryImpl
 import com.harsh.gymmanager.data.repository.MemberRepositoryImpl
 import com.harsh.gymmanager.data.repository.MembershipRepositoryImpl
 import com.harsh.gymmanager.data.repository.MessageLogRepositoryImpl
@@ -14,6 +15,11 @@ import com.harsh.gymmanager.domain.assistant.GymAssistant
 import com.harsh.gymmanager.domain.backup.BackupUseCases
 import com.harsh.gymmanager.domain.backup.StoredFiles
 import com.harsh.gymmanager.domain.digest.MorningDigestUseCase
+import com.harsh.gymmanager.domain.insights.NoOnDeviceModel
+import com.harsh.gymmanager.domain.insights.ObserveInsightsUseCase
+import com.harsh.gymmanager.domain.insights.OnDeviceModel
+import com.harsh.gymmanager.domain.insights.WriteBriefUseCase
+import com.harsh.gymmanager.domain.usecase.InboxUseCases
 import com.harsh.gymmanager.domain.messaging.MessagingUseCases
 import com.harsh.gymmanager.domain.usecase.BulkRenewUseCase
 import com.harsh.gymmanager.domain.usecase.ImportMembersUseCase
@@ -30,13 +36,15 @@ import kotlin.time.Clock
 
 /**
  * App-wide singletons for both platforms, created lazily on first use. Each platform supplies
- * how to open its database and settings file, and how it schedules the morning update.
+ * how to open its database and settings file, how it schedules the morning update, and its
+ * on-device language model, if any.
  */
 class DefaultAppDependencies(
     openDatabase: () -> GymDatabase,
     openSettings: () -> DataStore<Preferences>,
     private val storedFiles: StoredFiles,
     private val createMorningUpdates: (MorningDigestUseCase) -> MorningUpdateScheduler,
+    private val onDeviceModel: OnDeviceModel = NoOnDeviceModel,
     private val clock: Clock = Clock.System,
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
 ) : AppDependencies {
@@ -72,4 +80,11 @@ class DefaultAppDependencies(
     }
     override val morningDigest by lazy { MorningDigestUseCase(memberRepository, paymentRepository) }
     override val morningUpdates by lazy { createMorningUpdates(morningDigest) }
+    override val insights by lazy {
+        ObserveInsightsUseCase(memberRepository, membershipRepository, paymentRepository, clock, timeZone)
+    }
+    override val brief by lazy { WriteBriefUseCase(onDeviceModel) }
+    override val inbox by lazy {
+        InboxUseCases(InboxRepositoryImpl(database.inboxDao()), memberRepository, membershipRepository, clock, timeZone)
+    }
 }

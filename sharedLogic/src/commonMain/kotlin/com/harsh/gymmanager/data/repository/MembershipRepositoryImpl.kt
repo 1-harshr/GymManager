@@ -20,6 +20,9 @@ class MembershipRepositoryImpl(
     override fun observeMemberships(memberId: Long): Flow<List<Membership>> =
         dao.observeForMember(memberId).map { rows -> rows.map { it.toDomain() } }
 
+    override fun observeAllMemberships(): Flow<List<Membership>> =
+        dao.observeAllActiveMembers().map { rows -> rows.map { it.toDomain() } }
+
     override suspend fun getLatestEndDate(memberId: Long): LocalDate? = dao.getLatestEndDate(memberId)
 
     override suspend fun addMembership(membership: Membership, firstPayment: Payment?): Long {

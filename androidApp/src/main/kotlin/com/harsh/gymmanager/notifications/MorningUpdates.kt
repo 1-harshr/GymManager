@@ -65,6 +65,8 @@ class MorningUpdateWorker(context: Context, params: WorkerParameters) : Coroutin
 
         // Queue tomorrow first; it runs once this one finishes, so a failure below can't break the chain.
         enqueueNext(applicationContext, update, ExistingWorkPolicy.APPEND_OR_REPLACE)
+        // New alerts wait in the bell's inbox even if the app isn't opened today.
+        container.inbox.refresh()
         try {
             // Match the app's language, as the screens do; string resources read the default locale.
             settings.language.tag?.let { Locale.setDefault(Locale.forLanguageTag(it)) }

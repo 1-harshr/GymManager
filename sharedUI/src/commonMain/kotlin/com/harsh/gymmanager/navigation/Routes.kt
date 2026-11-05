@@ -40,3 +40,7 @@ data object GymProfileRoute
 /** Members due a WhatsApp reminder, with a one-tap-each run through them. */
 @Serializable
 data object RemindersRoute
+
+/** The bell's alerts. */
+@Serializable
+data object InboxRoute

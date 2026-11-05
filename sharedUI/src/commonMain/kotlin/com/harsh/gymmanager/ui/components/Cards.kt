@@ -117,28 +117,15 @@ fun SelectedMark(modifier: Modifier = Modifier) {
 
 /** A number with its label in the Home grid; tapping opens the matching member list. */
 @Composable
-fun StatTile(label: String, value: String, tone: BadgeTone, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun StatTile(label: String, value: String, tone: BadgeTone, modifier: Modifier = Modifier) {
     val colors = AkhadaTheme.colors
-    Surface(onClick = onClick, modifier = modifier, shape = AkhadaRadius.cardShape, color = colors.surface) {
+    Surface(modifier = modifier, shape = AkhadaRadius.cardShape, color = colors.surface) {
         Column(Modifier.padding(AkhadaSpace.lg), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
                 StatusDot(tone.colors().first)
                 Text(label, style = AkhadaTheme.typography.caption, color = colors.inkMuted, maxLines = 1)
             }
             Text(value, style = AkhadaTheme.typography.stat, maxLines = 1)
-        }
-    }
-}
-
-/** The one hero figure on Home: money collected this month, on an ink ground. */
-@Composable
-fun HeroTile(label: String, value: String, caption: String, modifier: Modifier = Modifier) {
-    val colors = AkhadaTheme.colors
-    Surface(modifier = modifier.fillMaxWidth(), shape = AkhadaRadius.cardShape, color = colors.ink, contentColor = colors.onInk) {
-        Column(Modifier.padding(AkhadaSpace.lg), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
-            Text(label, style = AkhadaTheme.typography.caption, color = colors.onInk.copy(alpha = 0.78f))
-            Text(value, style = AkhadaTheme.typography.displayXl)
-            Text(caption, style = AkhadaTheme.typography.caption, color = colors.onInk.copy(alpha = 0.78f))
         }
     }
 }

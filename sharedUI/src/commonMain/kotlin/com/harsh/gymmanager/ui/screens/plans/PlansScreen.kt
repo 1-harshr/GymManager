@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.plans
 
+import com.harsh.gymmanager.ui.components.AkhadaSwitch
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.pluralStringResource
@@ -11,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -74,13 +73,9 @@ fun PlansScreen(
             item {
                 Row(Modifier.fillMaxWidth().screenGutter(), verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(Res.string.show_archived_plans), Modifier.weight(1f), style = AkhadaTheme.typography.body, color = colors.inkMuted)
-                    Switch(
+                    AkhadaSwitch(
                         checked = state.showArchived,
                         onCheckedChange = onShowArchivedChange,
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = colors.onInk, checkedTrackColor = colors.ink,
-                            uncheckedThumbColor = colors.inkMuted, uncheckedTrackColor = colors.surfaceSunken, uncheckedBorderColor = colors.surfaceSunken,
-                        ),
                     )
                 }
             }
