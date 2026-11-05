@@ -11,6 +11,13 @@
 		<string>en</string>
 		<string>hi</string>
 	</array>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+		<key>UIImageName</key>
+		<string>LaunchIcon</string>
+	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Gym Manager uses the camera to take member photos.</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>

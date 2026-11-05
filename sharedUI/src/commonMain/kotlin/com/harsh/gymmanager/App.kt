@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -73,7 +74,7 @@ import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 
 @Composable
-fun App(dependencies: AppDependencies) {
+fun App(dependencies: AppDependencies, onReady: () -> Unit = {}) {
     val settingsVm = viewModel { SettingsViewModel(dependencies.settingsUseCases) }
     val settings = settingsVm.state.collectAsStateWithLifecycle().value
     val dark = when (settings?.theme ?: ThemeMode.SYSTEM) {
@@ -82,6 +83,7 @@ fun App(dependencies: AppDependencies) {
         ThemeMode.DARK -> true
     }
     SystemBarsFor(dark)
+    if (settings != null) LaunchedEffect(Unit) { onReady() }
     // String resources follow the overridden configuration, so switching language keeps the current screen.
     val tag = settings?.language?.tag
     val language = tag ?: Locale.current.language
