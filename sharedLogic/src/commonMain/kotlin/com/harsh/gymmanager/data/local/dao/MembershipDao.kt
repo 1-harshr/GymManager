@@ -27,6 +27,11 @@ interface MembershipDao {
         return id
     }
 
+    /** Saves several memberships, each with an optional first payment, all or nothing. */
+    @Transaction
+    suspend fun insertAllWithFirstPayments(items: List<Pair<MembershipEntity, PaymentEntity?>>): List<Long> =
+        items.map { (membership, payment) -> insertWithFirstPayment(membership, payment) }
+
     @Update
     suspend fun update(membership: MembershipEntity)
 

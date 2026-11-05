@@ -8,6 +8,8 @@ import com.harsh.gymmanager.data.repository.MemberRepositoryImpl
 import com.harsh.gymmanager.data.repository.MembershipRepositoryImpl
 import com.harsh.gymmanager.data.repository.PaymentRepositoryImpl
 import com.harsh.gymmanager.data.repository.PlanRepositoryImpl
+import com.harsh.gymmanager.domain.usecase.BulkRenewUseCase
+import com.harsh.gymmanager.domain.usecase.ImportMembersUseCase
 import com.harsh.gymmanager.domain.usecase.MemberUseCases
 import com.harsh.gymmanager.domain.usecase.MembershipUseCases
 import com.harsh.gymmanager.domain.usecase.ObserveDashboardUseCase
@@ -37,5 +39,7 @@ class AppContainer(context: Context) : AppDependencies {
     override val observeMemberDetail by lazy {
         ObserveMemberDetailUseCase(memberRepository, membershipRepository, clock, timeZone)
     }
+    override val bulkRenew by lazy { BulkRenewUseCase(memberRepository, membershipRepository, clock, timeZone) }
+    override val importMembers by lazy { ImportMembersUseCase(memberRepository, clock, timeZone) }
     override val observeDashboard by lazy { ObserveDashboardUseCase(memberRepository, paymentRepository, clock, timeZone) }
 }

@@ -23,6 +23,7 @@ import com.harsh.gymmanager.ui.components.EmptyState
 import com.harsh.gymmanager.ui.components.MenuAction
 import com.harsh.gymmanager.ui.components.MoreMenu
 import com.harsh.gymmanager.ui.components.PlanCard
+import com.harsh.gymmanager.ui.components.SelectionHeader
 import com.harsh.gymmanager.ui.components.TabHeader
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
 import com.harsh.gymmanager.ui.theme.AkhadaSize
@@ -39,6 +40,9 @@ fun PlansScreen(
     onArchive: (Plan) -> Unit,
     onRestore: (Plan) -> Unit,
     onOpenSettings: () -> Unit,
+    onToggleSelection: (Plan) -> Unit,
+    onSelectAll: () -> Unit,
+    onClearSelection: () -> Unit,
 ) {
     val colors = AkhadaTheme.colors
     val activeCount = state.plans.count { !it.isArchived }
@@ -48,8 +52,12 @@ fun PlansScreen(
         verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
     ) {
         item {
-            TabHeader("Plans", if (state.isLoading) null else if (activeCount == 1) "1 plan" else "$activeCount plans") {
-                AkhadaIconButton(AkhadaIcons.Settings, "Settings", onOpenSettings)
+            if (state.isSelecting) {
+                SelectionHeader(state.selectedIds.size, onCancel = onClearSelection, onSelectAll = onSelectAll)
+            } else {
+                TabHeader("Plans", if (state.isLoading) null else if (activeCount == 1) "1 plan" else "$activeCount plans") {
+                    AkhadaIconButton(AkhadaIcons.Settings, "Settings", onOpenSettings)
+                }
             }
         }
         if (!state.isLoading && state.plans.isEmpty() && !state.showArchived) {
@@ -76,9 +84,11 @@ fun PlansScreen(
             items(state.plans, key = { it.id }) { plan ->
                 PlanCard(
                     plan,
-                    onClick = { onOpenPlan(plan) },
+                    onClick = { if (state.isSelecting) onToggleSelection(plan) else onOpenPlan(plan) },
                     modifier = Modifier.screenGutter(),
-                    trailing = {
+                    selected = plan.id in state.selectedIds,
+                    onLongClick = { onToggleSelection(plan) },
+                    trailing = if (state.isSelecting) null else ({
                         MoreMenu(
                             actions = listOf(
                                 MenuAction("Edit") { onOpenPlan(plan) },
@@ -87,10 +97,10 @@ fun PlansScreen(
                             contentDescription = "More for ${plan.name}",
                             container = colors.surface,
                         )
-                    },
+                    }),
                 )
             }
-            item {
+            if (!state.isSelecting) item {
                 AkhadaButton(
                     "Add plan", onAddPlan,
                     Modifier.fillMaxWidth().screenGutter().padding(top = AkhadaSpace.sm),

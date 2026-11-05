@@ -18,4 +18,9 @@ interface PlanRepository {
     suspend fun archivePlan(id: Long)
 
     suspend fun restorePlan(id: Long)
+
+    /** Returns how many plans changed. */
+    suspend fun archivePlans(ids: List<Long>): Int
+
+    suspend fun restorePlans(ids: List<Long>): Int
 }

@@ -20,6 +20,14 @@ interface MemberRepository {
 
     suspend fun addMember(member: Member): Long
 
+    /** Adds all of [members] in one transaction; returns their ids. */
+    suspend fun addMembers(members: List<Member>): List<Long>
+
+    suspend fun getMembers(ids: List<Long>): List<Member>
+
+    /** Every stored phone number, as typed. */
+    suspend fun getPhones(): List<String>
+
     suspend fun updateMember(member: Member)
 
     suspend fun archiveMember(id: Long)
@@ -28,4 +36,12 @@ interface MemberRepository {
 
     /** Also removes the member's memberships and payments. Prefer [archiveMember]. */
     suspend fun deleteMemberPermanently(id: Long)
+
+    /** Returns how many members changed. */
+    suspend fun archiveMembers(ids: List<Long>): Int
+
+    suspend fun restoreMembers(ids: List<Long>): Int
+
+    /** Also removes their memberships and payments; returns how many were deleted. */
+    suspend fun deleteMembersPermanently(ids: List<Long>): Int
 }

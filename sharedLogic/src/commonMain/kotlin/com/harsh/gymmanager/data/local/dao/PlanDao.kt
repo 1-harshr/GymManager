@@ -18,6 +18,9 @@ interface PlanDao {
     @Query("UPDATE plans SET isArchived = :archived WHERE id = :id")
     suspend fun setArchived(id: Long, archived: Boolean)
 
+    @Query("UPDATE plans SET isArchived = :archived WHERE id IN (:ids)")
+    suspend fun setArchived(ids: List<Long>, archived: Boolean): Int
+
     @Query("SELECT * FROM plans WHERE id = :id")
     suspend fun getById(id: Long): PlanEntity?
 

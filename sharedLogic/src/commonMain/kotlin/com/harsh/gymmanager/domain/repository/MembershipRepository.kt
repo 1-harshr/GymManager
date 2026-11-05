@@ -17,6 +17,12 @@ interface MembershipRepository {
      */
     suspend fun addMembership(membership: Membership, firstPayment: Payment? = null): Long
 
+    /**
+     * Saves several memberships, each with an optional first payment, all or nothing.
+     * @throws com.harsh.gymmanager.domain.OverpaymentException if a payment is more than its membership's charge.
+     */
+    suspend fun addMemberships(items: List<Pair<Membership, Payment?>>): List<Long>
+
     suspend fun updateMembership(membership: Membership)
 
     /** Also removes the membership's payments. */

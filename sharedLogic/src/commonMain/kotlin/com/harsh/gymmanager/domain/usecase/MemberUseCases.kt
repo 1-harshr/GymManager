@@ -79,6 +79,16 @@ class DeleteMemberPermanentlyUseCase(private val repository: MemberRepository) {
     suspend operator fun invoke(id: Long): Result<Unit> = resultOf { repository.deleteMemberPermanently(id) }
 }
 
+/** Archives, restores or deletes many members at once; each returns how many changed. */
+class BulkMemberActionsUseCase(private val repository: MemberRepository) {
+    suspend fun archive(ids: Collection<Long>): Result<Int> = resultOf { repository.archiveMembers(ids.toList()) }
+
+    suspend fun restore(ids: Collection<Long>): Result<Int> = resultOf { repository.restoreMembers(ids.toList()) }
+
+    /** Also removes their memberships and payments. */
+    suspend fun deletePermanently(ids: Collection<Long>): Result<Int> = resultOf { repository.deleteMembersPermanently(ids.toList()) }
+}
+
 class MemberUseCases(repository: MemberRepository, clock: Clock, timeZone: TimeZone) {
     val observeMembers = ObserveMembersUseCase(repository)
     val observeMember = ObserveMemberUseCase(repository)
@@ -87,4 +97,5 @@ class MemberUseCases(repository: MemberRepository, clock: Clock, timeZone: TimeZ
     val archiveMember = ArchiveMemberUseCase(repository)
     val restoreMember = RestoreMemberUseCase(repository)
     val deleteMemberPermanently = DeleteMemberPermanentlyUseCase(repository)
+    val bulk = BulkMemberActionsUseCase(repository)
 }

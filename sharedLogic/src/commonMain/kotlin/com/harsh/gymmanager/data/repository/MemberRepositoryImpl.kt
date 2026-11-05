@@ -43,6 +43,21 @@ class MemberRepositoryImpl(
         return dao.insert(member.copy(id = 0).toEntity(createdAt = now, updatedAt = now))
     }
 
+    override suspend fun addMembers(members: List<Member>): List<Long> {
+        val now = clock.now()
+        return dao.insertAll(members.map { it.copy(id = 0).toEntity(createdAt = now, updatedAt = now) })
+    }
+
+    override suspend fun getMembers(ids: List<Long>): List<Member> = dao.getByIds(ids).map { it.toDomain() }
+
+    override suspend fun getPhones(): List<String> = dao.getPhones()
+
+    override suspend fun archiveMembers(ids: List<Long>): Int = dao.setArchived(ids, archived = true, updatedAt = clock.now())
+
+    override suspend fun restoreMembers(ids: List<Long>): Int = dao.setArchived(ids, archived = false, updatedAt = clock.now())
+
+    override suspend fun deleteMembersPermanently(ids: List<Long>): Int = dao.deleteByIds(ids)
+
     override suspend fun updateMember(member: Member) {
         val existing = requireNotNull(dao.getById(member.id)) { "Member ${member.id} does not exist" }
         dao.update(member.toEntity(createdAt = existing.createdAt, updatedAt = clock.now()))

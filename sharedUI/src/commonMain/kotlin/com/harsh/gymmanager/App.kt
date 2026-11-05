@@ -21,6 +21,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.harsh.gymmanager.navigation.BulkRenewRoute
+import com.harsh.gymmanager.navigation.ImportMembersRoute
 import com.harsh.gymmanager.navigation.MainRoute
 import com.harsh.gymmanager.navigation.MemberDetailRoute
 import com.harsh.gymmanager.navigation.MemberEditRoute
@@ -29,6 +31,8 @@ import com.harsh.gymmanager.navigation.SellMembershipRoute
 import com.harsh.gymmanager.navigation.SettingsRoute
 import com.harsh.gymmanager.ui.LocalSnackbar
 import com.harsh.gymmanager.ui.components.AkhadaSnackbarHost
+import com.harsh.gymmanager.ui.screens.bulkrenew.BulkRenewScreen
+import com.harsh.gymmanager.ui.screens.importmembers.ImportMembersScreen
 import com.harsh.gymmanager.ui.screens.main.MainScreen
 import com.harsh.gymmanager.ui.screens.memberdetail.MemberDetailScreen
 import com.harsh.gymmanager.ui.screens.memberedit.MemberEditScreen
@@ -64,6 +68,22 @@ fun App(dependencies: AppDependencies) {
                             onAddMember = { nav.navigate(MemberEditRoute()) },
                             onOpenPlan = { nav.navigate(PlanEditRoute(it)) },
                             onOpenSettings = { nav.navigate(SettingsRoute) },
+                            onBulkRenew = { nav.navigate(BulkRenewRoute(it)) },
+                            onImportMembers = { nav.navigate(ImportMembersRoute) },
+                        )
+                    }
+                    composable<BulkRenewRoute> { entry ->
+                        BulkRenewScreen(
+                            memberIds = entry.toRoute<BulkRenewRoute>().ids,
+                            onBack = { nav.popBackStack() },
+                            onDone = { count -> nav.popBackStack(); toast(if (count == 1) "Renewed 1 member" else "Renewed $count members") },
+                            onAddPlan = { nav.navigate(PlanEditRoute()) },
+                        )
+                    }
+                    composable<ImportMembersRoute> {
+                        ImportMembersScreen(
+                            onBack = { nav.popBackStack() },
+                            onImported = { count -> nav.popBackStack(); toast(if (count == 1) "Added 1 member" else "Added $count members") },
                         )
                     }
                     composable<MemberDetailRoute> { entry ->

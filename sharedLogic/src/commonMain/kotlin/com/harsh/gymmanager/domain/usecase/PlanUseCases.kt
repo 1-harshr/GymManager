@@ -40,6 +40,13 @@ class RestorePlanUseCase(private val repository: PlanRepository) {
     suspend operator fun invoke(id: Long): Result<Unit> = resultOf { repository.restorePlan(id) }
 }
 
+/** Archives or restores many plans at once; each returns how many changed. */
+class BulkPlanActionsUseCase(private val repository: PlanRepository) {
+    suspend fun archive(ids: Collection<Long>): Result<Int> = resultOf { repository.archivePlans(ids.toList()) }
+
+    suspend fun restore(ids: Collection<Long>): Result<Int> = resultOf { repository.restorePlans(ids.toList()) }
+}
+
 class PlanUseCases(repository: PlanRepository) {
     val observePlans = ObservePlansUseCase(repository)
     val getPlan = GetPlanUseCase(repository)
@@ -47,4 +54,5 @@ class PlanUseCases(repository: PlanRepository) {
     val updatePlan = UpdatePlanUseCase(repository)
     val archivePlan = ArchivePlanUseCase(repository)
     val restorePlan = RestorePlanUseCase(repository)
+    val bulk = BulkPlanActionsUseCase(repository)
 }

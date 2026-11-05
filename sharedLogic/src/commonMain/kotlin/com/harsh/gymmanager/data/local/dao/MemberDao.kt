@@ -15,6 +15,10 @@ interface MemberDao {
     @Insert
     suspend fun insert(member: MemberEntity): Long
 
+    /** Inserts all rows in one transaction. */
+    @Insert
+    suspend fun insertAll(members: List<MemberEntity>): List<Long>
+
     @Update
     suspend fun update(member: MemberEntity)
 
@@ -22,8 +26,20 @@ interface MemberDao {
     @Query("DELETE FROM members WHERE id = :id")
     suspend fun deleteById(id: Long)
 
+    @Query("DELETE FROM members WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<Long>): Int
+
     @Query("UPDATE members SET isArchived = :archived, updatedAt = :updatedAt WHERE id = :id")
     suspend fun setArchived(id: Long, archived: Boolean, updatedAt: Instant)
+
+    @Query("UPDATE members SET isArchived = :archived, updatedAt = :updatedAt WHERE id IN (:ids)")
+    suspend fun setArchived(ids: List<Long>, archived: Boolean, updatedAt: Instant): Int
+
+    @Query("SELECT * FROM members WHERE id IN (:ids) ORDER BY name COLLATE NOCASE")
+    suspend fun getByIds(ids: List<Long>): List<MemberEntity>
+
+    @Query("SELECT phone FROM members WHERE phone IS NOT NULL")
+    suspend fun getPhones(): List<String>
 
     @Query("SELECT * FROM members WHERE id = :id")
     suspend fun getById(id: Long): MemberEntity?

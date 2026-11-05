@@ -1,6 +1,14 @@
 package com.harsh.gymmanager.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import com.harsh.gymmanager.ui.theme.AkhadaSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -45,24 +53,42 @@ fun AkhadaCard(
     }
 }
 
-/** One member in a list: photo, name, one secondary line and their badges. */
+/**
+ * One member in a list: photo, name, one secondary line and their badges. In select mode a
+ * ticked row turns `accent-soft` with a check in place of the photo; [onLongClick] starts selecting.
+ */
 @Composable
-fun MemberRow(member: MemberSummary, today: LocalDate, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun MemberRow(
+    member: MemberSummary,
+    today: LocalDate,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    selected: Boolean = false,
+    onLongClick: (() -> Unit)? = null,
+) {
     val colors = AkhadaTheme.colors
     val secondary = listOfNotNull(
         member.phone?.let(::formatPhone),
         member.latestEndDate?.let { if (it >= today) "ends ${it.formatDayMonth()}" else "ended ${it.formatDayMonth()}" },
     ).joinToString(" · ").ifEmpty { "No membership yet" }
-    Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = AkhadaRadius.cardShape, color = colors.surface) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(AkhadaRadius.cardShape)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick, onLongClickLabel = "Select")
+            .semantics { this.selected = selected },
+        shape = AkhadaRadius.cardShape,
+        color = if (selected) colors.accentSoft else colors.surface,
+    ) {
         Row(
             Modifier.padding(horizontal = AkhadaSpace.lg, vertical = AkhadaSpace.md),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
         ) {
-            Avatar(member.name, member.photoPath)
+            if (selected) SelectedMark() else Avatar(member.name, member.photoPath)
             Column(Modifier.weight(1f)) {
-                Text(member.name, style = AkhadaTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(secondary, style = AkhadaTheme.typography.caption, color = colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(member.name, style = AkhadaTheme.typography.title, color = if (selected) colors.onAccentSoft else colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(secondary, style = AkhadaTheme.typography.caption, color = if (selected) colors.onAccentSoft else colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
                 if (member.isArchived) {
@@ -73,6 +99,15 @@ fun MemberRow(member: MemberSummary, today: LocalDate, onClick: () -> Unit, modi
                 if (member.amountDue > 0) Badge(formatRupees(member.amountDue), BadgeTone.Due)
             }
         }
+    }
+}
+
+/** The tick that replaces a photo on a selected row. */
+@Composable
+fun SelectedMark(modifier: Modifier = Modifier) {
+    val colors = AkhadaTheme.colors
+    Box(modifier.size(AkhadaSize.avatar).background(colors.ink, CircleShape), contentAlignment = Alignment.Center) {
+        Icon(AkhadaIcons.Check, contentDescription = "Selected", Modifier.size(22.dp), tint = colors.onInk)
     }
 }
 
@@ -111,12 +146,22 @@ fun PlanCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     selected: Boolean = false,
+    onLongClick: (() -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
 ) {
     val colors = AkhadaTheme.colors
     val ground = if (selected) colors.accentSoft else colors.surface
     val ink = if (selected) colors.onAccentSoft else colors.ink
-    Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = AkhadaRadius.cardShape, color = ground, contentColor = ink) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(AkhadaRadius.cardShape)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick, onLongClickLabel = "Select")
+            .semantics { this.selected = selected },
+        shape = AkhadaRadius.cardShape,
+        color = ground,
+        contentColor = ink,
+    ) {
         Row(
             Modifier.padding(start = AkhadaSpace.lg, end = if (trailing != null) AkhadaSpace.sm else AkhadaSpace.lg, top = AkhadaSpace.lg, bottom = AkhadaSpace.lg),
             verticalAlignment = Alignment.CenterVertically,

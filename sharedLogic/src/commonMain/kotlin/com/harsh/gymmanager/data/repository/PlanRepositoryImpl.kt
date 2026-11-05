@@ -30,4 +30,8 @@ class PlanRepositoryImpl(
     override suspend fun archivePlan(id: Long) = dao.setArchived(id, archived = true)
 
     override suspend fun restorePlan(id: Long) = dao.setArchived(id, archived = false)
+
+    override suspend fun archivePlans(ids: List<Long>): Int = dao.setArchived(ids, archived = true)
+
+    override suspend fun restorePlans(ids: List<Long>): Int = dao.setArchived(ids, archived = false)
 }

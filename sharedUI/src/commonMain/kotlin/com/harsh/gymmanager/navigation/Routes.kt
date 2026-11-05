@@ -21,3 +21,14 @@ data class PlanEditRoute(val planId: Long? = null)
 
 @Serializable
 data object SettingsRoute
+
+/** [memberIds] is comma-separated so the route stays a plain string. */
+@Serializable
+data class BulkRenewRoute(val memberIds: String) {
+    constructor(ids: Set<Long>) : this(ids.sorted().joinToString(","))
+
+    val ids: Set<Long> get() = memberIds.split(',').mapNotNull { it.toLongOrNull() }.toSet()
+}
+
+@Serializable
+data object ImportMembersRoute

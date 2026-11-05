@@ -213,4 +213,30 @@ class ViewModelTest {
         assertEquals(1, board.activeCount)
         assertEquals(1500, board.totalDue)
     }
+
+    @Test
+    fun membersSelectModeArchivesTickedMembersAndClears() = runTest {
+        val ravi = members.addMember("Ravi").getOrThrow()
+        val asha = members.addMember("Asha").getOrThrow()
+        members.addMember("Mohit")
+        val vm = MembersViewModel(members)
+        vm.state.first { it.members.size == 3 }
+
+        vm.toggleSelection(ravi)
+        vm.toggleSelection(asha)
+        assertEquals(setOf(ravi, asha), vm.state.first { it.selectedIds.size == 2 }.selectedIds)
+        vm.toggleSelection(asha)
+        vm.toggleSelection(asha)
+
+        vm.archiveSelected()
+        assertEquals("Archived 2 members", vm.messages.first())
+        val after = vm.state.first { it.members.size == 1 }
+        assertEquals(listOf("Mohit"), after.members.map { it.name })
+        assertEquals(false, after.isSelecting)
+
+        vm.selectAll()
+        assertEquals(1, vm.state.first { it.isSelecting }.selectedIds.size)
+        vm.onFilterChange(MemberFilter.ARCHIVED)
+        assertEquals(false, vm.state.first { it.filter == MemberFilter.ARCHIVED }.isSelecting)
+    }
 }

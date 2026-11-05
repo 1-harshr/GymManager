@@ -33,6 +33,18 @@ class MembershipRepositoryImpl(
         )
     }
 
+    override suspend fun addMemberships(items: List<Pair<Membership, Payment?>>): List<Long> {
+        items.forEach { (membership, payment) ->
+            if (payment != null && payment.amount > membership.amountCharged) throw OverpaymentException(membership.amountCharged)
+        }
+        val now = clock.now()
+        return dao.insertAllWithFirstPayments(
+            items.map { (membership, payment) ->
+                membership.copy(id = 0).toEntity(createdAt = now) to payment?.copy(id = 0)?.toEntity(createdAt = now)
+            },
+        )
+    }
+
     override suspend fun updateMembership(membership: Membership) {
         val existing = requireNotNull(dao.getById(membership.id)) { "Membership ${membership.id} does not exist" }
         dao.update(membership.toEntity(createdAt = existing.createdAt))

@@ -64,6 +64,43 @@ object AkhadaIcons {
         )
     }
     val X by lazy { lucide("X", "M18 6 6 18", "m6 6 12 12") }
+    val Archive by lazy {
+        lucide(
+            "Archive",
+            "M3 3h18a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z",
+            "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8",
+            "M10 12h4",
+        )
+    }
+    val Trash by lazy {
+        lucide(
+            "Trash",
+            "M3 6h18",
+            "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6",
+            "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2",
+            "M10 11v6",
+            "M14 11v6",
+        )
+    }
+    val Restore by lazy { lucide("Restore", "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", "M3 3v5h5") }
+    val Renew by lazy {
+        lucide(
+            "Renew",
+            "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8",
+            "M21 3v5h-5",
+            "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16",
+            "M8 16H3v5",
+        )
+    }
+    val FileUp by lazy {
+        lucide(
+            "FileUp",
+            "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z",
+            "M14 2v4a2 2 0 0 0 2 2h4",
+            "M12 12v6",
+            "m15 15-3-3-3 3",
+        )
+    }
     val MoreVertical by lazy { lucide("MoreVertical", circle(12f, 12f, 1f), circle(12f, 5f, 1f), circle(12f, 19f, 1f)) }
     val Camera by lazy {
         lucide(
