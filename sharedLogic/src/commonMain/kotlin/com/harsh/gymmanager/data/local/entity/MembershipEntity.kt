@@ -41,12 +41,4 @@ data class MembershipEntity(
     val discount: Long = 0,
     val notes: String? = null,
     val createdAt: Instant = Clock.System.now(),
-) {
-    init {
-        require(price >= 0) { "price must not be negative" }
-        require(discount in 0..price) { "discount must be between 0 and price" }
-        require(endDate >= startDate) { "endDate must not be before startDate" }
-    }
-
-    val amountCharged: Long get() = price - discount
-}
+)

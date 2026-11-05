@@ -1,12 +1,14 @@
 package com.harsh.gymmanager.domain
 
-import com.harsh.gymmanager.data.local.entity.DurationUnit
+import com.harsh.gymmanager.domain.model.DurationUnit
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
+
+const val EXPIRING_SOON_DAYS = 7
 
 enum class MembershipStatus { ACTIVE, EXPIRING_SOON, EXPIRED, NONE }
 

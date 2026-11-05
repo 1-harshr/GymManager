@@ -1,7 +1,6 @@
 package com.harsh.gymmanager.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
@@ -20,8 +19,8 @@ interface MembershipDao {
     suspend fun update(membership: MembershipEntity)
 
     /** Also removes the membership's payments. */
-    @Delete
-    suspend fun delete(membership: MembershipEntity)
+    @Query("DELETE FROM memberships WHERE id = :id")
+    suspend fun deleteById(id: Long)
 
     @Query("SELECT * FROM memberships WHERE id = :id")
     suspend fun getById(id: Long): MembershipEntity?

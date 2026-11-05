@@ -3,6 +3,7 @@ package com.harsh.gymmanager.data.local.entity
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.harsh.gymmanager.domain.model.Gender
 import kotlinx.datetime.LocalDate
 import kotlin.time.Clock
 import kotlin.time.Instant

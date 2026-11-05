@@ -1,6 +1,6 @@
 package com.harsh.gymmanager.domain
 
-import com.harsh.gymmanager.data.local.entity.DurationUnit
+import com.harsh.gymmanager.domain.model.DurationUnit
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals

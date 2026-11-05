@@ -7,7 +7,4 @@ data class MembershipWithPayments(
     @Embedded val membership: MembershipEntity,
     @Relation(parentColumn = "id", entityColumn = "membershipId")
     val payments: List<PaymentEntity>,
-) {
-    val amountPaid: Long get() = payments.sumOf { it.amount }
-    val amountDue: Long get() = membership.amountCharged - amountPaid
-}
+)

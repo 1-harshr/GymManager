@@ -1,16 +1,13 @@
 package com.harsh.gymmanager.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import com.harsh.gymmanager.data.local.entity.PaymentEntity
+import com.harsh.gymmanager.domain.OverpaymentException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
-
-class OverpaymentException(val amountDue: Long) :
-    IllegalArgumentException("Payment exceeds the amount due of ₹$amountDue")
 
 @Dao
 interface PaymentDao {
@@ -26,8 +23,8 @@ interface PaymentDao {
     @Insert
     suspend fun insert(payment: PaymentEntity): Long
 
-    @Delete
-    suspend fun delete(payment: PaymentEntity)
+    @Query("DELETE FROM payments WHERE id = :id")
+    suspend fun deleteById(id: Long)
 
     @Query(
         """

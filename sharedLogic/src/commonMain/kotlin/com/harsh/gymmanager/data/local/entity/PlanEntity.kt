@@ -2,6 +2,7 @@ package com.harsh.gymmanager.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.harsh.gymmanager.domain.model.DurationUnit
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -16,9 +17,4 @@ data class PlanEntity(
     val defaultPrice: Long,
     val isArchived: Boolean = false,
     val createdAt: Instant = Clock.System.now(),
-) {
-    init {
-        require(durationValue > 0) { "durationValue must be positive" }
-        require(defaultPrice >= 0) { "defaultPrice must not be negative" }
-    }
-}
+)

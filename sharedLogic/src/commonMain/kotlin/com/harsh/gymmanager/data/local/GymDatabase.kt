@@ -11,7 +11,7 @@ import com.harsh.gymmanager.data.local.dao.MembershipDao
 import com.harsh.gymmanager.data.local.dao.PaymentDao
 import com.harsh.gymmanager.data.local.dao.PlanDao
 import com.harsh.gymmanager.data.local.entity.MemberEntity
-import com.harsh.gymmanager.data.local.entity.MemberSummary
+import com.harsh.gymmanager.data.local.entity.MemberSummaryView
 import com.harsh.gymmanager.data.local.entity.MembershipEntity
 import com.harsh.gymmanager.data.local.entity.PaymentEntity
 import com.harsh.gymmanager.data.local.entity.PlanEntity
@@ -22,7 +22,7 @@ const val DATABASE_NAME = "gym.db"
 
 @Database(
     entities = [MemberEntity::class, PlanEntity::class, MembershipEntity::class, PaymentEntity::class],
-    views = [MemberSummary::class],
+    views = [MemberSummaryView::class],
     version = 1,
 )
 @TypeConverters(Converters::class)

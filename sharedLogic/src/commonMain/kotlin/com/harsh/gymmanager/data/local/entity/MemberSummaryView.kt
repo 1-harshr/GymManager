@@ -16,7 +16,7 @@ import kotlinx.datetime.LocalDate
         FROM members m
     """,
 )
-data class MemberSummary(
+data class MemberSummaryView(
     val memberId: Long,
     val name: String,
     val phone: String?,

@@ -1,4 +1,4 @@
-package com.harsh.gymmanager.data.local.entity
+package com.harsh.gymmanager.domain.model
 
 enum class Gender { MALE, FEMALE, OTHER }
 

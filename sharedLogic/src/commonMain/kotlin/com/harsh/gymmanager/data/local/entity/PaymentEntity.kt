@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.harsh.gymmanager.domain.model.PaymentMode
 import kotlinx.datetime.LocalDate
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -29,8 +30,4 @@ data class PaymentEntity(
     val paidOn: LocalDate,
     val note: String? = null,
     val createdAt: Instant = Clock.System.now(),
-) {
-    init {
-        require(amount > 0) { "amount must be positive" }
-    }
-}
+)

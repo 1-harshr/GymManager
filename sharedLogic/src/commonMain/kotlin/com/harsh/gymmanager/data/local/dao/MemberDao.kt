@@ -1,12 +1,11 @@
 package com.harsh.gymmanager.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.harsh.gymmanager.data.local.entity.MemberEntity
-import com.harsh.gymmanager.data.local.entity.MemberSummary
+import com.harsh.gymmanager.data.local.entity.MemberSummaryView
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
@@ -20,11 +19,14 @@ interface MemberDao {
     suspend fun update(member: MemberEntity)
 
     /** Permanently removes the member along with their memberships and payments. Prefer [setArchived]. */
-    @Delete
-    suspend fun delete(member: MemberEntity)
+    @Query("DELETE FROM members WHERE id = :id")
+    suspend fun deleteById(id: Long)
 
     @Query("UPDATE members SET isArchived = :archived, updatedAt = :updatedAt WHERE id = :id")
     suspend fun setArchived(id: Long, archived: Boolean, updatedAt: Instant)
+
+    @Query("SELECT * FROM members WHERE id = :id")
+    suspend fun getById(id: Long): MemberEntity?
 
     @Query("SELECT * FROM members WHERE id = :id")
     fun observeById(id: Long): Flow<MemberEntity?>
@@ -37,7 +39,7 @@ interface MemberDao {
         ORDER BY name COLLATE NOCASE
         """
     )
-    fun observeSummaries(query: String = "", archived: Boolean = false): Flow<List<MemberSummary>>
+    fun observeSummaries(query: String = "", archived: Boolean = false): Flow<List<MemberSummaryView>>
 
     @Query(
         """
@@ -46,7 +48,7 @@ interface MemberDao {
         ORDER BY latestEndDate
         """
     )
-    fun observeExpiring(today: LocalDate, until: LocalDate): Flow<List<MemberSummary>>
+    fun observeExpiring(today: LocalDate, until: LocalDate): Flow<List<MemberSummaryView>>
 
     @Query(
         """
@@ -55,8 +57,8 @@ interface MemberDao {
         ORDER BY latestEndDate DESC
         """
     )
-    fun observeExpired(today: LocalDate): Flow<List<MemberSummary>>
+    fun observeExpired(today: LocalDate): Flow<List<MemberSummaryView>>
 
     @Query("SELECT * FROM member_summary WHERE isArchived = 0 AND amountDue > 0 ORDER BY amountDue DESC")
-    fun observeWithDues(): Flow<List<MemberSummary>>
+    fun observeWithDues(): Flow<List<MemberSummaryView>>
 }
