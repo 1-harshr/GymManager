@@ -1,7 +1,10 @@
 package com.harsh.gymmanager.ui.screens.settings
 
+import gymmanager.sharedui.generated.resources.credits
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,7 +44,7 @@ fun SettingsScreen(
     val typography = AkhadaTheme.typography
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         PushedHeader(stringResource(Res.string.settings), onBack)
-        Column(Modifier.screenGutter().padding(bottom = AkhadaSpace.xxl), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+        Column(Modifier.screenGutter().navigationBarsPadding().padding(bottom = AkhadaSpace.xxl), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
             SectionHeader(stringResource(Res.string.section_gym))
             AkhadaCard(onClick = onEditGym) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
@@ -86,6 +89,13 @@ fun SettingsScreen(
                 Text(stringResource(Res.string.version, "1.0"), style = typography.body)
                 Text(stringResource(Res.string.licences), style = typography.caption, color = colors.inkMuted)
             }
+            Text(
+                stringResource(Res.string.credits),
+                style = typography.caption,
+                color = colors.inkMuted,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(top = AkhadaSpace.sm),
+            )
         }
     }
 }

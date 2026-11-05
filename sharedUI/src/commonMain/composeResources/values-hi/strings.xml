@@ -220,6 +220,7 @@
     <string name="data_title">सिर्फ़ इसी फ़ोन में सेव</string>
     <string name="data_body">सदस्य, प्लान और भुगतान इसी फ़ोन में रहते हैं। जब तक ऐप में एक्सपोर्ट और रीस्टोर नहीं आता, फ़ोन की सेटिंग्स में Google बैकअप चालू रखें।</string>
     <string name="section_about">जानकारी</string>
+    <string name="credits">musa_fir ने ❤️ से बनाया · कोई अधिकार सुरक्षित नहीं</string>
     <string name="version">वर्ज़न %1$s</string>
     <string name="licences">फ़ॉन्ट: Barlow और Barlow Condensed (SIL Open Font License)। आइकन: Lucide (ISC License)।</string>
     <string name="setup_title">अपना जिम सेट करें</string>

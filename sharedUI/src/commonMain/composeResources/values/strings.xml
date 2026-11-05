@@ -220,6 +220,7 @@
     <string name="data_title">Stored on this phone only</string>
     <string name="data_body">Members, plans and payments never leave this phone. Keep Google backup turned on in the phone’s settings until export and restore arrive in the app.</string>
     <string name="section_about">About</string>
+    <string name="credits">Created by musa_fir ❤️ · No rights reserved</string>
     <string name="version">Version %1$s</string>
     <string name="licences">Fonts: Barlow and Barlow Condensed (SIL Open Font License). Icons: Lucide (ISC License).</string>
     <string name="setup_title">Set up your gym</string>

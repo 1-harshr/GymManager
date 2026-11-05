@@ -44,6 +44,10 @@ object AkhadaMotion {
     const val OPEN_MS = 400
     const val TAB_MS = 320
 
+    /** The splash stays at least this long from launch, then fades out, so it reads as a beat rather than a flicker. */
+    const val SPLASH_HOLD_MS = 900L
+    const val SPLASH_EXIT_MS = 350
+
     fun <T> push(): FiniteAnimationSpec<T> = tween(PUSH_MS, easing = Settle)
     fun <T> pop(): FiniteAnimationSpec<T> = tween(POP_MS, easing = Settle)
     fun <T> open(): FiniteAnimationSpec<T> = tween(OPEN_MS, easing = Settle)
