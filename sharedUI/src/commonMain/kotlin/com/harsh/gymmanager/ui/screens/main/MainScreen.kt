@@ -2,11 +2,15 @@ package com.harsh.gymmanager.ui.screens.main
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,6 +47,9 @@ private val MainTabs = listOf(
     TabItem("Members", AkhadaIcons.Users),
     TabItem("Plans", AkhadaIcons.Tag),
 )
+/** Matches the tab pill's spring so the bar and pill move together. */
+private val BarSpring = spring(dampingRatio = 0.78f, stiffness = Spring.StiffnessMediumLow, visibilityThreshold = IntSize(1, 1))
+
 private const val HOME = 0
 private const val MEMBERS = 1
 private const val PLANS = 2
@@ -104,12 +111,17 @@ fun MainScreen(
         }
         Row(
             Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = AkhadaSpace.md),
-            horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             FloatingTabBar(tabs = MainTabs, selected = tab, onSelect = { tab = it })
-            AnimatedVisibility(tab == MEMBERS, enter = fadeIn() + scaleIn(), exit = fadeOut() + scaleOut()) {
-                AddButton(onClick = onAddMember, contentDescription = "Add member")
+            // The button's width (gap included) grows on the same spring as the tab pill, so the
+            // centred bar glides aside instead of jumping when the button appears.
+            AnimatedVisibility(
+                tab == MEMBERS,
+                enter = expandHorizontally(BarSpring, expandFrom = Alignment.Start) + fadeIn() + scaleIn(initialScale = 0.6f),
+                exit = shrinkHorizontally(BarSpring, shrinkTowards = Alignment.Start) + fadeOut() + scaleOut(targetScale = 0.6f),
+            ) {
+                AddButton(onClick = onAddMember, contentDescription = "Add member", modifier = Modifier.padding(start = AkhadaSpace.md))
             }
         }
     }
