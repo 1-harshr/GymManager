@@ -1,83 +1,73 @@
 # GymManager
 
-GymManager is an offline-first gym management app built with Kotlin Multiplatform and Compose Multiplatform. It is designed for gym owners and managers who want to track members, memberships, dues, renewals, and reminders from a single app without needing a cloud backend.
+**GymManager is an offline-first app for running a gym’s everyday membership operations.** Gym owners and staff can keep member records, manage plans and memberships, record payments, follow up on dues, and see upcoming expirations—all from one place. The app is built for Android and iOS, with shared Kotlin business logic and UI.
 
-## What this app does
+## Product overview
 
-GymManager helps manage the day-to-day operations of a gym:
+### Keep member information organized
+Create and update member profiles with contact details, notes, photos, and membership history. Import member records from CSV to make onboarding easier.
 
-- Track member profiles, contact details, notes, photos, and membership history
-- Manage gym plans and memberships
-- Record payments and monitor dues and outstanding balances
-- Renew memberships in bulk for multiple members at once
-- View dashboards for active, expiring-soon, expired, and due members
-- Import member records from CSV files
-- Send reminder flows for renewals and follow-ups
-- Configure gym details, themes, and app language
-- Run on both Android and iOS using a shared codebase
+### Manage plans, memberships, and payments
+Set up gym plans, sell memberships, record payments, and review outstanding dues. Renew memberships individually or use bulk renewal for multiple members.
 
-## Key features
+### Know what needs attention
+The dashboard highlights active, expiring-soon, expired, and owing members, along with monthly collections and amounts due. Use these summaries to prioritize renewals and follow-ups.
 
-### Member management
-- Add, edit, archive, and review member records
-- Store basic personal details, date of birth, notes, and photos
-- Open a dedicated member detail screen for deeper membership and billing information
+### Follow up with members
+The app provides WhatsApp-style message and reminder flows for membership renewals and payment follow-ups.
 
-### Membership and billing
-- Create and manage membership plans
-- Sell memberships to members
-- Track collected revenue and unpaid dues
-- Use shared business rules to validate membership and payment logic
+### Work offline
+GymManager stores operational data locally, so its core gym-management workflows do not depend on a hosted backend or an active internet connection.
 
-### Dashboard and operations
-- See totals for active members, due members, and expiring memberships
-- Review upcoming renewals and overdue balances in one place
-- Use bulk renewal actions to process many members efficiently
-- Import member data in batches to speed up onboarding
+## Platforms and technology
 
-### Communication and reminders
-- Prepare WhatsApp-style reminder messages for members
-- Trigger follow-up reminders for payment and renewal needs
-- Keep communication tied to member and membership records
+- **Android and iOS** apps
+- **Kotlin Multiplatform** for shared business logic
+- **Compose Multiplatform** for shared UI
+- **Room** for local database persistence
+- **DataStore** for app settings
 
-### Offline-first architecture
-- Uses a local Room database for persistence
-- Keeps core logic in shared code for Android and iOS consistency
-- Designed to work without requiring an online backend
+## Developer guide
 
-## Tech stack
+### Repository layout
 
-- Kotlin Multiplatform
-- Compose Multiplatform
-- Android and iOS targets
-- Room for local data persistence
-- DataStore for settings
-- Kotlinx DateTime
+- `androidApp/` — Android application entry point and platform configuration
+- `iosApp/` — Xcode project and iOS application entry point
+- `sharedLogic/` — domain models, business rules, repositories, use cases, and local data layer
+- `sharedUI/` — shared Compose screens, components, navigation, and theme
 
-## Project structure
+### Prerequisites
 
-- `androidApp/` — Android app entry point
-- `iosApp/` — iOS app entry point
-- `sharedLogic/` — business logic, repositories, models, and local database code
-- `sharedUI/` — shared UI screens, Compose components, navigation, and app theme
+- Android Studio with Kotlin Multiplatform support for Android development
+- Xcode on macOS to build and run the iOS app
+- A JDK compatible with the project’s Gradle configuration
 
-## Running the app
+The repository includes the Gradle wrapper, so use `./gradlew` rather than installing Gradle separately.
 
-### Android
+### Build and run
+
+Build the Android debug app:
+
 ```bash
 ./gradlew :androidApp:assembleDebug
 ```
 
-### iOS
-Open the `iosApp` folder in Xcode and run the project from there.
+To run on iOS, open the `iosApp` project in Xcode, select a simulator or device, and run it.
 
-## Running tests
+### Run tests
+
+Run the Android host tests:
 
 ```bash
 ./gradlew :sharedUI:testAndroidHostTest :sharedLogic:testAndroidHostTest
+```
+
+Run the iOS simulator tests:
+
+```bash
 ./gradlew :sharedLogic:iosSimulatorArm64Test
 ```
 
-## Notes
+## Project status
 
-This project is intended as a complete local gym management solution for offline use, with a shared cross-platform codebase focused on real-world gym operations.
+GymManager is an actively developed cross-platform project. Features and implementation details may evolve; check the source code and tests for the current behavior.
