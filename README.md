@@ -1,35 +1,83 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# GymManager
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+GymManager is an offline-first gym management app built with Kotlin Multiplatform and Compose Multiplatform. It is designed for gym owners and managers who want to track members, memberships, dues, renewals, and reminders from a single app without needing a cloud backend.
 
-* [/sharedLogic](./sharedLogic/src) is for the code that will be shared between app targets in the project.
-  The most important subfolder is [commonMain](./sharedLogic/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+## What this app does
 
-* [/sharedUI](./sharedUI/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./sharedUI/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./sharedUI/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./sharedUI/src/jvmMain/kotlin)
-    folder is the appropriate location.
+GymManager helps manage the day-to-day operations of a gym:
 
-### Running the apps
+- Track member profiles, contact details, notes, photos, and membership history
+- Manage gym plans and memberships
+- Record payments and monitor dues and outstanding balances
+- Renew memberships in bulk for multiple members at once
+- View dashboards for active, expiring-soon, expired, and due members
+- Import member records from CSV files
+- Send reminder flows for renewals and follow-ups
+- Configure gym details, themes, and app language
+- Run on both Android and iOS using a shared codebase
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+## Key features
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+### Member management
+- Add, edit, archive, and review member records
+- Store basic personal details, date of birth, notes, and photos
+- Open a dedicated member detail screen for deeper membership and billing information
 
-### Running tests
+### Membership and billing
+- Create and manage membership plans
+- Sell memberships to members
+- Track collected revenue and unpaid dues
+- Use shared business rules to validate membership and payment logic
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+### Dashboard and operations
+- See totals for active members, due members, and expiring memberships
+- Review upcoming renewals and overdue balances in one place
+- Use bulk renewal actions to process many members efficiently
+- Import member data in batches to speed up onboarding
 
-- Android tests: `./gradlew :sharedUI:testAndroidHostTest :sharedLogic:testAndroidHostTest`
-- iOS tests: `./gradlew :sharedLogic:iosSimulatorArm64Test`
+### Communication and reminders
+- Prepare WhatsApp-style reminder messages for members
+- Trigger follow-up reminders for payment and renewal needs
+- Keep communication tied to member and membership records
 
----
+### Offline-first architecture
+- Uses a local Room database for persistence
+- Keeps core logic in shared code for Android and iOS consistency
+- Designed to work without requiring an online backend
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## Tech stack
+
+- Kotlin Multiplatform
+- Compose Multiplatform
+- Android and iOS targets
+- Room for local data persistence
+- DataStore for settings
+- Kotlinx DateTime
+
+## Project structure
+
+- `androidApp/` — Android app entry point
+- `iosApp/` — iOS app entry point
+- `sharedLogic/` — business logic, repositories, models, and local database code
+- `sharedUI/` — shared UI screens, Compose components, navigation, and app theme
+
+## Running the app
+
+### Android
+```bash
+./gradlew :androidApp:assembleDebug
+```
+
+### iOS
+Open the `iosApp` folder in Xcode and run the project from there.
+
+## Running tests
+
+```bash
+./gradlew :sharedUI:testAndroidHostTest :sharedLogic:testAndroidHostTest
+./gradlew :sharedLogic:iosSimulatorArm64Test
+```
+
+## Notes
+
+This project is intended as a complete local gym management solution for offline use, with a shared cross-platform codebase focused on real-world gym operations.
