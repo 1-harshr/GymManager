@@ -18,6 +18,8 @@ import com.harsh.gymmanager.domain.usecase.ObserveMemberDetailUseCase
 import com.harsh.gymmanager.domain.usecase.PaymentUseCases
 import com.harsh.gymmanager.domain.usecase.PlanUseCases
 import com.harsh.gymmanager.domain.usecase.SettingsUseCases
+import com.harsh.gymmanager.domain.whatsapp.WhatsAppMessaging
+import com.harsh.gymmanager.domain.whatsapp.WhatsAppScheduler
 import com.harsh.gymmanager.ui.notifications.MorningUpdateScheduler
 
 /** What the screens and voice assistants need from the app; each platform provides it. */
@@ -40,6 +42,8 @@ interface AppDependencies {
     val brief: WriteBriefUseCase
     val inbox: InboxUseCases
     val suggestions: SuggestionsUseCase
+    val whatsApp: WhatsAppMessaging
+    val whatsAppScheduler: WhatsAppScheduler
 }
 
 val LocalAppDependencies = staticCompositionLocalOf<AppDependencies> { error("AppDependencies not provided") }

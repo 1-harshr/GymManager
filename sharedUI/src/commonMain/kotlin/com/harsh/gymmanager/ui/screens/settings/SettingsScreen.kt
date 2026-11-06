@@ -79,6 +79,7 @@ fun SettingsScreen(
     onLanguageChange: (AppLanguage) -> Unit,
     onMorningUpdateChange: (MorningUpdate) -> Unit,
     onHomeFeaturesChange: (HomeFeatures) -> Unit,
+    onOpenWhatsApp: () -> Unit,
 ) {
     val colors = AkhadaTheme.colors
     val typography = AkhadaTheme.typography
@@ -133,6 +134,9 @@ fun SettingsScreen(
                 ) { onHomeFeaturesChange(features.copy(collectionsChart = it)) }
             }
 
+            SectionHeader(stringResource(Res.string.section_whatsapp), Modifier.padding(top = AkhadaSpace.md))
+            WhatsAppSettingsCard(onOpenWhatsApp)
+
             SectionHeader(stringResource(Res.string.section_notifications), Modifier.padding(top = AkhadaSpace.md))
             MorningUpdateCard(settings.morningUpdate, onMorningUpdateChange)
 
@@ -161,7 +165,7 @@ fun SettingsScreen(
 
 /** A setting that's on or off: its name, what it does, and the switch. */
 @Composable
-private fun SwitchRow(title: String, body: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+internal fun SwitchRow(title: String, body: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
             Text(title, style = AkhadaTheme.typography.bodyStrong)
@@ -198,14 +202,15 @@ private fun MorningUpdateCard(update: MorningUpdate, onChange: (MorningUpdate) -
         if (update.enabled) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(Res.string.morning_update_time), Modifier.weight(1f), style = typography.body, color = colors.inkMuted)
-                AkhadaButton(update.timeLabel(), { pickingTime = true }, kind = ButtonKind.Secondary)
+                AkhadaButton(timeLabel(update.minuteOfDay), { pickingTime = true }, kind = ButtonKind.Secondary)
             }
         }
     }
 
     if (pickingTime) {
-        MorningTimeSheet(
-            update,
+        TimeSheet(
+            stringResource(Res.string.morning_update_set_time),
+            update.minuteOfDay,
             onPick = { minuteOfDay ->
                 onChange(update.copy(minuteOfDay = minuteOfDay))
                 pickingTime = false
@@ -215,13 +220,14 @@ private fun MorningUpdateCard(update: MorningUpdate, onChange: (MorningUpdate) -
     }
 }
 
+/** Picks a time of day; [minuteOfDay] is where it starts, e.g. 480 for 8:00 AM. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MorningTimeSheet(update: MorningUpdate, onPick: (minuteOfDay: Int) -> Unit, onDismiss: () -> Unit) {
+internal fun TimeSheet(title: String, minuteOfDay: Int, onPick: (minuteOfDay: Int) -> Unit, onDismiss: () -> Unit) {
     val colors = AkhadaTheme.colors
-    val state = rememberTimePickerState(initialHour = update.hour, initialMinute = update.minute, is24Hour = false)
+    val state = rememberTimePickerState(initialHour = minuteOfDay / 60, initialMinute = minuteOfDay % 60, is24Hour = false)
     AkhadaBottomSheet(onDismiss) {
-        Text(stringResource(Res.string.morning_update_set_time), style = AkhadaTheme.typography.title)
+        Text(title, style = AkhadaTheme.typography.title)
         TimePicker(
             state,
             Modifier.align(Alignment.CenterHorizontally),
@@ -245,11 +251,12 @@ private fun MorningTimeSheet(update: MorningUpdate, onPick: (minuteOfDay: Int) -
     }
 }
 
-/** "8:00 AM". */
+/** "8:00 AM" for 480. */
 @Composable
-private fun MorningUpdate.timeLabel(): String {
+internal fun timeLabel(minuteOfDay: Int): String {
+    val hour = minuteOfDay / 60
     val hour12 = if (hour % 12 == 0) 12 else hour % 12
-    val minutes = minute.toString().padStart(2, '0')
+    val minutes = (minuteOfDay % 60).toString().padStart(2, '0')
     return stringResource(if (hour < 12) Res.string.time_am else Res.string.time_pm, hour12, minutes)
 }
 

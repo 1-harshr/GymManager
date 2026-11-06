@@ -8,6 +8,7 @@ import com.harsh.gymmanager.data.local.gymDatabaseBuilder
 import com.harsh.gymmanager.domain.insights.OnDeviceModel
 import com.harsh.gymmanager.notifications.AndroidMorningUpdates
 import com.harsh.gymmanager.ui.platform.AndroidStoredFiles
+import com.harsh.gymmanager.whatsapp.AndroidWhatsAppScheduler
 
 /**
  * Android's app-wide singletons on the gym's real data, in the app's private storage. [settings]
@@ -23,4 +24,5 @@ class AppContainer(
     storedFiles = AndroidStoredFiles(context.applicationContext),
     createMorningUpdates = { AndroidMorningUpdates(context.applicationContext) },
     onDeviceModel = onDeviceModel,
+    createWhatsAppScheduler = { AndroidWhatsAppScheduler(context.applicationContext) },
 )

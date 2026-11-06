@@ -39,6 +39,10 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.ktor.client.okhttp)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
             api(libs.kotlinx.coroutines.core)
@@ -48,10 +52,13 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
             api(libs.androidx.datastore.preferences)
             implementation(libs.kotlinx.serialization.json)
+            api(project(":whatsapp-cloud"))
+            api(project(":gym-templates"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.ktor.client.mock)
         }
     }
 }

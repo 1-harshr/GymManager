@@ -34,6 +34,8 @@ class GymManagerApplication : Application() {
                     storedFiles = AndroidStoredFiles(this),
                     createMorningUpdates = { NoMorningUpdates },
                     onDeviceModel = model,
+                    // Sample data must never message real people.
+                    sendsWhatsApp = false,
                 )
             },
             deleteDemoFile = {

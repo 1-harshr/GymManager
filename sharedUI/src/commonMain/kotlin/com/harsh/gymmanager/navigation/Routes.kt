@@ -44,3 +44,7 @@ data object RemindersRoute
 /** The bell's alerts. */
 @Serializable
 data object InboxRoute
+
+/** Settings → WhatsApp: connecting the gym's number and automatic messages. */
+@Serializable
+data object WhatsAppRoute

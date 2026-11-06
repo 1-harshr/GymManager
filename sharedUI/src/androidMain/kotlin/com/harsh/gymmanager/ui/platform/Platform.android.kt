@@ -190,6 +190,8 @@ actual object LocalAppLocale {
     }
 }
 
+actual val sendsRemindersInBackground: Boolean = true
+
 actual val rebuildUiOnLanguageChange: Boolean = false
 
 @Composable

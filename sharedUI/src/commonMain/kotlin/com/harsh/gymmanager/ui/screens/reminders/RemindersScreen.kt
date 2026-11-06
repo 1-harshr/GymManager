@@ -79,7 +79,7 @@ fun RemindersScreen(onBack: () -> Unit, onOpenMember: (Long) -> Unit) {
                 ReminderRow(
                     item,
                     onClick = { onOpenMember(item.member.memberId) },
-                    onSend = if (message != null && text != null) ({ if (open(message, text)) vm.sent(message) }) else null,
+                    onSend = if (message != null && text != null) ({ open(message, text) { vm.sent(message) } }) else null,
                     modifier = Modifier.screenGutter(),
                 )
             }
@@ -104,7 +104,7 @@ fun RemindersScreen(onBack: () -> Unit, onOpenMember: (Long) -> Unit) {
                     val text = message.text()
                     AkhadaButton(
                         stringResource(Res.string.send_next, message.memberName.substringBefore(' '), state.position, state.total),
-                        onClick = { if (open(message, text)) vm.sent(message) },
+                        onClick = { open(message, text) { vm.sent(message) } },
                         modifier = Modifier.fillMaxWidth(),
                         icon = AkhadaIcons.MessageCircle,
                     )

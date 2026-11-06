@@ -15,9 +15,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
+import com.harsh.gymmanager.domain.messaging.LinkSender
+import com.harsh.gymmanager.domain.messaging.gymTemplate
+import com.harsh.gymmanager.domain.whatsapp.WhatsAppSettings
+import com.harsh.gymmanager.templates.gymTemplateDefinition
+import com.harsh.gymmanager.templates.render
+import com.harsh.gymmanager.LocalAppDependencies
+import com.harsh.gymmanager.ui.screens.settings.autoSentText
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.harsh.gymmanager.domain.messaging.MemberMessage
 import com.harsh.gymmanager.domain.messaging.MessageKind
-import com.harsh.gymmanager.domain.messaging.whatsAppLink
 import com.harsh.gymmanager.presentation.messaging.WhatsAppPrompt
 import com.harsh.gymmanager.ui.LocalSnackbar
 import com.harsh.gymmanager.ui.components.AkhadaBottomSheet
@@ -34,27 +42,50 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Opens WhatsApp on the member's chat with [text] typed in; the owner taps send there.
- * Returns false, after saying so in a snackbar, if nothing could open the link.
+ * Sends a message the owner chose. Once Make.com is set up it goes through the owner's scenario
+ * with no tap; otherwise [LinkSender] opens WhatsApp with the text typed in for the
+ * owner to send. Calls `onSent` once that worked; otherwise says why in a snackbar.
  */
 @Composable
-fun rememberWhatsAppOpener(): (message: MemberMessage, text: String) -> Boolean {
+fun rememberWhatsAppOpener(): (message: MemberMessage, text: String, onSent: () -> Unit) -> Unit {
     val uriHandler = LocalUriHandler.current
     val snackbar = LocalSnackbar.current
     val scope = rememberCoroutineScope()
+    val whatsApp = LocalAppDependencies.current.whatsApp
+    val viaServer = rememberSendsThroughServer()
     val failed = stringResource(Res.string.wa_unavailable)
-    return remember(uriHandler, snackbar, failed) {
-        { message, text ->
-            try {
-                uriHandler.openUri(whatsAppLink(message.whatsAppNumber, text))
-                true
-            } catch (e: IllegalArgumentException) {
-                // Android's handler throws this when no app can open the link.
-                scope.launch { snackbar.showSnackbar(failed) }
-                false
+    val sender = remember(uriHandler) { LinkSender(uriHandler::openUri) }
+    return remember(sender, snackbar, failed, viaServer, whatsApp) {
+        { message, text, onSent ->
+            scope.launch {
+                if (viaServer && whatsApp.sendNow(message)) {
+                    onSent()
+                    snackbar.showSnackbar(autoSentText(message.kind, message.memberName))
+                } else if (sender.send(message, text).isSent) {
+                    onSent()
+                } else {
+                    // A link can only fail for want of a WhatsApp app.
+                    snackbar.showSnackbar(failed)
+                }
             }
         }
     }
+}
+
+/** True when messages go out through the owner's Make scenario rather than by opening WhatsApp. */
+@Composable
+fun rememberSendsThroughServer(): Boolean {
+    val whatsApp = LocalAppDependencies.current.whatsApp
+    val settings by whatsApp.observeSettings().collectAsStateWithLifecycle(WhatsAppSettings())
+    return whatsApp.isAvailable && settings.isSetUp
+}
+
+/** What the member will read: the approved template when sent through Make, else the app's own text. */
+@Composable
+fun MemberMessage.previewText(viaServer: Boolean): String {
+    if (!viaServer) return text()
+    val template = gymTemplate(this)
+    return gymTemplateDefinition(template.name, template.languageCode)?.render(template.bodyParameters) ?: text()
 }
 
 /** Shows the message before WhatsApp opens; with several options the owner picks one. */
@@ -62,7 +93,8 @@ fun rememberWhatsAppOpener(): (message: MemberMessage, text: String) -> Boolean 
 fun WhatsAppSheet(prompt: WhatsAppPrompt, onSelect: (Int) -> Unit, onSent: () -> Unit, onDismiss: () -> Unit) {
     val colors = AkhadaTheme.colors
     val message = prompt.message
-    val text = message.text()
+    val viaServer = rememberSendsThroughServer()
+    val text = message.previewText(viaServer)
     val open = rememberWhatsAppOpener()
     AkhadaBottomSheet(onDismiss) {
         Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
@@ -92,10 +124,10 @@ fun WhatsAppSheet(prompt: WhatsAppPrompt, onSelect: (Int) -> Unit, onSent: () ->
                 modifier = Modifier.heightIn(max = 300.dp).verticalScroll(rememberScrollState()).padding(AkhadaSpace.lg),
             )
         }
-        Text(stringResource(Res.string.wa_hint), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+        Text(stringResource(if (viaServer) Res.string.wa_send_hint else Res.string.wa_hint), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
         AkhadaButton(
-            stringResource(Res.string.wa_open),
-            onClick = { if (open(message, text)) onSent() },
+            stringResource(if (viaServer) Res.string.wa_send else Res.string.wa_open),
+            onClick = { open(message, text, onSent) },
             modifier = Modifier.fillMaxWidth(),
             icon = AkhadaIcons.MessageCircle,
         )

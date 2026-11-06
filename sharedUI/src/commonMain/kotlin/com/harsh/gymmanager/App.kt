@@ -83,6 +83,12 @@ import com.harsh.gymmanager.ui.screens.planedit.PlanEditScreen
 import com.harsh.gymmanager.ui.screens.sellmembership.SellMembershipScreen
 import com.harsh.gymmanager.ui.screens.settings.GymProfileScreen
 import com.harsh.gymmanager.ui.screens.settings.SettingsScreen
+import com.harsh.gymmanager.ui.screens.settings.WhatsAppScreen
+import com.harsh.gymmanager.ui.screens.settings.autoSentText
+import com.harsh.gymmanager.navigation.WhatsAppRoute
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.harsh.gymmanager.ui.theme.AkhadaTheme
 import gymmanager.sharedui.generated.resources.Res
 import gymmanager.sharedui.generated.resources.changes_saved
@@ -170,8 +176,22 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
     fun toast(res: StringResource) = scope.launch { snackbar.showSnackbar(getString(res)) }
     fun toast(res: PluralStringResource, count: Int) = scope.launch { snackbar.showSnackbar(getPluralString(res, count, count)) }
     val startDestination: Any = remember { if (settings.gym == null) GymProfileRoute else MainRoute }
-    val whatsApp = viewModel { WhatsAppPromptViewModel(dependencies.messaging) }
+    val whatsApp = viewModel { WhatsAppPromptViewModel(dependencies.messaging, dependencies.whatsApp) }
     val whatsAppPrompt by whatsApp.prompt.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(whatsApp) {
+        whatsApp.autoSent.collect { snackbar.showSnackbar(autoSentText(it.kind, it.memberName)) }
+    }
+    // Each time the app comes to the front: send anything queued, and send today's reminders if
+    // they're due (the only way they go out on iOS).
+    LaunchedEffect(dependencies, lifecycle) {
+        if (dependencies.whatsApp.isAvailable) {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { dependencies.whatsApp.catchUp() }
+        }
+    }
+    LaunchedEffect(dependencies) {
+        dependencies.whatsApp.observeSettings().collectLatest { dependencies.whatsAppScheduler.sync(it) }
+    }
     // Reschedule the morning update whenever settings or gym data change, so iOS's pre-written text stays true.
     LaunchedEffect(dependencies) {
         combine(dependencies.settingsUseCases.observe(), dependencies.observeDashboard()) { latest, _ -> latest }
@@ -327,7 +347,13 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                                     onLanguageChange = settingsVm::onLanguageChange,
                                     onMorningUpdateChange = settingsVm::onMorningUpdateChange,
                                     onHomeFeaturesChange = settingsVm::onHomeFeaturesChange,
+                                    onOpenWhatsApp = { nav.navigate(WhatsAppRoute) },
                                 )
+                            }
+                        }
+                        composable<WhatsAppRoute> {
+                            Destination {
+                                WhatsAppScreen(onBack = { nav.popBackStack() })
                             }
                         }
                     }

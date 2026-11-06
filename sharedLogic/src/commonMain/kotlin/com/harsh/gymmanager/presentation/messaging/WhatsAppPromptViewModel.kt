@@ -3,8 +3,13 @@ package com.harsh.gymmanager.presentation.messaging
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.harsh.gymmanager.domain.messaging.MemberMessage
+import com.harsh.gymmanager.domain.messaging.MessageKind
 import com.harsh.gymmanager.domain.messaging.MessagingUseCases
+import com.harsh.gymmanager.domain.whatsapp.WhatsAppMessaging
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +28,9 @@ sealed interface MessageRequest {
     data class AnyFor(val memberId: Long) : MessageRequest
 }
 
+/** A welcome or receipt that went out on its own, for a short confirmation. */
+data class AutoSent(val kind: MessageKind, val memberName: String)
+
 /** The sheet's choices; [selected] indexes [options]. */
 data class WhatsAppPrompt(val options: List<MemberMessage>, val selected: Int = 0) {
     val message: MemberMessage get() = options[selected]
@@ -30,11 +38,18 @@ data class WhatsAppPrompt(val options: List<MemberMessage>, val selected: Int = 
 
 /**
  * Drives the "send on WhatsApp?" sheet. Requests for members without a usable number are
- * dropped quietly, since the owner chose not to give one.
+ * dropped quietly, since the owner chose not to give one. A welcome or receipt set to go out
+ * automatically skips the sheet and is reported through [autoSent] instead.
  */
-class WhatsAppPromptViewModel(private val messaging: MessagingUseCases) : ViewModel() {
+class WhatsAppPromptViewModel(
+    private val messaging: MessagingUseCases,
+    private val whatsApp: WhatsAppMessaging,
+) : ViewModel() {
     private val _prompt = MutableStateFlow<WhatsAppPrompt?>(null)
     val prompt: StateFlow<WhatsAppPrompt?> = _prompt.asStateFlow()
+
+    private val autoSentChannel = Channel<AutoSent>(Channel.BUFFERED)
+    val autoSent: Flow<AutoSent> = autoSentChannel.receiveAsFlow()
 
     private var loading: Job? = null
 
@@ -49,6 +64,11 @@ class WhatsAppPromptViewModel(private val messaging: MessagingUseCases) : ViewMo
                     messaging.latestReceipt(request.memberId),
                     messaging.welcome(request.memberId),
                 )
+            }
+            val automatic = request !is MessageRequest.AnyFor && options.size == 1
+            if (automatic && whatsApp.sendAutomatically(options.single())) {
+                autoSentChannel.send(AutoSent(options.single().kind, options.single().memberName))
+                return@launch
             }
             _prompt.value = options.takeIf { it.isNotEmpty() }?.let(::WhatsAppPrompt)
         }

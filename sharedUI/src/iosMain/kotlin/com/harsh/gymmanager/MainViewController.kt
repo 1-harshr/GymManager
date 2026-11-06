@@ -22,6 +22,8 @@ import com.harsh.gymmanager.ui.notifications.IosMorningUpdates
 import com.harsh.gymmanager.ui.platform.IosStoredFiles
 import com.harsh.gymmanager.ui.platform.documentsDirectory
 import platform.UIKit.UIViewController
+import com.harsh.gymmanager.domain.whatsapp.InAppWhatsAppScheduler
+import kotlinx.coroutines.MainScope
 
 /** A settings file can only be open once, so the real data and demo mode share it. */
 private val settingsStore by lazy { createSettingsDataStore("${documentsDirectory()}/$SETTINGS_FILE_NAME") }
@@ -34,6 +36,8 @@ internal val iosDependencies: AppDependencies by lazy {
         storedFiles = IosStoredFiles(),
         createMorningUpdates = { IosMorningUpdates(it) },
         onDeviceModel = InstalledOnDeviceModel,
+        // iOS can't send at a set time in the background; messages go out while the app is open.
+        createWhatsAppScheduler = { messaging -> InAppWhatsAppScheduler(MainScope()) { messaging().flush() } },
     )
 }
 
@@ -48,6 +52,8 @@ private val demoMode by lazy {
                 storedFiles = IosStoredFiles(),
                 createMorningUpdates = { NoMorningUpdates },
                 onDeviceModel = InstalledOnDeviceModel,
+                // Sample data must never message real people.
+                sendsWhatsApp = false,
             )
         },
         deleteDemoFile = {

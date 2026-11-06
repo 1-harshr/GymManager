@@ -176,6 +176,8 @@ actual object LocalAppLocale {
     }
 }
 
+actual val sendsRemindersInBackground: Boolean = false
+
 actual val rebuildUiOnLanguageChange: Boolean = true
 
 /** Needs UIViewControllerBasedStatusBarAppearance = NO in Info.plist. */

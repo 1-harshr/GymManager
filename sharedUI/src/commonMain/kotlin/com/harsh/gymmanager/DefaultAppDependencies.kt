@@ -33,13 +33,22 @@ import com.harsh.gymmanager.domain.usecase.PaymentUseCases
 import com.harsh.gymmanager.domain.usecase.PlanUseCases
 import com.harsh.gymmanager.domain.usecase.SettingsUseCases
 import com.harsh.gymmanager.ui.notifications.MorningUpdateScheduler
+import com.harsh.gymmanager.data.repository.OutboxRepositoryImpl
+import com.harsh.gymmanager.data.whatsapp.DataStoreWhatsAppSettings
+import com.harsh.gymmanager.data.whatsapp.KtorMessageWebhook
+import com.harsh.gymmanager.domain.whatsapp.NoWhatsAppScheduler
+import com.harsh.gymmanager.domain.whatsapp.WhatsAppMessaging
+import com.harsh.gymmanager.domain.whatsapp.WhatsAppScheduler
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeout
 import kotlinx.datetime.TimeZone
 import kotlin.time.Clock
 
 /**
  * App-wide singletons for both platforms, created lazily on first use. Each platform supplies
- * how to open its database and settings file, how it schedules the morning update, and its
- * on-device language model, if any.
+ * how to open its database and settings file, how it schedules the morning update and WhatsApp
+ * sending, and its on-device language model, if any. [sendsWhatsApp] false turns WhatsApp
+ * sending off (demo mode).
  */
 class DefaultAppDependencies(
     openDatabase: () -> GymDatabase,
@@ -47,6 +56,8 @@ class DefaultAppDependencies(
     private val storedFiles: StoredFiles,
     private val createMorningUpdates: (MorningDigestUseCase) -> MorningUpdateScheduler,
     private val onDeviceModel: OnDeviceModel = NoOnDeviceModel,
+    private val sendsWhatsApp: Boolean = true,
+    private val createWhatsAppScheduler: (messaging: () -> WhatsAppMessaging) -> WhatsAppScheduler = { NoWhatsAppScheduler },
     private val clock: Clock = Clock.System,
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
 ) : AppDependencies {
@@ -59,7 +70,8 @@ class DefaultAppDependencies(
     private val paymentRepository by lazy { PaymentRepositoryImpl(database.paymentDao(), clock) }
     private val messageLogRepository by lazy { MessageLogRepositoryImpl(database.messageLogDao(), clock) }
     // DataStore allows one instance per file.
-    private val settingsRepository by lazy { DataStoreSettingsRepository(openSettings()) }
+    private val settingsStore by lazy { openSettings() }
+    private val settingsRepository by lazy { DataStoreSettingsRepository(settingsStore) }
 
     override val memberUseCases by lazy { MemberUseCases(memberRepository, clock, timeZone) }
     override val planUseCases by lazy { PlanUseCases(planRepository) }
@@ -91,6 +103,19 @@ class DefaultAppDependencies(
         InboxUseCases(InboxRepositoryImpl(database.inboxDao()), memberRepository, membershipRepository, clock, timeZone)
     }
     override val suggestions by lazy { SuggestionsUseCase(UsageRepositoryImpl(database.usageDao())) }
+    override val whatsAppScheduler: WhatsAppScheduler by lazy { createWhatsAppScheduler { whatsApp } }
+    override val whatsApp: WhatsAppMessaging by lazy {
+        WhatsAppMessaging(
+            webhook = if (sendsWhatsApp) KtorMessageWebhook(HttpClient { install(HttpTimeout) { requestTimeoutMillis = 30_000 } }) else null,
+            settings = DataStoreWhatsAppSettings(settingsStore),
+            outbox = OutboxRepositoryImpl(database.outboxDao()),
+            messaging = messaging,
+            messageLog = messageLogRepository,
+            scheduler = { whatsAppScheduler },
+            clock = clock,
+            timeZone = timeZone,
+        )
+    }
 
     /** Closes the database, if it was opened; these dependencies can't be used after. */
     fun close() {
