@@ -82,6 +82,7 @@ private fun UiMessage.text(): Text = when (this) {
             SignInProblem.TOO_MANY_TRIES -> Res.string.err_signin_too_many
             SignInProblem.CODE_NOT_SENT -> Res.string.err_signin_not_sent
             SignInProblem.NO_CONNECTION -> Res.string.err_no_connection
+            SignInProblem.IDENTITY_REJECTED -> Res.string.err_signin_identity
         },
     )
     UiMessage.EnterYourName -> Text.Plain(Res.string.err_enter_your_name)

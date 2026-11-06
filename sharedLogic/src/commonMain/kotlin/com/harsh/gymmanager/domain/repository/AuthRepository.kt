@@ -19,7 +19,17 @@ enum class SignInProblem {
     /** The text message couldn't be sent to that number. */
     CODE_NOT_SENT,
     NO_CONNECTION,
+    /** Google or Apple vouched for the person, but the sign-in didn't go through. */
+    IDENTITY_REJECTED,
 }
+
+enum class IdentityProvider { GOOGLE, APPLE }
+
+/**
+ * Google's or Apple's word, given on the phone, for who is signing in. [nonce] is the random value the
+ * token was asked for with (its hash is inside the token), so a token taken from elsewhere can't be replayed.
+ */
+class IdentityToken(val provider: IdentityProvider, val idToken: String, val nonce: String)
 
 class SignInException(val problem: SignInProblem, cause: Throwable? = null) : Exception(problem.name, cause)
 
@@ -32,6 +42,9 @@ interface AuthRepository {
 
     /** Signs in with the code from [sendPhoneCode], creating the account the first time. */
     suspend fun verifyPhoneCode(phone: String, code: String)
+
+    /** Signs in as the person Google or Apple vouched for, creating the account the first time. */
+    suspend fun signInWithIdentity(token: IdentityToken)
 
     suspend fun signOut()
 }

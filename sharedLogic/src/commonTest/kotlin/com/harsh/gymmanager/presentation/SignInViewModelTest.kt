@@ -2,6 +2,8 @@ package com.harsh.gymmanager.presentation
 
 import com.harsh.gymmanager.domain.repository.AuthRepository
 import com.harsh.gymmanager.domain.repository.AuthState
+import com.harsh.gymmanager.domain.repository.IdentityProvider
+import com.harsh.gymmanager.domain.repository.IdentityToken
 import com.harsh.gymmanager.domain.repository.SignInException
 import com.harsh.gymmanager.domain.repository.SignInProblem
 import com.harsh.gymmanager.presentation.signin.RESEND_WAIT_SECONDS
@@ -42,6 +44,14 @@ class SignInViewModelTest {
         override suspend fun verifyPhoneCode(phone: String, code: String) {
             failVerify?.let { throw SignInException(it) }
             verified += phone to code
+        }
+
+        val identities = mutableListOf<IdentityToken>()
+        var failIdentity: SignInProblem? = null
+
+        override suspend fun signInWithIdentity(token: IdentityToken) {
+            failIdentity?.let { throw SignInException(it) }
+            identities += token
         }
 
         override suspend fun signOut() = Unit
@@ -148,5 +158,39 @@ class SignInViewModelTest {
         assertEquals(0, vm.state.value.resendInSeconds)
         assertNull(vm.state.value.codeError)
         assertEquals("9000000001", vm.state.value.phone)
+    }
+
+    @Test
+    fun signsInWithWhatGoogleVouchedFor() = runTest(dispatcher) {
+        val auth = FakeAuth()
+        val vm = SignInViewModel(auth)
+        val token = IdentityToken(IdentityProvider.GOOGLE, idToken = "id", nonce = "n")
+        vm.signInWith(IdentityProvider.GOOGLE) { token }
+        assertEquals(IdentityProvider.GOOGLE, vm.state.value.signingInWith)
+        runCurrent()
+        assertEquals(listOf(token), auth.identities)
+        assertTrue(vm.state.value.isBusy)
+    }
+
+    @Test
+    fun backingOutOfTheSheetIsNotAnError() = runTest(dispatcher) {
+        val auth = FakeAuth()
+        val vm = SignInViewModel(auth)
+        vm.signInWith(IdentityProvider.APPLE) { null }
+        runCurrent()
+        assertTrue(auth.identities.isEmpty())
+        assertFalse(vm.state.value.isBusy)
+        assertNull(vm.state.value.signingInWith)
+        assertNull(vm.state.value.identityError)
+    }
+
+    @Test
+    fun aRejectedIdentityIsExplained() = runTest(dispatcher) {
+        val auth = FakeAuth().apply { failIdentity = SignInProblem.IDENTITY_REJECTED }
+        val vm = SignInViewModel(auth)
+        vm.signInWith(IdentityProvider.GOOGLE) { IdentityToken(IdentityProvider.GOOGLE, "id", "n") }
+        runCurrent()
+        assertFalse(vm.state.value.isBusy)
+        assertEquals(UiMessage.SignInFailed(SignInProblem.IDENTITY_REJECTED), vm.state.value.identityError)
     }
 }

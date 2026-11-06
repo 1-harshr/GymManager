@@ -8,6 +8,7 @@ struct iOSApp: App {
 
     init() {
         OnDeviceModel_iosKt.installOnDeviceModel(model: AppleOnDeviceModel())
+        IdentitySignIn_iosKt.installIdentitySignIn(signIn: SystemSignIn())
     }
 
     var body: some Scene {

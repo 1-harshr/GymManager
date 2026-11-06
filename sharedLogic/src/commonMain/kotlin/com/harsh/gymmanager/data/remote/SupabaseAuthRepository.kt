@@ -2,6 +2,8 @@ package com.harsh.gymmanager.data.remote
 
 import com.harsh.gymmanager.domain.repository.AuthRepository
 import com.harsh.gymmanager.domain.repository.AuthState
+import com.harsh.gymmanager.domain.repository.IdentityProvider
+import com.harsh.gymmanager.domain.repository.IdentityToken
 import com.harsh.gymmanager.domain.repository.SignInException
 import com.harsh.gymmanager.domain.repository.SignInProblem
 import io.github.jan.supabase.SupabaseClient
@@ -10,6 +12,9 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.exception.AuthErrorCode
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.exceptions.HttpRequestException
+import io.github.jan.supabase.auth.providers.Apple
+import io.github.jan.supabase.auth.providers.Google
+import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.auth.providers.builtin.OTP
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.auth.user.UserInfo
@@ -68,6 +73,23 @@ internal class SupabaseAuthRepository(private val supabase: SupabaseClient, scop
 
     override suspend fun verifyPhoneCode(phone: String, code: String) = explained {
         supabase.auth.verifyPhoneOtp(type = OtpType.Phone.SMS, phone = phone, token = code)
+    }
+
+    override suspend fun signInWithIdentity(token: IdentityToken) = explained {
+        try {
+            supabase.auth.signInWith(IDToken) {
+                idToken = token.idToken
+                provider = when (token.provider) {
+                    IdentityProvider.GOOGLE -> Google
+                    IdentityProvider.APPLE -> Apple
+                }
+                nonce = token.nonce
+            }
+        } catch (e: AuthRestException) {
+            // A provider that isn't switched on, a token for another app, a nonce that doesn't match.
+            if (e.errorCode == AuthErrorCode.OverRequestRateLimit) throw e
+            throw SignInException(SignInProblem.IDENTITY_REJECTED, e)
+        }
     }
 
     override suspend fun signOut() {

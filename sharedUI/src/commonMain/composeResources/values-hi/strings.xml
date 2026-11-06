@@ -625,6 +625,11 @@
     <string name="err_signin_wrong_code">यह कोड काम नहीं किया। इसे जाँचें, या नया कोड भेजें।</string>
     <string name="err_signin_too_many">बहुत ज़्यादा कोशिशें हो गईं। एक मिनट रुककर फिर कोशिश करें।</string>
     <string name="err_signin_not_sent">इस नंबर पर कोड नहीं भेजा जा सका। नंबर जाँचकर फिर कोशिश करें।</string>
+    <string name="err_signin_identity">उस अकाउंट से साइन इन नहीं हो सका। फिर कोशिश करें, या अपने मोबाइल नंबर से साइन इन करें।</string>
+    <string name="signin_google">Google से जारी रखें</string>
+    <string name="signin_apple">Apple से जारी रखें</string>
+    <string name="signin_signing_in">साइन इन हो रहा है…</string>
+    <string name="signin_or_phone">या अपने मोबाइल नंबर से</string>
     <string name="err_no_connection">इंटरनेट कनेक्शन नहीं है। जाँचकर फिर कोशिश करें।</string>
     <string name="section_account">खाता</string>
     <string name="account_signed_in_as">%1$s से साइन इन किया है</string>

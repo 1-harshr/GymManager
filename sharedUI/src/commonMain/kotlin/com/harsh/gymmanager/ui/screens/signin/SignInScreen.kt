@@ -16,6 +16,8 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -43,6 +45,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,6 +62,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.contentType
@@ -77,6 +82,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.harsh.gymmanager.LocalDemoMode
 import com.harsh.gymmanager.domain.repository.AuthRepository
+import com.harsh.gymmanager.domain.repository.IdentityProvider
 import com.harsh.gymmanager.presentation.signin.CODE_DIGITS
 import com.harsh.gymmanager.presentation.signin.PHONE_COUNTRY_CODE
 import com.harsh.gymmanager.presentation.signin.SignInUiState
@@ -97,9 +103,9 @@ import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * The first screen until someone signs in: their mobile number, then the code texted to it. The code
- * step slides in like a pushed screen and back goes to the number. A demo is a tap away for anyone
- * just looking.
+ * The first screen until someone signs in: Google or Apple where they're set up, or a mobile number and
+ * then the code texted to it. The code step slides in like a pushed screen and back goes to the number.
+ * A demo is a tap away for anyone just looking.
  */
 @Composable
 fun SignInScreen(auth: AuthRepository) {
@@ -141,6 +147,11 @@ private fun PhoneStep(state: SignInUiState, vm: SignInViewModel, onTryDemo: (() 
             Spacer(Modifier.height(MyGymSpace.sm))
             Text(stringResource(Res.string.signin_subtitle), style = typography.body, color = colors.inkMuted)
             Spacer(Modifier.height(MyGymSpace.xxl))
+            val identity = rememberIdentitySignIn()
+            if (identity.providers.isNotEmpty()) {
+                IdentityButtons(identity, state, vm)
+                OrPhone()
+            }
             Text(stringResource(Res.string.signin_phone), style = typography.bodyStrong)
             Spacer(Modifier.height(MyGymSpace.sm))
             PhoneField(
@@ -176,6 +187,64 @@ private fun PhoneStep(state: SignInUiState, vm: SignInViewModel, onTryDemo: (() 
                 }
             }
         }
+    }
+}
+
+/** One button per provider, then a line that says what's happening or what went wrong. */
+@Composable
+private fun IdentityButtons(identity: IdentitySignIn, state: SignInUiState, vm: SignInViewModel) {
+    Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
+        identity.providers.forEach { provider ->
+            val ask = { vm.signInWith(provider) { identity.ask(provider) } }
+            when (provider) {
+                IdentityProvider.APPLE -> AppleSignInButton(onClick = ask)
+                IdentityProvider.GOOGLE -> GoogleButton(onClick = ask, enabled = !state.isBusy)
+            }
+        }
+        val error = state.identityError?.asString()
+        val status = error ?: if (state.signingInWith != null) stringResource(Res.string.signin_signing_in) else null
+        if (status != null) {
+            Text(
+                status,
+                style = MyGymTheme.typography.caption,
+                color = if (error != null) MyGymTheme.colors.statusDue else MyGymTheme.colors.inkMuted,
+            )
+        }
+    }
+}
+
+/** Google's button as its guidelines draw it: the four-colour G on a plain outlined pill. */
+@Composable
+private fun GoogleButton(onClick: () -> Unit, enabled: Boolean) {
+    val colors = MyGymTheme.colors
+    Surface(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.fillMaxWidth().height(52.dp),
+        shape = MyGymRadius.pillShape,
+        color = colors.surface,
+        border = BorderStroke(1.dp, colors.line),
+    ) {
+        Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+            Image(GoogleG, contentDescription = null, Modifier.size(20.dp))
+            Spacer(Modifier.width(MyGymSpace.md))
+            Text(stringResource(Res.string.signin_google), style = MyGymTheme.typography.bodyStrong, color = colors.ink)
+        }
+    }
+}
+
+/** "—— or use your mobile number ——" between the providers and the number. */
+@Composable
+private fun OrPhone() {
+    Row(Modifier.padding(vertical = MyGymSpace.xl), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.weight(1f).height(1.dp).background(MyGymTheme.colors.line))
+        Text(
+            stringResource(Res.string.signin_or_phone),
+            Modifier.padding(horizontal = MyGymSpace.md),
+            style = MyGymTheme.typography.caption,
+            color = MyGymTheme.colors.inkMuted,
+        )
+        Box(Modifier.weight(1f).height(1.dp).background(MyGymTheme.colors.line))
     }
 }
 
@@ -420,6 +489,22 @@ private fun displayPhone(digits: String): String =
 private fun countdown(seconds: Int): String = "${seconds / 60}:${(seconds % 60).toString().padStart(2, '0')}"
 
 private const val PHONE_PLACEHOLDER = "98765 43210"
+
+/** Google's G, from its sign-in branding, on a 48-unit grid. */
+private val GoogleG: ImageVector by lazy {
+    ImageVector.Builder(name = "GoogleG", defaultWidth = 20.dp, defaultHeight = 20.dp, viewportWidth = 48f, viewportHeight = 48f)
+        .apply {
+            listOf(
+                0xFFEA4335 to "M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z",
+                0xFF4285F4 to "M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z",
+                0xFFFBBC05 to "M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z",
+                0xFF34A853 to "M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z",
+            ).forEach { (color, path) ->
+                addPath(PathParser().parsePathString(path).toNodes(), fill = SolidColor(Color(color)))
+            }
+        }
+        .build()
+}
 
 /** The launch screen's tile colour, kept the same in dark mode as the launch screen does. */
 private val BrandClay = Color(0xFFB0441B)

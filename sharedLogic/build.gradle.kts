@@ -21,13 +21,24 @@ val supabaseUrl = localProperties.getProperty("supabase.url") ?: "http://127.0.0
 val supabasePublishableKey = localProperties.getProperty("supabase.publishableKey")
     ?: "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH"
 
+/*
+ * Google sign-in's OAuth client IDs from Google Cloud: google.webClientId (Android asks Google for a token
+ * meant for it) and google.iosClientId. Without them the app doesn't offer Google sign-in.
+ */
+val googleWebClientId = localProperties.getProperty("google.webClientId").orEmpty()
+val googleIosClientId = localProperties.getProperty("google.iosClientId").orEmpty()
+
 val generateSupabaseConfig by tasks.registering {
     // Locals rather than the script's own values, which the configuration cache can't store.
     val url = supabaseUrl
     val publishableKey = supabasePublishableKey
+    val webClientId = googleWebClientId
+    val iosClientId = googleIosClientId
     val outputDir = layout.buildDirectory.dir("generated/supabaseConfig/kotlin")
     inputs.property("url", url)
     inputs.property("publishableKey", publishableKey)
+    inputs.property("webClientId", webClientId)
+    inputs.property("iosClientId", iosClientId)
     outputs.dir(outputDir)
     doLast {
         val file = outputDir.get().file("com/harsh/gymmanager/data/remote/SupabaseBuildConfig.kt").asFile
@@ -40,6 +51,12 @@ val generateSupabaseConfig by tasks.registering {
             |internal object SupabaseBuildConfig {
             |    const val URL = "$url"
             |    const val PUBLISHABLE_KEY = "$publishableKey"
+            |}
+            |
+            |/** Google sign-in's OAuth client IDs; blank where Google sign-in isn't set up. */
+            |object GoogleSignInConfig {
+            |    const val WEB_CLIENT_ID = "$webClientId"
+            |    const val IOS_CLIENT_ID = "$iosClientId"
             |}
             |""".trimMargin()
         )

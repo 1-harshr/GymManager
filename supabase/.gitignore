@@ -6,3 +6,6 @@
 .env.keys
 .env.local
 .env.*.local
+
+# Local secrets and client IDs for config.toml; see .env.example
+.env

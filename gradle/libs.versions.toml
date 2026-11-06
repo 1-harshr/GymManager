@@ -9,6 +9,7 @@ androidx-appcompat = "1.8.0"
 androidx-appfunctions = "1.0.0-rc01"
 androidx-camera = "1.6.2"
 androidx-core = "1.19.1"
+androidx-credentials = "1.6.0"
 androidx-datastore = "1.3.0"
 kotlinx-serialization = "1.11.0"
 androidx-espresso = "3.7.0"
@@ -18,6 +19,7 @@ androidx-testRunner = "1.7.0"
 androidx-work = "2.12.0"
 mlkit-genai = "1.0.0-beta5"
 composeMultiplatform = "1.12.2"
+googleid = "1.2.1"
 junit = "4.13.2"
 kotlin = "2.4.21"
 kotlinx-coroutines = "1.11.0"
@@ -67,6 +69,9 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "androidx-camera" }
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "androidx-camera" }
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "androidx-camera" }
+androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "androidx-credentials" }
+androidx-credentials-playServices = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "androidx-credentials" }
+googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 androidx-camera-compose = { module = "androidx.camera:camera-compose", version.ref = "androidx-camera" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }

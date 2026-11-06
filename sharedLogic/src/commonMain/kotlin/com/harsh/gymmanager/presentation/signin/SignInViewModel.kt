@@ -3,6 +3,8 @@ package com.harsh.gymmanager.presentation.signin
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.harsh.gymmanager.domain.repository.AuthRepository
+import com.harsh.gymmanager.domain.repository.IdentityProvider
+import com.harsh.gymmanager.domain.repository.IdentityToken
 import com.harsh.gymmanager.domain.usecase.resultOf
 import com.harsh.gymmanager.presentation.UiMessage
 import com.harsh.gymmanager.presentation.toUiMessage
@@ -36,14 +38,17 @@ data class SignInUiState(
     val resendInSeconds: Int = 0,
     /** Goes up with each rejected code, so the screen can react even when the message repeats. */
     val failedAttempts: Int = 0,
+    /** Google or Apple while signing in with it. */
+    val signingInWith: IdentityProvider? = null,
+    val identityError: UiMessage? = null,
 ) {
     val isPhoneComplete: Boolean get() = phone.length == PHONE_DIGITS
     val isCodeComplete: Boolean get() = code.length == CODE_DIGITS
 }
 
 /**
- * Signs in by phone: send a code, then type it in. There's nothing to do on success; the app
- * notices the new session and moves on by itself.
+ * Signs in by phone (send a code, then type it in) or with Google or Apple. There's nothing to do on
+ * success; the app notices the new session and moves on by itself.
  */
 class SignInViewModel(private val auth: AuthRepository) : ViewModel() {
     private val _state = MutableStateFlow(SignInUiState())
@@ -61,7 +66,22 @@ class SignInViewModel(private val auth: AuthRepository) : ViewModel() {
             digits.length > PHONE_DIGITS && digits.startsWith("0") -> digits.drop(1)
             else -> digits
         }
-        _state.update { it.copy(phone = local.take(PHONE_DIGITS), phoneError = null) }
+        _state.update { it.copy(phone = local.take(PHONE_DIGITS), phoneError = null, identityError = null) }
+    }
+
+    /**
+     * Signs in with Google or Apple. [askProvider] shows their sheet and returns what they vouched for,
+     * or null if the person backed out of it, which isn't an error.
+     */
+    fun signInWith(provider: IdentityProvider, askProvider: suspend () -> IdentityToken?) {
+        if (_state.value.isBusy) return
+        _state.update { it.copy(isBusy = true, signingInWith = provider, identityError = null, phoneError = null) }
+        viewModelScope.launch {
+            resultOf { askProvider()?.also { auth.signInWithIdentity(it) } }
+                // Stays busy once signed in: this screen is about to be replaced.
+                .onSuccess { token -> if (token == null) _state.update { it.copy(isBusy = false, signingInWith = null) } }
+                .onFailure { e -> _state.update { it.copy(isBusy = false, signingInWith = null, identityError = e.toUiMessage()) } }
+        }
     }
 
     /** Fills in the last digit of the code verifies it straight away. */
@@ -80,7 +100,7 @@ class SignInViewModel(private val auth: AuthRepository) : ViewModel() {
             _state.update { it.copy(phoneError = UiMessage.EnterPhone) }
             return
         }
-        _state.update { it.copy(isBusy = true, phoneError = null) }
+        _state.update { it.copy(isBusy = true, phoneError = null, identityError = null) }
         viewModelScope.launch {
             resultOf { auth.sendPhoneCode(fullPhone) }
                 .onSuccess {
