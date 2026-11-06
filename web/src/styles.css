@@ -1,0 +1,189 @@
+/*
+ * The My Gym design system, as the phone app has it (sharedUI/.../ui/theme): warm off-white ground,
+ * white cards, one clay accent, Barlow Condensed for titles and numbers, Barlow for everything else.
+ */
+@import "tailwindcss";
+
+@font-face { font-family: "Barlow"; src: url("/fonts/barlow_regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Barlow"; src: url("/fonts/barlow_medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Barlow"; src: url("/fonts/barlow_semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Barlow Condensed"; src: url("/fonts/barlow_condensed_semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Barlow Condensed"; src: url("/fonts/barlow_condensed_bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+
+:root {
+  color-scheme: light;
+  --bg: #f3f3f0;
+  --surface: #ffffff;
+  --surface-sunken: #e9e9e5;
+  --line: #dcdcd6;
+  --ink: #121213;
+  --ink-muted: #5c5c61;
+  --on-ink: #ffffff;
+  --accent: #b0441b;
+  --on-accent: #ffffff;
+  --accent-soft: #f7e4da;
+  --on-accent-soft: #7a2a0c;
+  --active: #1c7347;
+  --active-soft: #e0f2e8;
+  --expiring: #995600;
+  --expiring-soft: #faebd4;
+  --expired: #5f5f66;
+  --expired-soft: #ebebee;
+  --due: #bc2c25;
+  --due-soft: #fbe3e1;
+  --scrim: rgb(18 18 19 / 0.4);
+  --chart-reference: #5c5c61;
+  --shadow-float: 0 12px 32px -8px rgb(18 18 19 / 0.18), 0 2px 6px rgb(18 18 19 / 0.06);
+  /* WhatsApp's own sent-message bubble, for message previews. */
+  --wa-bubble: #dcf8c6;
+  --wa-ink: #111b21;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0f0f10;
+    --surface: #19191b;
+    --surface-sunken: #252528;
+    --line: #2f2f33;
+    --ink: #f2f2ef;
+    --ink-muted: #a4a4aa;
+    --on-ink: #121213;
+    --accent: #ee8a60;
+    --on-accent: #1c0d05;
+    --accent-soft: #3b2218;
+    --on-accent-soft: #f6c2a8;
+    --active: #5dcb92;
+    --active-soft: #12301f;
+    --expiring: #f2b45c;
+    --expiring-soft: #3a2a10;
+    --expired: #a1a1a8;
+    --expired-soft: #2a2a2e;
+    --due: #ff8077;
+    --due-soft: #3d1613;
+    --scrim: rgb(0 0 0 / 0.6);
+    --chart-reference: #7c7c82;
+    --shadow-float: 0 12px 32px -8px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.04);
+  --wa-bubble: #005c4b;
+  --wa-ink: #e9edef;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f0f10;
+  --surface: #19191b;
+  --surface-sunken: #252528;
+  --line: #2f2f33;
+  --ink: #f2f2ef;
+  --ink-muted: #a4a4aa;
+  --on-ink: #121213;
+  --accent: #ee8a60;
+  --on-accent: #1c0d05;
+  --accent-soft: #3b2218;
+  --on-accent-soft: #f6c2a8;
+  --active: #5dcb92;
+  --active-soft: #12301f;
+  --expiring: #f2b45c;
+  --expiring-soft: #3a2a10;
+  --expired: #a1a1a8;
+  --expired-soft: #2a2a2e;
+  --due: #ff8077;
+  --due-soft: #3d1613;
+  --scrim: rgb(0 0 0 / 0.6);
+  --chart-reference: #7c7c82;
+  --shadow-float: 0 12px 32px -8px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.04);
+  --wa-bubble: #005c4b;
+  --wa-ink: #e9edef;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunken: var(--surface-sunken);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--ink-muted);
+  --color-on-ink: var(--on-ink);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent-soft: var(--on-accent-soft);
+  --color-active: var(--active);
+  --color-active-soft: var(--active-soft);
+  --color-expiring: var(--expiring);
+  --color-expiring-soft: var(--expiring-soft);
+  --color-expired: var(--expired);
+  --color-expired-soft: var(--expired-soft);
+  --color-due: var(--due);
+  --color-due-soft: var(--due-soft);
+  --color-scrim: var(--scrim);
+  --color-chart-ref: var(--chart-reference);
+
+  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "Barlow", ui-sans-serif, sans-serif;
+
+  /* Radius: fields 14, cards 20, sheets 28, pills fully round. */
+  --radius-field: 14px;
+  --radius-card: 20px;
+  --radius-sheet: 28px;
+
+  --shadow-float: var(--shadow-float);
+}
+
+/* Text styles, named as the app names them. */
+@utility text-display-xl { font-family: var(--font-display); font-size: 44px; line-height: 46px; font-weight: 700; font-variant-numeric: tabular-nums; }
+@utility text-screen-title { font-family: var(--font-display); font-size: 30px; line-height: 34px; font-weight: 700; }
+@utility text-headline { font-family: var(--font-display); font-size: 38px; line-height: 40px; font-weight: 700; }
+@utility text-stat { font-family: var(--font-display); font-size: 30px; line-height: 34px; font-weight: 700; font-variant-numeric: tabular-nums; }
+@utility text-title { font-size: 17px; line-height: 22px; font-weight: 600; }
+@utility text-body { font-size: 15px; line-height: 22px; font-weight: 400; }
+@utility text-body-strong { font-size: 15px; line-height: 22px; font-weight: 600; }
+@utility text-caption { font-size: 13px; line-height: 18px; font-weight: 500; }
+@utility text-label { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+@utility text-tab { font-size: 11px; line-height: 14px; font-weight: 600; }
+@utility tnum { font-variant-numeric: tabular-nums; }
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 22px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  button { cursor: pointer; }
+  button:disabled { cursor: default; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  input, textarea, select { font: inherit; color: inherit; }
+  ::selection { background: var(--accent-soft); color: var(--on-accent-soft); }
+}
+
+/* Motion follows the app's: a settling ease for things arriving, quick fades for things leaving. */
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes pop { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes shake { 0%,100% { transform: none; } 20% { transform: translateX(-14px); } 40% { transform: translateX(12px); } 60% { transform: translateX(-9px); } 80% { transform: translateX(6px); } }
+@keyframes slide-in { from { transform: translateX(-100%); } to { transform: none; } }
+@keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+@utility animate-rise { animation: rise 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@utility animate-sheet-up { animation: sheet-up 340ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@utility animate-pop { animation: pop 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@utility animate-slide-in { animation: slide-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@utility animate-fade { animation: fade 200ms ease-out both; }
+@utility animate-shake { animation: shake 300ms ease-in-out; }
+@utility skeleton {
+  background: linear-gradient(90deg, var(--surface-sunken) 25%, var(--line) 50%, var(--surface-sunken) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+}
