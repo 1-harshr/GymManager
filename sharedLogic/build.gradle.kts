@@ -94,6 +94,7 @@ kotlin {
             api(project(":gym-templates"))
             implementation(libs.supabase.auth)
             implementation(libs.supabase.postgrest)
+            implementation(libs.supabase.realtime)
         }
         commonMain {
             kotlin.srcDir(generateSupabaseConfig)

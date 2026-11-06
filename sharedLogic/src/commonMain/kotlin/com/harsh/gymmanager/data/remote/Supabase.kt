@@ -11,6 +11,7 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.realtime.Realtime
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -35,8 +36,18 @@ class SupabaseBackend(scope: CoroutineScope) {
         usage = SupabaseUsageRepository(client),
     )
 
-    /** Reads everything again, e.g. when the app comes back to the front and others may have changed things. */
-    fun refresh() = refresher.changed()
+    init {
+        LiveChanges(client, gyms, refresher, scope)
+    }
+
+    /**
+     * Reads everything again, including the person's place in their gym: for when the app comes back
+     * to the front, since changes made while it was away weren't heard.
+     */
+    suspend fun refresh() {
+        gyms.refresh()
+        refresher.changed()
+    }
 }
 
 /** The repositories that live online; everything else (alerts, the WhatsApp outbox) stays on the phone. */
@@ -55,6 +66,7 @@ private fun createGymSupabaseClient(): SupabaseClient =
     ) {
         install(Auth)
         install(Postgrest)
+        install(Realtime)
     }
 
 /** Local Supabase runs on the Mac; some devices reach it by another address. */

@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
         }
         val app = application as GymManagerApplication
         setContent {
-            GymManagerApp(app.container, app.demoMode, app.backend.auth, app.backend.gyms, onReady = { ready = true })
+            GymManagerApp(app.container, app.demoMode, app.backend.auth, app.backend.gyms, onReady = { ready = true }, onResume = app.backend::refresh)
         }
     }
 }

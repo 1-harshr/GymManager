@@ -128,7 +128,24 @@ import org.jetbrains.compose.resources.getString
  * a demo doesn't.
  */
 @Composable
-fun GymManagerApp(real: AppDependencies, demoMode: DemoMode, auth: AuthRepository, gyms: GymRepository, onReady: () -> Unit = {}) {
+fun GymManagerApp(
+    real: AppDependencies,
+    demoMode: DemoMode,
+    auth: AuthRepository,
+    gyms: GymRepository,
+    onReady: () -> Unit = {},
+    /** Reads the gym again when the app comes back to the front, since changes made meanwhile weren't heard. */
+    onResume: suspend () -> Unit = {},
+) {
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(lifecycle) {
+        var first = true
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            // The first start already reads everything.
+            if (!first) onResume()
+            first = false
+        }
+    }
     val demo = demoMode.active
     key(demo) {
         val owner = remember { object : ViewModelStoreOwner { override val viewModelStore = ViewModelStore() } }

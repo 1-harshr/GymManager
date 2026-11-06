@@ -76,7 +76,7 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
     var ready by remember { mutableStateOf(false) }
     // UIKit drops the launch screen at the first frame, so a Compose copy of it carries the hold and fade.
     Box(Modifier.fillMaxSize()) {
-        GymManagerApp(iosDependencies, demoMode, backend.auth, backend.gyms, onReady = { ready = true })
+        GymManagerApp(iosDependencies, demoMode, backend.auth, backend.gyms, onReady = { ready = true }, onResume = backend::refresh)
         LaunchSplash(appReady = ready, onGone = { splashShowing = false })
     }
 }

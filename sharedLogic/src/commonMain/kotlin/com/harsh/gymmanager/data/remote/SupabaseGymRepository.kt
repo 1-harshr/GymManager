@@ -78,8 +78,9 @@ internal class SupabaseGymRepository(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            // Usually no connection; either way the person gets a way to try again rather than a crash.
-            MembershipState.Unavailable
+            // Usually no connection. Someone already in keeps their gym until a check gets through;
+            // otherwise they get a way to try again rather than a crash.
+            _membership.value.takeIf { it is MembershipState.Member } ?: MembershipState.Unavailable
         }
     }
 
