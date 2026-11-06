@@ -403,7 +403,7 @@
     <string name="restoring">Restoring…</string>
     <string name="msg_backup_saved">Backup saved</string>
     <string name="msg_backup_restored">Backup restored</string>
-    <string name="err_not_backup">This file isn’t a Gym Manager backup</string>
+    <string name="err_not_backup">This file isn’t a My Gym backup</string>
     <string name="err_backup_newer">This backup is from a newer version of the app. Update the app, then try again.</string>
     <plurals name="members_count">
         <item quantity="one">%1$d member</item>

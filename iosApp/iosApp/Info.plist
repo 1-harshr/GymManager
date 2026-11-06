@@ -5,7 +5,7 @@
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDisplayName</key>
-	<string>Gym Manager</string>
+	<string>My Gym</string>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>
@@ -19,7 +19,7 @@
 		<string>LaunchIcon</string>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Gym Manager uses the camera to take member photos.</string>
+	<string>My Gym uses the camera to take member photos.</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>
