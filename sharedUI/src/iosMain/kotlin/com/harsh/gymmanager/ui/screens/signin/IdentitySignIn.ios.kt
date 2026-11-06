@@ -50,14 +50,14 @@ fun installIdentitySignIn(signIn: NativeIdentitySignIn) {
 @Composable
 actual fun rememberIdentitySignIn(): IdentitySignIn = remember { NativeSignIn }
 
-/** Apple first, as its guidelines ask when both are offered. */
+/**
+ * Sign in with Apple needs a paid Apple Developer account, so it's off until there is one. Turning it on
+ * means adding APPLE here (first, as Apple asks when both are offered), the app's applesignin
+ * entitlement, and enabling Apple in supabase/config.toml. It's also required before the App Store.
+ */
 private object NativeSignIn : IdentitySignIn {
     override val providers: List<IdentityProvider>
-        get() = when {
-            native == null -> emptyList()
-            GoogleSignInConfig.IOS_CLIENT_ID.isBlank() -> listOf(IdentityProvider.APPLE)
-            else -> listOf(IdentityProvider.APPLE, IdentityProvider.GOOGLE)
-        }
+        get() = if (native == null || GoogleSignInConfig.IOS_CLIENT_ID.isBlank()) emptyList() else listOf(IdentityProvider.GOOGLE)
 
     override suspend fun ask(provider: IdentityProvider): IdentityToken? {
         val signIn = native ?: return null

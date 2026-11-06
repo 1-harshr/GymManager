@@ -337,9 +337,10 @@ max_frequency = "5s"
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack_oidc`, `spotify`, `workos`, `zoom`.
 # Sign in with Apple, natively on iOS: the client ID is the app's bundle ID, from supabase/.env.
-# The secret is only for Apple's web sign-in, which the app doesn't use.
+# The secret is only for Apple's web sign-in, which the app doesn't use. Off until there's a paid
+# Apple Developer account.
 [auth.external.apple]
-enabled = true
+enabled = false
 client_id = "env(SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID)"
 # DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
 secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
