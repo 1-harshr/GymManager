@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.harsh.gymmanager.data.local.buildGymDatabase
+import com.harsh.gymmanager.data.remote.CloudGymSettingsRepository
+import com.harsh.gymmanager.domain.repository.GymRepository
 import com.harsh.gymmanager.data.local.gymDatabaseBuilder
 import com.harsh.gymmanager.domain.insights.OnDeviceModel
 import com.harsh.gymmanager.notifications.AndroidMorningUpdates
@@ -18,6 +20,7 @@ class AppContainer(
     context: Context,
     settings: () -> DataStore<Preferences>,
     onDeviceModel: OnDeviceModel,
+    gyms: GymRepository,
 ) : AppDependencies by DefaultAppDependencies(
     openDatabase = { buildGymDatabase(gymDatabaseBuilder(context.applicationContext)) },
     openSettings = settings,
@@ -25,4 +28,5 @@ class AppContainer(
     createMorningUpdates = { AndroidMorningUpdates(context.applicationContext) },
     onDeviceModel = onDeviceModel,
     createWhatsAppScheduler = { AndroidWhatsAppScheduler(context.applicationContext) },
+    wrapSettings = { CloudGymSettingsRepository(it, gyms) },
 )

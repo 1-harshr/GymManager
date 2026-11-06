@@ -1,6 +1,7 @@
 package com.harsh.gymmanager.data.remote
 
 import com.harsh.gymmanager.domain.repository.AuthRepository
+import com.harsh.gymmanager.domain.repository.GymRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
@@ -15,6 +16,8 @@ class SupabaseBackend(scope: CoroutineScope) {
     private val client = createGymSupabaseClient()
 
     val auth: AuthRepository = SupabaseAuthRepository(client, scope)
+
+    val gyms: GymRepository = SupabaseGymRepository(client, auth, scope)
 }
 
 private fun createGymSupabaseClient(): SupabaseClient =

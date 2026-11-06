@@ -82,6 +82,12 @@ fun formatDateRange(start: LocalDate, end: LocalDate): String =
     )
 
 /** Indian mobile numbers as two groups of five: 98765 43210. */
+/** "+91 90000 00001" for a sign-in number stored as "919000000001"; anything else as it is. */
+fun formatSignInPhone(phone: String): String {
+    val digits = phone.filter(Char::isDigit)
+    return if (digits.length == 12 && digits.startsWith("91")) "+91 ${formatPhone(digits.drop(2))}" else phone
+}
+
 fun formatPhone(phone: String): String {
     val digits = phone.filter(Char::isDigit)
     return if (digits.length == 10) "${digits.take(5)} ${digits.drop(5)}" else phone

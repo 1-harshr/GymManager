@@ -13,6 +13,7 @@ import com.harsh.gymmanager.data.repository.MessageLogRepositoryImpl
 import com.harsh.gymmanager.data.repository.PaymentRepositoryImpl
 import com.harsh.gymmanager.data.repository.PlanRepositoryImpl
 import com.harsh.gymmanager.data.settings.DataStoreSettingsRepository
+import com.harsh.gymmanager.domain.repository.SettingsRepository
 import com.harsh.gymmanager.domain.assistant.GymAssistant
 import com.harsh.gymmanager.domain.backup.BackupUseCases
 import com.harsh.gymmanager.domain.backup.StoredFiles
@@ -60,6 +61,8 @@ class DefaultAppDependencies(
     private val createWhatsAppScheduler: (messaging: () -> WhatsAppMessaging) -> WhatsAppScheduler = { NoWhatsAppScheduler },
     private val clock: Clock = Clock.System,
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
+    /** Lets the real data take some settings from elsewhere, such as the gym's details from the gym online. */
+    private val wrapSettings: (SettingsRepository) -> SettingsRepository = { it },
 ) : AppDependencies {
     private var databaseOpened = false
     private val database by lazy { openDatabase().also { databaseOpened = true } }
@@ -71,7 +74,7 @@ class DefaultAppDependencies(
     private val messageLogRepository by lazy { MessageLogRepositoryImpl(database.messageLogDao(), clock) }
     // DataStore allows one instance per file.
     private val settingsStore by lazy { openSettings() }
-    private val settingsRepository by lazy { DataStoreSettingsRepository(settingsStore) }
+    private val settingsRepository by lazy { wrapSettings(DataStoreSettingsRepository(settingsStore)) }
 
     override val memberUseCases by lazy { MemberUseCases(memberRepository, clock, timeZone) }
     override val planUseCases by lazy { PlanUseCases(planRepository) }

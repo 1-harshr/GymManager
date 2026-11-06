@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import com.harsh.gymmanager.domain.ValidationError
 import com.harsh.gymmanager.domain.backup.BackupProblem
 import com.harsh.gymmanager.domain.importing.ImportFileProblem
+import com.harsh.gymmanager.domain.repository.GymProblem
 import com.harsh.gymmanager.domain.repository.SignInProblem
 import com.harsh.gymmanager.presentation.UiMessage
 import com.harsh.gymmanager.presentation.formatRupees
@@ -82,6 +83,19 @@ private fun UiMessage.text(): Text = when (this) {
             SignInProblem.NO_CONNECTION -> Res.string.err_no_connection
         },
     )
+    UiMessage.EnterYourName -> Text.Plain(Res.string.err_enter_your_name)
+    UiMessage.EnterInviteCode -> Text.Plain(Res.string.err_enter_invite_code)
+    is UiMessage.GymFailed -> Text.Plain(
+        when (problem) {
+            GymProblem.ALREADY_IN_GYM -> Res.string.err_already_in_gym
+            GymProblem.INVALID_INVITE -> Res.string.err_invalid_invite
+            GymProblem.NOT_OWNER -> Res.string.err_not_owner
+            GymProblem.NO_CONNECTION -> Res.string.err_no_connection
+        },
+    )
+    UiMessage.InviteCancelled -> Text.Plain(Res.string.msg_invite_cancelled)
+    UiMessage.StaffRemoved -> Text.Plain(Res.string.msg_staff_removed)
+    UiMessage.RoleChanged -> Text.Plain(Res.string.msg_role_changed)
 }
 
 /** The message in the current language, for text on screen. */

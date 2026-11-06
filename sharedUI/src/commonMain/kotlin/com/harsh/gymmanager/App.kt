@@ -47,6 +47,12 @@ import androidx.navigation.toRoute
 import com.harsh.gymmanager.domain.model.AppSettings
 import com.harsh.gymmanager.domain.repository.AuthRepository
 import com.harsh.gymmanager.domain.repository.AuthState
+import com.harsh.gymmanager.domain.repository.GymRepository
+import com.harsh.gymmanager.domain.repository.MembershipState
+import com.harsh.gymmanager.ui.LocalGymRole
+import com.harsh.gymmanager.ui.format.formatSignInPhone
+import com.harsh.gymmanager.ui.screens.onboarding.GymUnavailableScreen
+import com.harsh.gymmanager.ui.screens.onboarding.OnboardingScreen
 import com.harsh.gymmanager.ui.screens.signin.SignInScreen
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.navigation.BulkRenewRoute
@@ -119,7 +125,7 @@ import org.jetbrains.compose.resources.getString
  * a demo doesn't.
  */
 @Composable
-fun GymManagerApp(real: AppDependencies, demoMode: DemoMode, auth: AuthRepository, onReady: () -> Unit = {}) {
+fun GymManagerApp(real: AppDependencies, demoMode: DemoMode, auth: AuthRepository, gyms: GymRepository, onReady: () -> Unit = {}) {
     val demo = demoMode.active
     key(demo) {
         val owner = remember { object : ViewModelStoreOwner { override val viewModelStore = ViewModelStore() } }
@@ -130,17 +136,21 @@ fun GymManagerApp(real: AppDependencies, demoMode: DemoMode, auth: AuthRepositor
             }
         }
         CompositionLocalProvider(LocalViewModelStoreOwner provides owner, LocalDemoMode provides demoMode) {
-            App(demo ?: real, auth.takeIf { demo == null }, onReady)
+            App(demo ?: real, auth.takeIf { demo == null }, gyms, onReady)
         }
     }
 }
 
-/** [auth] null shows the app without anyone signed in, as in demo mode. */
+/**
+ * [auth] null shows the app without anyone signed in, as in demo mode. Otherwise the gym opens once
+ * someone has signed in to it; until they belong to one, [gyms] lets them set one up or join.
+ */
 @Composable
-fun App(dependencies: AppDependencies, auth: AuthRepository? = null, onReady: () -> Unit = {}) {
+fun App(dependencies: AppDependencies, auth: AuthRepository? = null, gyms: GymRepository? = null, onReady: () -> Unit = {}) {
     val settingsVm = viewModel { SettingsViewModel(dependencies.settingsUseCases) }
     val settings = settingsVm.state.collectAsStateWithLifecycle().value
     val authState = auth?.authState?.collectAsStateWithLifecycle()?.value
+    val membership = gyms?.membership?.collectAsStateWithLifecycle()?.value
     val scope = rememberCoroutineScope()
     val dark = when (settings?.theme ?: ThemeMode.SYSTEM) {
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
@@ -151,7 +161,8 @@ fun App(dependencies: AppDependencies, auth: AuthRepository? = null, onReady: ()
     // The demo banner is clay, so the status bar icons go light on it.
     SystemBarsFor(dark || inDemo)
     // Hold the launch screen until both the settings and any saved sign-in are read, so neither screen flashes.
-    if (settings != null && authState !is AuthState.Loading) LaunchedEffect(Unit) { onReady() }
+    val gymKnown = authState !is AuthState.SignedIn || membership !is MembershipState.Loading
+    if (settings != null && authState !is AuthState.Loading && gymKnown) LaunchedEffect(Unit) { onReady() }
     // String resources follow the overridden configuration, so switching language keeps the current screen.
     val tag = settings?.language?.tag
     val language = tag ?: Locale.current.language
@@ -169,7 +180,25 @@ fun App(dependencies: AppDependencies, auth: AuthRepository? = null, onReady: ()
                                 AuthState.SignedOut -> SignInScreen(auth)
                                 // A different person signing in starts again from the first screen.
                                 is AuthState.SignedIn -> key(authState.userId) {
-                                    AppContent(dependencies, settings, settingsVm, authState, onSignOut = { scope.launch { auth.signOut() } })
+                                    val signOut: () -> Unit = { scope.launch { auth.signOut() } }
+                                    val gymRepository = checkNotNull(gyms) { "Signing in needs a GymRepository" }
+                                    when (membership) {
+                                        null, MembershipState.Loading -> Unit
+                                        MembershipState.NoGym -> OnboardingScreen(
+                                            gymRepository,
+                                            signedInAs = formatSignInPhone(authState.phone ?: authState.email.orEmpty()),
+                                            onSignOut = signOut,
+                                        )
+                                        MembershipState.Unavailable -> GymUnavailableScreen(
+                                            onRetry = { scope.launch { gymRepository.refresh() } },
+                                            onSignOut = signOut,
+                                        )
+                                        is MembershipState.Member -> key(membership.membership.gymId) {
+                                            CompositionLocalProvider(LocalGymRole provides membership.membership.role) {
+                                                AppContent(dependencies, settings, settingsVm, authState, onSignOut = signOut, hasCloudGym = true)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -192,13 +221,15 @@ private fun AppContent(
     settingsVm: SettingsViewModel,
     account: AuthState.SignedIn? = null,
     onSignOut: () -> Unit = {},
+    /** The gym is set up online, so the phone's own first-run setup is skipped. */
+    hasCloudGym: Boolean = false,
 ) {
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val nav = rememberNavController()
     fun toast(res: StringResource) = scope.launch { snackbar.showSnackbar(getString(res)) }
     fun toast(res: PluralStringResource, count: Int) = scope.launch { snackbar.showSnackbar(getPluralString(res, count, count)) }
-    val startDestination: Any = remember { if (settings.gym == null) GymProfileRoute else MainRoute }
+    val startDestination: Any = remember { if (settings.gym == null && !hasCloudGym) GymProfileRoute else MainRoute }
     val whatsApp = viewModel { WhatsAppPromptViewModel(dependencies.messaging, dependencies.whatsApp) }
     val whatsAppPrompt by whatsApp.prompt.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle

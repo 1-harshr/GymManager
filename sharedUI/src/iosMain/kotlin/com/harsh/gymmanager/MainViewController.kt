@@ -15,6 +15,7 @@ import androidx.compose.ui.window.ComposeUIViewController
 import com.harsh.gymmanager.ui.LaunchSplash
 import com.harsh.gymmanager.ui.components.splashShowing
 import com.harsh.gymmanager.data.local.buildGymDatabase
+import com.harsh.gymmanager.data.remote.CloudGymSettingsRepository
 import com.harsh.gymmanager.data.remote.SupabaseBackend
 import com.harsh.gymmanager.data.local.gymDatabaseBuilder
 import com.harsh.gymmanager.data.settings.SETTINGS_FILE_NAME
@@ -39,6 +40,7 @@ internal val iosDependencies: AppDependencies by lazy {
         onDeviceModel = InstalledOnDeviceModel,
         // iOS can't send at a set time in the background; messages go out while the app is open.
         createWhatsAppScheduler = { messaging -> InAppWhatsAppScheduler(MainScope()) { messaging().flush() } },
+        wrapSettings = { CloudGymSettingsRepository(it, backend.gyms) },
     )
 }
 
@@ -73,7 +75,7 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
     var ready by remember { mutableStateOf(false) }
     // UIKit drops the launch screen at the first frame, so a Compose copy of it carries the hold and fade.
     Box(Modifier.fillMaxSize()) {
-        GymManagerApp(iosDependencies, demoMode, backend.auth, onReady = { ready = true })
+        GymManagerApp(iosDependencies, demoMode, backend.auth, backend.gyms, onReady = { ready = true })
         LaunchSplash(appReady = ready, onGone = { splashShowing = false })
     }
 }

@@ -7,6 +7,8 @@ import com.harsh.gymmanager.domain.backup.BackupException
 import com.harsh.gymmanager.domain.backup.BackupProblem
 import com.harsh.gymmanager.domain.importing.ImportFileException
 import com.harsh.gymmanager.domain.importing.ImportFileProblem
+import com.harsh.gymmanager.domain.repository.GymException
+import com.harsh.gymmanager.domain.repository.GymProblem
 import com.harsh.gymmanager.domain.repository.SignInException
 import com.harsh.gymmanager.domain.repository.SignInProblem
 
@@ -57,6 +59,14 @@ sealed interface UiMessage {
     data object EnterPhone : UiMessage
     data object EnterCode : UiMessage
     data class SignInFailed(val problem: SignInProblem) : UiMessage
+
+    // Gym and staff
+    data object EnterYourName : UiMessage
+    data object EnterInviteCode : UiMessage
+    data class GymFailed(val problem: GymProblem) : UiMessage
+    data object InviteCancelled : UiMessage
+    data object StaffRemoved : UiMessage
+    data object RoleChanged : UiMessage
 }
 
 /** Known failures become their own message; anything unexpected gets a generic one. */
@@ -66,5 +76,6 @@ fun Throwable.toUiMessage(): UiMessage = when (this) {
     is ImportFileException -> UiMessage.BadImportFile(problem)
     is BackupException -> UiMessage.BadBackup(problem)
     is SignInException -> UiMessage.SignInFailed(problem)
+    is GymException -> UiMessage.GymFailed(problem)
     else -> UiMessage.SomethingWentWrong
 }

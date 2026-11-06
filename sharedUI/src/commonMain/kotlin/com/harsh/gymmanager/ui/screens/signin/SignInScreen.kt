@@ -243,7 +243,7 @@ private fun CodeStep(state: SignInUiState, vm: SignInViewModel) {
 
 /** The launch screen's clay tile and dumbbell, so the splash hands over to a screen that's clearly the same app. */
 @Composable
-private fun BrandMark() {
+internal fun BrandMark() {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
         Box(Modifier.size(48.dp).background(BrandClay, RoundedCornerShape(11.dp)), contentAlignment = Alignment.Center) {
             Icon(MyGymIcons.Dumbbell, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
@@ -409,7 +409,7 @@ private object PhoneGrouping : VisualTransformation {
 }
 
 /** The display face between the hero figure and a screen title, for the one line that leads each step. */
-private val MyGymTypography.headline: TextStyle
+internal val MyGymTypography.headline: TextStyle
     get() = displayXl.copy(fontSize = 38.sp, lineHeight = 40.sp, fontFeatureSettings = null)
 
 /** "+91 90000 00001" for "9000000001". */
