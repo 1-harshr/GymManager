@@ -259,7 +259,7 @@ otp_expiry = 3600
 [auth.sms]
 # Allow/disallow the phone provider. When false, users can't sign up or sign in with SMS.
 # To block new signups only, set enable_signup = false under [auth] instead.
-enabled = false
+enabled = true
 # If enabled, users need to confirm their phone number before signing in.
 enable_confirmations = false
 # Template for sending OTP to users
@@ -269,8 +269,18 @@ max_frequency = "5s"
 
 # Use pre-defined map of phone number to OTP for testing.
 # Keys are the phone number with country code and without the + prefix.
-# [auth.sms.test_otp]
-# 14152127777 = "123456"
+# Local test numbers: no SMS is sent, the code is always 123456. The first four are the seed.sql logins;
+# the rest are free for trying sign-up from scratch.
+[auth.sms.test_otp]
+919000000001 = "123456"
+919000000002 = "123456"
+919000000003 = "123456"
+919000000004 = "123456"
+919000000005 = "123456"
+919000000006 = "123456"
+919000000007 = "123456"
+919000000008 = "123456"
+919000000009 = "123456"
 
 # Configure logged in session timeouts.
 # [auth.sessions]
@@ -290,10 +300,13 @@ max_frequency = "5s"
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
 # Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
+# Phone login needs a provider switched on, even though the test numbers above never send an SMS.
+# These placeholders are for local use only; the real provider and its secrets are set on the hosted
+# projects, never here.
 [auth.sms.twilio]
-enabled = false
-account_sid = ""
-message_service_sid = ""
+enabled = true
+account_sid = "local-placeholder"
+message_service_sid = "local-placeholder"
 # DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
 auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
 
