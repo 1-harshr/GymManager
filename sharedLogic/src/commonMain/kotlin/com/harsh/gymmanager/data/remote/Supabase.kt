@@ -16,6 +16,9 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -30,18 +33,20 @@ class SupabaseBackend(scope: CoroutineScope, files: StoredFiles) {
 
     val auth: AuthRepository = SupabaseAuthRepository(client, scope)
 
-    private val refresher = Refresher()
+    private val refresher = Refresher(ready = { gate.settledGymId() })
 
     private val photos = PhotoSync(client, files, scope, onArrived = refresher::changed)
 
     val gyms: GymRepository = SupabaseGymRepository(client, auth, photos, scope)
 
+    private val gate = GymGate(auth, gyms)
+
     /** The gym's records online, for the real app once someone is signed in to a gym. */
     val data = RemoteGymData(
-        members = SupabaseMemberRepository(client, refresher, gyms, photos),
-        plans = SupabasePlanRepository(client, refresher, gyms),
+        members = SupabaseMemberRepository(client, refresher, gate, photos),
+        plans = SupabasePlanRepository(client, refresher, gate),
         memberships = SupabaseMembershipRepository(client, refresher),
-        payments = SupabasePaymentRepository(client, refresher, gyms),
+        payments = SupabasePaymentRepository(client, refresher, gate),
         usage = SupabaseUsageRepository(client),
     )
 
@@ -53,6 +58,14 @@ class SupabaseBackend(scope: CoroutineScope, files: StoredFiles) {
     val unreachable: StateFlow<Boolean> = refresher.problem
         .map { it != null }
         .stateIn(scope, SharingStarted.Eagerly, false)
+
+    /**
+     * For work started with the app off screen: waits up to [timeout] for the saved sign-in and the
+     * gym, and says whether there's a gym to work on. False when signed out, not in a gym, or it
+     * can't be reached; the work should then wait for another day.
+     */
+    suspend fun awaitGym(timeout: Duration = 20.seconds): Boolean =
+        withTimeoutOrNull(timeout) { gate.settledGymId() } != null
 
     /** The phone's [local] settings with the gym's name, address and logo taken from the gym online. */
     fun gymSettings(local: SettingsRepository): SettingsRepository = CloudGymSettingsRepository(local, gyms, photos)

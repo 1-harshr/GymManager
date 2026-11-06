@@ -2,7 +2,6 @@ package com.harsh.gymmanager.data.remote
 
 import com.harsh.gymmanager.domain.model.Member
 import com.harsh.gymmanager.domain.model.MemberSummary
-import com.harsh.gymmanager.domain.repository.GymRepository
 import com.harsh.gymmanager.domain.repository.MemberRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
@@ -26,7 +25,7 @@ import kotlin.time.Clock
 internal class SupabaseMemberRepository(
     private val supabase: SupabaseClient,
     private val refresher: Refresher,
-    private val gyms: GymRepository,
+    private val gym: GymGate,
     private val photos: PhotoSync,
     private val clock: Clock = Clock.System,
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
@@ -76,7 +75,7 @@ internal class SupabaseMemberRepository(
 
     /** The photo goes up once the member has an id to name it by. */
     override suspend fun addMember(member: Member): String = write {
-        val gymId = gyms.currentGymId()
+        val gymId = gym.gymId()
         val id = members.insert(member.toRow(gymId, photo = null)) { select(Columns.raw("id")) }.decodeSingle<IdRow>().id
         photos.toStored(MEMBER_PHOTOS_BUCKET, member.photoPath, gymId, owner = id)?.let { stored ->
             members.update(buildJsonObject { put("photo_path", stored) }) { filter { eq("id", id) } }
@@ -87,7 +86,7 @@ internal class SupabaseMemberRepository(
     /** One request, so either all are added or none. */
     override suspend fun addMembers(members: List<Member>): List<String> {
         if (members.isEmpty()) return emptyList()
-        val gymId = gyms.currentGymId()
+        val gymId = gym.gymId()
         return write {
             this.members.insert(members.map { it.toRow(gymId, photo = null) }) { select(Columns.raw("id")) }.decodeList<IdRow>().map { it.id }
         }
@@ -105,7 +104,7 @@ internal class SupabaseMemberRepository(
     }
 
     override suspend fun updateMember(member: Member) = write {
-        val photo = photos.toStored(MEMBER_PHOTOS_BUCKET, member.photoPath, gyms.currentGymId(), owner = member.id)
+        val photo = photos.toStored(MEMBER_PHOTOS_BUCKET, member.photoPath, gym.gymId(), owner = member.id)
         members.update(member.toRow(gymId = null, photo = photo)) { filter { eq("id", member.id) } }
         Unit
     }

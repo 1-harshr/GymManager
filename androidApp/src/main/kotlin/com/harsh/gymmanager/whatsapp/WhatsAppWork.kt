@@ -53,11 +53,14 @@ class WhatsAppSendWorker(context: Context, params: WorkerParameters) : Coroutine
 
 class WhatsAppReminderWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
-        val whatsApp = (applicationContext as GymManagerApplication).container.whatsApp
+        val app = applicationContext as GymManagerApplication
+        val whatsApp = app.container.whatsApp
         val settings = whatsApp.observeSettings().first()
         if (!settings.autoSend.reminders || !settings.isSetUp) return Result.success()
         // Queue tomorrow first, so a failure below can't break the chain.
         enqueueReminders(applicationContext, settings.autoSend.reminderMinuteOfDay, ExistingWorkPolicy.APPEND_OR_REPLACE)
+        // Who's due comes from the gym online; without it, today's reminders wait for tomorrow.
+        if (!app.backend.awaitGym()) return Result.success()
         whatsApp.sendDueReminders()
         enqueueSend(applicationContext)
         return Result.success()

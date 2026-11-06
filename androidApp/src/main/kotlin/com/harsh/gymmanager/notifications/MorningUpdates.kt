@@ -57,7 +57,8 @@ class AndroidMorningUpdates(private val context: Context) : MorningUpdateSchedul
 
 class MorningUpdateWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
-        val container = (applicationContext as GymManagerApplication).container
+        val app = applicationContext as GymManagerApplication
+        val container = app.container
         val settings = container.settingsUseCases.observe().first()
         val update = settings.morningUpdate
         val gym = settings.gym
@@ -65,6 +66,9 @@ class MorningUpdateWorker(context: Context, params: WorkerParameters) : Coroutin
 
         // Queue tomorrow first; it runs once this one finishes, so a failure below can't break the chain.
         enqueueNext(applicationContext, update, ExistingWorkPolicy.APPEND_OR_REPLACE)
+        // Started with the app closed, the saved sign-in may not be read yet. Without a gym to read
+        // (signed out, or it can't be reached) there's nothing true to say this morning.
+        if (!app.backend.awaitGym()) return Result.success()
         // New alerts wait in the bell's inbox even if the app isn't opened today.
         container.inbox.refresh()
         try {

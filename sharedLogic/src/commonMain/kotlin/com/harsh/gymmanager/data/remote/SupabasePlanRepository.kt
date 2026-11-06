@@ -1,7 +1,6 @@
 package com.harsh.gymmanager.data.remote
 
 import com.harsh.gymmanager.domain.model.Plan
-import com.harsh.gymmanager.domain.repository.GymRepository
 import com.harsh.gymmanager.domain.repository.PlanRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
@@ -14,7 +13,7 @@ import kotlinx.serialization.json.put
 internal class SupabasePlanRepository(
     private val supabase: SupabaseClient,
     private val refresher: Refresher,
-    private val gyms: GymRepository,
+    private val gym: GymGate,
 ) : PlanRepository {
     private val plans get() = supabase.postgrest.from("plans")
 
@@ -36,7 +35,7 @@ internal class SupabasePlanRepository(
     override suspend fun addPlan(plan: Plan): String = write {
         plans.insert(
             buildJsonObject {
-                put("gym_id", gyms.currentGymId())
+                put("gym_id", gym.gymId())
                 put("name", plan.name.trim())
                 put("duration_value", plan.durationValue)
                 put("duration_unit", plan.durationUnit.name)

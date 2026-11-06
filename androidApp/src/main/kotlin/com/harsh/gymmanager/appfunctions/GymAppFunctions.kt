@@ -22,14 +22,19 @@ import com.harsh.gymmanager.presentation.formatRupees
 @RequiresApi(Build.VERSION_CODES.BAKLAVA)
 @AppFunctionServiceEntryPoint(serviceName = "GymAppFunctionService", appFunctionXmlFileName = "gym_app_functions")
 abstract class GymAppFunctions : AppFunctionService() {
-    private val assistant: GymAssistant get() = (application as GymManagerApplication).container.assistant
+    /** The assistant, once the saved sign-in and gym are read; this may run with the app closed. */
+    private suspend fun assistant(): GymAssistant {
+        val app = application as GymManagerApplication
+        app.backend.awaitGym()
+        return app.container.assistant
+    }
 
     /**
      * Gets an overview of the gym: active, expiring and expired members, total dues, and money
      * collected this month.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    suspend fun getGymSummary(): GymSummary = assistant.summary().toGymSummary()
+    suspend fun getGymSummary(): GymSummary = assistant().summary().toGymSummary()
 
     /**
      * Finds gym members by name or phone number, with each one's membership status, end date and
@@ -38,7 +43,7 @@ abstract class GymAppFunctions : AppFunctionService() {
      * @param query Part of the member's name or phone number.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    suspend fun findMembers(query: String): MemberList = assistant.findMembers(query).toMemberList()
+    suspend fun findMembers(query: String): MemberList = assistant().findMembers(query).toMemberList()
 
     /**
      * Lists members who need follow-up, most urgent first.
@@ -57,12 +62,12 @@ abstract class GymAppFunctions : AppFunctionService() {
             "WITH_DUES" -> MemberFilter.WITH_DUES
             else -> throw AppFunctionInvalidArgumentException("status must be EXPIRING_SOON, EXPIRED or WITH_DUES")
         }
-        return assistant.members(filter).toMemberList()
+        return assistant().members(filter).toMemberList()
     }
 
     /** Lists the membership plans the gym currently sells, with duration and price. */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    suspend fun listPlans(): List<PlanInfo> = assistant.plans().map { it.toPlanInfo() }
+    suspend fun listPlans(): List<PlanInfo> = assistant().plans().map { it.toPlanInfo() }
 
     /**
      * Records money a member paid towards what they owe. Confirm the member and amount with the
@@ -81,7 +86,7 @@ abstract class GymAppFunctions : AppFunctionService() {
     ): PaymentReceipt {
         val mode = PaymentMode.entries.firstOrNull { it.name == paymentMode }
             ?: throw AppFunctionInvalidArgumentException("paymentMode must be CASH, UPI or OTHER")
-        return when (val outcome = assistant.recordPayment(memberId, amountRupees, mode)) {
+        return when (val outcome = assistant().recordPayment(memberId, amountRupees, mode)) {
             is PaymentOutcome.Recorded -> PaymentReceipt(outcome.memberName, outcome.amount, outcome.remainingDue)
             is PaymentOutcome.MoreThanDue -> throw AppFunctionInvalidArgumentException(
                 "${outcome.memberName} owes only ${formatRupees(outcome.amountDue)}; nothing was recorded"

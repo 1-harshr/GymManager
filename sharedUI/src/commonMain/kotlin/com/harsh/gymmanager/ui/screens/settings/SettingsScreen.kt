@@ -10,6 +10,7 @@ import com.harsh.gymmanager.DemoMode
 import com.harsh.gymmanager.domain.repository.AuthState
 import com.harsh.gymmanager.ui.LocalGymRepository
 import com.harsh.gymmanager.ui.isOwnerOrNoAccount
+import com.harsh.gymmanager.ui.format.formatSignInPhone
 import gymmanager.sharedui.generated.resources.credits
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.Arrangement
@@ -167,7 +168,8 @@ fun SettingsScreen(
                 MorningUpdateCard(settings.morningUpdate, onMorningUpdateChange)
             }
 
-            if (isOwner) {
+            // A backup file holds the phone's own records; a gym kept online has nothing on the phone to save.
+            if (isOwner && LocalGymRepository.current == null) {
                 SectionHeader(stringResource(Res.string.section_data), Modifier.padding(top = MyGymSpace.md))
                 BackupCard(settings)
             }
@@ -181,7 +183,7 @@ fun SettingsScreen(
                 SectionHeader(stringResource(Res.string.section_account), Modifier.padding(top = MyGymSpace.md))
                 MyGymCard {
                     Text(
-                        stringResource(Res.string.account_signed_in_as, account.phone?.let { "+$it" } ?: account.email.orEmpty()),
+                        stringResource(Res.string.account_signed_in_as, formatSignInPhone(account.phone ?: account.email.orEmpty())),
                         style = typography.body,
                     )
                     MyGymButton(stringResource(Res.string.sign_out), onSignOut, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)

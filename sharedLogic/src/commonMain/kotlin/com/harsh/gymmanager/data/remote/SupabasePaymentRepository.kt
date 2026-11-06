@@ -2,7 +2,6 @@ package com.harsh.gymmanager.data.remote
 
 import com.harsh.gymmanager.domain.model.Payment
 import com.harsh.gymmanager.domain.model.PaymentRecord
-import com.harsh.gymmanager.domain.repository.GymRepository
 import com.harsh.gymmanager.domain.repository.PaymentRepository
 import com.harsh.gymmanager.domain.suggestions.UsageRepository
 import com.harsh.gymmanager.domain.suggestions.UsageStats
@@ -24,14 +23,14 @@ import kotlinx.serialization.json.put
 internal class SupabasePaymentRepository(
     private val supabase: SupabaseClient,
     private val refresher: Refresher,
-    private val gyms: GymRepository,
+    private val gym: GymGate,
 ) : PaymentRepository {
     private val payments get() = supabase.postgrest.from("payments")
 
     override suspend fun addPayment(payment: Payment): String = write {
         payments.insert(
             buildJsonObject {
-                put("gym_id", gyms.currentGymId())
+                put("gym_id", gym.gymId())
                 put("membership_id", payment.membershipId)
                 put("amount", payment.amount)
                 put("mode", payment.mode.name)

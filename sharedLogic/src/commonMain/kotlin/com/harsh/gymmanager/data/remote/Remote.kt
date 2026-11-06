@@ -2,6 +2,8 @@ package com.harsh.gymmanager.data.remote
 
 import com.harsh.gymmanager.domain.NoConnectionException
 import com.harsh.gymmanager.domain.OverpaymentException
+import com.harsh.gymmanager.domain.repository.AuthRepository
+import com.harsh.gymmanager.domain.repository.AuthState
 import com.harsh.gymmanager.domain.repository.GymRepository
 import com.harsh.gymmanager.domain.repository.MembershipState
 import io.github.jan.supabase.exceptions.HttpRequestException
@@ -12,6 +14,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
@@ -24,7 +28,10 @@ import kotlin.coroutines.cancellation.CancellationException
  * so do they all when the app comes back to the front. A read that fails keeps showing its last good
  * value, and [problem] says why until a read succeeds again.
  */
-internal class Refresher {
+internal class Refresher(
+    /** Waits until reads can be made, i.e. it's known whether someone is signed in to a gym. */
+    private val ready: suspend () -> Unit = {},
+) {
     private val ticks = MutableStateFlow(0)
     private val _problem = MutableStateFlow<Throwable?>(null)
     val problem: StateFlow<Throwable?> = _problem.asStateFlow()
@@ -35,6 +42,7 @@ internal class Refresher {
     fun <T> observe(read: suspend () -> T): Flow<T> = ticks.flatMapLatest {
         flow {
             try {
+                ready()
                 val value = remote { read() }
                 _problem.value = null
                 emit(value)
@@ -47,9 +55,23 @@ internal class Refresher {
     }
 }
 
-/** The signed-in person's gym; every row written belongs to it. */
-internal fun GymRepository.currentGymId(): String =
-    (membership.value as? MembershipState.Member)?.membership?.gymId ?: throw IllegalStateException("Not part of a gym")
+/**
+ * Whether someone is signed in to a gym, once that's known. Work started with the app off screen, such
+ * as the morning update or a Siri request, may begin before the saved sign-in has been read.
+ */
+internal class GymGate(private val auth: AuthRepository, private val gyms: GymRepository) {
+    /** The signed-in person's gym, or null if they're signed out or not in one (or it can't be reached). */
+    suspend fun settledGymId(): String? =
+        combine(auth.authState, gyms.membership) { auth, membership -> auth to membership }
+            .first { (auth, membership) ->
+                auth is AuthState.SignedOut || (auth is AuthState.SignedIn && membership !is MembershipState.Loading)
+            }
+            .second
+            .let { (it as? MembershipState.Member)?.membership?.gymId }
+
+    /** The gym every row written belongs to. */
+    suspend fun gymId(): String = settledGymId() ?: throw IllegalStateException("Not part of a gym")
+}
 
 /**
  * Runs a request and turns the failures the app knows how to explain into its own exceptions: a lost
