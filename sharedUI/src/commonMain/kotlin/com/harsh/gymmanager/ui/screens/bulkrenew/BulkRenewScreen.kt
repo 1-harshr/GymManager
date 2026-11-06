@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.bulkrenew
 
+import com.harsh.gymmanager.ui.isOwnerOrNoAccount
 import com.harsh.gymmanager.domain.suggestions.mostUsedFirst
 import com.harsh.gymmanager.ui.components.rememberUsageStats
 import gymmanager.sharedui.generated.resources.*
@@ -63,7 +64,7 @@ fun BulkRenewScreen(memberIds: Set<Long>, onBack: () -> Unit, onDone: (Int) -> U
         ) {
             SectionHeader(stringResource(Res.string.section_plan), Modifier.screenGutter())
             if (!state.isLoading && state.plans.isEmpty()) {
-                EmptyState(MyGymIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_renew_body), actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan)
+                EmptyState(MyGymIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_renew_body), actionLabel = if (isOwnerOrNoAccount) stringResource(Res.string.add_plan) else null, onAction = onAddPlan)
                 return@Column
             }
             state.plans.mostUsedFirst(rememberUsageStats().value).forEach { plan ->

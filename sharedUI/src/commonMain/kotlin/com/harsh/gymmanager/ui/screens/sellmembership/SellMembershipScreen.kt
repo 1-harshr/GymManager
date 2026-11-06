@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.sellmembership
 
+import com.harsh.gymmanager.ui.isOwnerOrNoAccount
 import androidx.compose.ui.text.style.TextDecoration
 import com.harsh.gymmanager.presentation.parseRupees
 import com.harsh.gymmanager.domain.suggestions.mostUsedFirst
@@ -86,7 +87,7 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
                 onAction = onAddPlan,
             )
             if (!state.isLoading && state.plans.isEmpty()) {
-                EmptyState(MyGymIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_sell_body), actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan)
+                EmptyState(MyGymIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_sell_body), actionLabel = if (isOwnerOrNoAccount) stringResource(Res.string.add_plan) else null, onAction = onAddPlan)
                 return@Column
             }
             // The plans this gym sells most come first.

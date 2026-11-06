@@ -37,6 +37,8 @@ import com.harsh.gymmanager.ui.theme.screenGutter
 fun PlansScreen(
     state: PlansUiState,
     onShowArchivedChange: (Boolean) -> Unit,
+    /** False for staff, who see the plans but can't change them. */
+    canEdit: Boolean,
     onOpenPlan: (Plan) -> Unit,
     onAddPlan: () -> Unit,
     onArchive: (Plan) -> Unit,
@@ -66,7 +68,7 @@ fun PlansScreen(
             item {
                 EmptyState(
                     MyGymIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_body),
-                    actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan,
+                    actionLabel = if (canEdit) stringResource(Res.string.add_plan) else null, onAction = onAddPlan,
                 )
             }
         } else {
@@ -82,11 +84,16 @@ fun PlansScreen(
             items(state.plans, key = { it.id }) { plan ->
                 PlanCard(
                     plan,
-                    onClick = { if (state.isSelecting) onToggleSelection(plan) else onOpenPlan(plan) },
+                    onClick = {
+                        when {
+                            state.isSelecting -> onToggleSelection(plan)
+                            canEdit -> onOpenPlan(plan)
+                        }
+                    },
                     modifier = Modifier.screenGutter(),
                     selected = plan.id in state.selectedIds,
-                    onLongClick = { onToggleSelection(plan) },
-                    trailing = if (state.isSelecting) null else ({
+                    onLongClick = if (canEdit) ({ onToggleSelection(plan) }) else null,
+                    trailing = if (state.isSelecting || !canEdit) null else ({
                         MoreMenu(
                             actions = listOf(
                                 MenuAction(stringResource(Res.string.edit)) { onOpenPlan(plan) },
@@ -98,7 +105,7 @@ fun PlansScreen(
                     }),
                 )
             }
-            if (!state.isSelecting) item {
+            if (!state.isSelecting && canEdit) item {
                 MyGymButton(
                     stringResource(Res.string.add_plan), onAddPlan,
                     Modifier.fillMaxWidth().screenGutter().padding(top = MyGymSpace.sm),

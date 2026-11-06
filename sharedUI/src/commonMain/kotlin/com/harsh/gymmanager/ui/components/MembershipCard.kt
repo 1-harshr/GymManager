@@ -39,8 +39,9 @@ fun MembershipCard(
     today: LocalDate,
     /** Null hides the card's own "record payment", e.g. when the page already offers it. */
     onRecordPayment: (() -> Unit)?,
-    onDelete: () -> Unit,
-    onPaymentClick: (Payment) -> Unit,
+    /** Null hides deleting the membership and its payments, for staff. */
+    onDelete: (() -> Unit)?,
+    onPaymentClick: ((Payment) -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     val colors = MyGymTheme.colors
@@ -59,11 +60,13 @@ fun MembershipCard(
             } else {
                 Badge(statusLabel(status, membership.endDate, today), status.tone())
             }
-            MoreMenu(
-                actions = listOf(MenuAction(stringResource(Res.string.delete_membership), destructive = true, onClick = onDelete)),
-                contentDescription = stringResource(Res.string.more_for, membership.planName),
-                container = colors.surface,
-            )
+            if (onDelete != null) {
+                MoreMenu(
+                    actions = listOf(MenuAction(stringResource(Res.string.delete_membership), destructive = true, onClick = onDelete)),
+                    contentDescription = stringResource(Res.string.more_for, membership.planName),
+                    container = colors.surface,
+                )
+            }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
             MoneyFigure(stringResource(Res.string.charged), formatRupees(membership.amountCharged), Modifier.weight(1f))
@@ -80,7 +83,16 @@ fun MembershipCard(
             Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
                 membership.payments.forEach { payment ->
                     Row(
-                        Modifier.fillMaxWidth().clickable(onClickLabel = stringResource(Res.string.delete_payment)) { onPaymentClick(payment) }.padding(vertical = MyGymSpace.xs),
+                        Modifier
+                            .fillMaxWidth()
+                            .then(
+                                if (onPaymentClick != null) {
+                                    Modifier.clickable(onClickLabel = stringResource(Res.string.delete_payment)) { onPaymentClick(payment) }
+                                } else {
+                                    Modifier
+                                },
+                            )
+                            .padding(vertical = MyGymSpace.xs),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(stringResource(Res.string.payment_line, payment.paidOn.formatDayMonth(), payment.mode.label()), Modifier.weight(1f), style = typography.body, color = colors.inkMuted)

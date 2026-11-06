@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.memberdetail
 
+import com.harsh.gymmanager.ui.isOwnerOrNoAccount
 import androidx.compose.ui.text.input.ImeAction
 import com.harsh.gymmanager.domain.suggestions.amountSuggestions
 import com.harsh.gymmanager.ui.components.rememberUsageStats
@@ -100,6 +101,8 @@ fun MemberDetailScreen(
         MemberDetailViewModel(memberId, deps.observeMemberDetail, deps.memberUseCases, deps.membershipUseCases, deps.paymentUseCases)
     }
     val state by vm.state.collectAsStateWithLifecycle()
+    // Staff don't archive or delete; that's the owner's call.
+    val isOwner = isOwnerOrNoAccount
     var confirm by remember { mutableStateOf<Confirm?>(null) }
     val uriHandler = LocalUriHandler.current
     val offerWhatsApp = LocalWhatsApp.current
@@ -155,11 +158,14 @@ fun MemberDetailScreen(
                     MyGymIconButton(MyGymIcons.Phone, stringResource(Res.string.call_person, member.name), onClick = { uriHandler.openUri("tel:$phone") }, iconSize = 20.dp)
                 }
                 MoreMenu(
-                    actions = listOf(
+                    actions = listOfNotNull(
                         MenuAction(stringResource(Res.string.edit_details), onClick = onEdit),
-                        if (member.isArchived) MenuAction(stringResource(Res.string.restore_member), onClick = vm::restoreMember)
-                        else MenuAction(stringResource(Res.string.archive_member), onClick = vm::archiveMember),
-                        MenuAction(stringResource(Res.string.delete_permanently), destructive = true) { confirm = Confirm.DeleteMember },
+                        when {
+                            !isOwner -> null
+                            member.isArchived -> MenuAction(stringResource(Res.string.restore_member), onClick = vm::restoreMember)
+                            else -> MenuAction(stringResource(Res.string.archive_member), onClick = vm::archiveMember)
+                        },
+                        if (isOwner) MenuAction(stringResource(Res.string.delete_permanently), destructive = true) { confirm = Confirm.DeleteMember } else null,
                     ),
                     contentDescription = stringResource(Res.string.more_for, member.name),
                 )
@@ -226,8 +232,8 @@ fun MemberDetailScreen(
                     today,
                     // Only needed to pick which one when more than one membership is owed on.
                     onRecordPayment = if (owingMemberships.size > 1) ({ vm.openPaymentForm(membership.id) }) else null,
-                    onDelete = { confirm = Confirm.DeleteMembership(membership) },
-                    onPaymentClick = { confirm = Confirm.DeletePayment(it) },
+                    onDelete = if (isOwner) ({ confirm = Confirm.DeleteMembership(membership) }) else null,
+                    onPaymentClick = if (isOwner) ({ payment -> confirm = Confirm.DeletePayment(payment) }) else null,
                     modifier = Modifier.screenGutter(),
                 )
             }

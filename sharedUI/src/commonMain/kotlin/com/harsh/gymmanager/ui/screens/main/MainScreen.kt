@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.main
 
+import com.harsh.gymmanager.ui.isOwnerOrNoAccount
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.pluralStringResource
@@ -111,6 +112,7 @@ fun MainScreen(
     val plansVm = viewModel { PlansViewModel(deps.planUseCases) }
     var tab by rememberSaveable { mutableIntStateOf(HOME) }
     var confirmDelete by remember { mutableStateOf(false) }
+    val isOwner = isOwnerOrNoAccount
     val mainTabs = listOf(
         TabItem(stringResource(Res.string.tab_home), MyGymIcons.Home, symbol = "house.fill"),
         TabItem(stringResource(Res.string.tab_members), MyGymIcons.Users, symbol = "person.2.fill"),
@@ -177,6 +179,7 @@ fun MainScreen(
                 else -> PlansScreen(
                     state = plansState,
                     onShowArchivedChange = plansVm::onShowArchivedChange,
+                    canEdit = isOwner,
                     onOpenPlan = { plan: Plan -> onOpenPlan(plan.id) },
                     onAddPlan = { onOpenPlan(null) },
                     onArchive = { plansVm.archive(it.id) },
@@ -223,11 +226,12 @@ fun MainScreen(
                 BulkActionBar(
                     if (tab == MEMBERS) memberActions(
                         archivedList = membersState.filter == MemberFilter.ARCHIVED,
+                        isOwner = isOwner,
                         onRenew = { onBulkRenew(membersState.selectedIds); membersVm.clearSelection() },
                         onArchive = membersVm::archiveSelected,
                         onRestore = membersVm::restoreSelected,
                         onDelete = { confirmDelete = true },
-                    ) else listOfNotNull(
+                    ) else if (!isOwner) emptyList() else listOfNotNull(
                         if (plansState.selectedHasActive) BulkAction(stringResource(Res.string.archive), MyGymIcons.Archive, onClick = plansVm::archiveSelected) else null,
                         if (plansState.selectedHasArchived) BulkAction(stringResource(Res.string.restore), MyGymIcons.Restore, onClick = plansVm::restoreSelected) else null,
                     ),
@@ -264,11 +268,15 @@ fun MainScreen(
 @Composable
 private fun memberActions(
     archivedList: Boolean,
+    isOwner: Boolean,
     onRenew: () -> Unit,
     onArchive: () -> Unit,
     onRestore: () -> Unit,
     onDelete: () -> Unit,
-): List<BulkAction> = if (archivedList) {
+): List<BulkAction> = if (!isOwner) {
+    // Staff renew; archiving and deleting are the owner's.
+    if (archivedList) emptyList() else listOf(BulkAction(stringResource(Res.string.renew), MyGymIcons.Renew, onClick = onRenew))
+} else if (archivedList) {
     listOf(
         BulkAction(stringResource(Res.string.restore), MyGymIcons.Restore, onClick = onRestore),
         BulkAction(stringResource(Res.string.delete), MyGymIcons.Trash, destructive = true, onClick = onDelete),

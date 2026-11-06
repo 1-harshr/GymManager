@@ -90,11 +90,13 @@ fun SettingsScreen(
 ) {
     val colors = MyGymTheme.colors
     val typography = MyGymTheme.typography
+    // Staff get their own preferences; the gym's setup, messaging and backups are the owner's.
+    val isOwner = isOwnerOrNoAccount
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         PushedHeader(stringResource(Res.string.settings), onBack)
         Column(Modifier.screenGutter().navigationBarsPadding().padding(bottom = MyGymSpace.xxl), verticalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
             SectionHeader(stringResource(Res.string.section_gym))
-            MyGymCard(onClick = onEditGym) {
+            MyGymCard(onClick = if (isOwner) onEditGym else null) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
                     settings.gym?.let { GymLogo(profile = it, size = MyGymSize.avatar + MyGymSpace.lg) }
                     Column(Modifier.weight(1f)) {
@@ -102,7 +104,7 @@ fun SettingsScreen(
                         settings.gym?.address?.let { Text(it, style = typography.caption, color = colors.inkMuted) }
                     }
                 }
-                MyGymButton(stringResource(Res.string.edit_gym), onEditGym, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+                if (isOwner) MyGymButton(stringResource(Res.string.edit_gym), onEditGym, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
             }
 
             // Only with a gym online; the phone-only app and the demo have no staff.
@@ -139,29 +141,36 @@ fun SettingsScreen(
                 SegmentedControl(AppLanguage.entries, settings.language, { it?.let(onLanguageChange) }, { languageLabels.getValue(it) })
             }
 
-            SectionHeader(stringResource(Res.string.section_home_screen), Modifier.padding(top = MyGymSpace.md))
-            MyGymCard {
-                val features = settings.homeFeatures
-                SwitchRow(
-                    stringResource(Res.string.ai_insights),
-                    stringResource(Res.string.ai_insights_body),
-                    features.aiInsights,
-                ) { onHomeFeaturesChange(features.copy(aiInsights = it)) }
-                SwitchRow(
-                    stringResource(Res.string.collections_chart),
-                    stringResource(Res.string.collections_chart_body),
-                    features.collectionsChart,
-                ) { onHomeFeaturesChange(features.copy(collectionsChart = it)) }
+            if (isOwner) {
+                SectionHeader(stringResource(Res.string.section_home_screen), Modifier.padding(top = MyGymSpace.md))
+                MyGymCard {
+                    val features = settings.homeFeatures
+                    SwitchRow(
+                        stringResource(Res.string.ai_insights),
+                        stringResource(Res.string.ai_insights_body),
+                        features.aiInsights,
+                    ) { onHomeFeaturesChange(features.copy(aiInsights = it)) }
+                    SwitchRow(
+                        stringResource(Res.string.collections_chart),
+                        stringResource(Res.string.collections_chart_body),
+                        features.collectionsChart,
+                    ) { onHomeFeaturesChange(features.copy(collectionsChart = it)) }
+                }
+
+                SectionHeader(stringResource(Res.string.section_whatsapp), Modifier.padding(top = MyGymSpace.md))
+                WhatsAppSettingsCard(onOpenWhatsApp)
             }
 
-            SectionHeader(stringResource(Res.string.section_whatsapp), Modifier.padding(top = MyGymSpace.md))
-            WhatsAppSettingsCard(onOpenWhatsApp)
+            // The morning update includes the month's collections, so it's the owner's too.
+            if (isOwner) {
+                SectionHeader(stringResource(Res.string.section_notifications), Modifier.padding(top = MyGymSpace.md))
+                MorningUpdateCard(settings.morningUpdate, onMorningUpdateChange)
+            }
 
-            SectionHeader(stringResource(Res.string.section_notifications), Modifier.padding(top = MyGymSpace.md))
-            MorningUpdateCard(settings.morningUpdate, onMorningUpdateChange)
-
-            SectionHeader(stringResource(Res.string.section_data), Modifier.padding(top = MyGymSpace.md))
-            BackupCard(settings)
+            if (isOwner) {
+                SectionHeader(stringResource(Res.string.section_data), Modifier.padding(top = MyGymSpace.md))
+                BackupCard(settings)
+            }
 
             LocalDemoMode.current?.let { demoMode ->
                 SectionHeader(stringResource(Res.string.section_demo), Modifier.padding(top = MyGymSpace.md))

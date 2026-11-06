@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.home
 
+import com.harsh.gymmanager.ui.isOwnerOrNoAccount
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
@@ -70,6 +71,8 @@ fun HomeScreen(
         aiBrief = if (features.aiInsights && insights != null && language == "en") deps.brief.write(insights, gymName) else null
     }
 
+    // Staff don't see what the gym takes in: the brief, collections and the forecast are the owner's.
+    val seesRevenue = isOwnerOrNoAccount
     LazyColumn(
         Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = MyGymSize.contentBottomClearance),
@@ -86,8 +89,8 @@ fun HomeScreen(
             }
         }
         if (board == null || insights == null) return@LazyColumn
-        if (features.aiInsights) item { Box(Modifier.screenGutter()) { BriefCard(insights, aiBrief) } }
-        item { Box(Modifier.screenGutter()) { CollectionsCard(insights.pace, insights.today, showChart = features.collectionsChart) } }
+        if (features.aiInsights && seesRevenue) item { Box(Modifier.screenGutter()) { BriefCard(insights, aiBrief) } }
+        if (seesRevenue) item { Box(Modifier.screenGutter()) { CollectionsCard(insights.pace, insights.today, showChart = features.collectionsChart) } }
         item {
             Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
@@ -102,7 +105,7 @@ fun HomeScreen(
             }
         }
         if (features.aiInsights) {
-            item { Box(Modifier.screenGutter()) { ForecastCard(insights.forecast) } }
+            if (seesRevenue) item { Box(Modifier.screenGutter()) { ForecastCard(insights.forecast) } }
             item { Box(Modifier.screenGutter()) { RenewalsCard(insights.renewals, insights.today, onOpenMember) } }
             if (insights.oldestDues.isNotEmpty() || insights.winBack.isNotEmpty()) {
                 item { Box(Modifier.screenGutter()) { AttentionCard(insights, onOpenMember) } }
