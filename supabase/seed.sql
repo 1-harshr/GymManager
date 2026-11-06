@@ -1,4 +1,4 @@
--- Local development data, loaded by `supabase db reset`. Never pushed to hosted projects.
+-- Demo data, loaded locally by `supabase db reset` and into staging by `db push --include-seed`. Never into production.
 --
 -- Two gyms so isolation can be seen, and logins for each role (password for all: password123):
 --   owner@irontemple.test   +91 90000 00001   owner of Iron Temple
