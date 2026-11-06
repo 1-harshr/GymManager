@@ -48,8 +48,8 @@ Make's screens change now and then; the module names above may differ slightly.
   "to": "919876543210",
   "template": "gym_receipt",
   "language": "en",
-  "params": ["AKHADA Gym & MMA", "12", "Ravi", "MMA Monthly", "6 Nov 2026", "5 Dec 2026", "₹1,500", "₹0"],
-  "p1": "AKHADA Gym & MMA", "p2": "12", "…": "…",
+  "params": ["My Gym", "12", "Ravi", "MMA Monthly", "6 Nov 2026", "5 Dec 2026", "₹1,500", "₹0"],
+  "p1": "My Gym", "p2": "12", "…": "…",
   "graph_body": "{\"messaging_product\":\"whatsapp\",\"to\":\"919876543210\",\"type\":\"template\",…}",
   "kind": "receipt",
   "member": "Ravi Kumar"

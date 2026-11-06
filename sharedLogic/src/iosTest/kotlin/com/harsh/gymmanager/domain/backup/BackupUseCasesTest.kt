@@ -116,7 +116,7 @@ class BackupUseCasesTest {
         val bytes = backup.create().getOrThrow()
         val text = bytes.decodeToString()
         assertTrue(text.contains("\"app\":\"gym-manager\"") && text.contains("\"format\":1"), "the file says what it is")
-        assertEquals("gym-manager-backup-2026-11-05.json", backup.fileName())
+        assertEquals("my-gym-backup-2026-11-05.json", backup.fileName())
 
         // A different phone: other data, other settings.
         members.deleteMemberPermanently(ravi).getOrThrow()

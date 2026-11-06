@@ -29,17 +29,17 @@ import com.harsh.gymmanager.LocalAppDependencies
 import com.harsh.gymmanager.domain.model.GymProfile
 import com.harsh.gymmanager.presentation.settings.GymProfileEvent
 import com.harsh.gymmanager.presentation.settings.GymProfileViewModel
-import com.harsh.gymmanager.ui.components.AkhadaButton
-import com.harsh.gymmanager.ui.components.AkhadaTextField
+import com.harsh.gymmanager.ui.components.MyGymButton
+import com.harsh.gymmanager.ui.components.MyGymTextField
 import com.harsh.gymmanager.ui.components.ButtonKind
 import com.harsh.gymmanager.ui.components.GhostButton
 import com.harsh.gymmanager.ui.components.GymLogo
 import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.format.asString
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
+import com.harsh.gymmanager.ui.icons.MyGymIcons
 import com.harsh.gymmanager.ui.platform.rememberLogoPicker
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
@@ -60,48 +60,48 @@ fun GymProfileScreen(onBack: () -> Unit, onSaved: (firstRun: Boolean) -> Unit) {
 
     Column(Modifier.fillMaxSize().imePadding()) {
         if (state.isFirstRun) {
-            Column(Modifier.statusBarsPadding().screenGutter().padding(top = AkhadaSpace.xl, bottom = AkhadaSpace.lg)) {
-                Text(stringResource(Res.string.setup_title), style = AkhadaTheme.typography.screenTitle)
-                Text(stringResource(Res.string.setup_subtitle), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
+            Column(Modifier.statusBarsPadding().screenGutter().padding(top = MyGymSpace.xl, bottom = MyGymSpace.lg)) {
+                Text(stringResource(Res.string.setup_title), style = MyGymTheme.typography.screenTitle)
+                Text(stringResource(Res.string.setup_subtitle), style = MyGymTheme.typography.caption, color = MyGymTheme.colors.inkMuted)
             }
         } else {
             PushedHeader(stringResource(Res.string.gym_details), back)
         }
         Column(
-            Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter().padding(bottom = AkhadaSpace.xl),
-            verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg),
+            Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter().padding(bottom = MyGymSpace.xl),
+            verticalArrangement = Arrangement.spacedBy(MyGymSpace.lg),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.lg)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.lg)) {
                 GymLogo(profile = GymProfile(state.name.ifBlank { "G" }), size = 88.dp, logoPath = state.logoPath)
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-                    AkhadaButton(
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
+                    MyGymButton(
                         stringResource(if (state.logoPath == null) Res.string.choose_logo else Res.string.change_logo),
                         pickLogo,
                         Modifier.fillMaxWidth(),
                         kind = ButtonKind.Secondary,
-                        icon = AkhadaIcons.Camera,
+                        icon = MyGymIcons.Camera,
                     )
                     if (state.logoPath != null) GhostButton(stringResource(Res.string.remove_logo), { vm.onLogoChange(null) })
                 }
             }
             Text(
                 stringResource(if (logoFailed) Res.string.logo_failed else Res.string.logo_hint),
-                style = AkhadaTheme.typography.caption,
-                color = if (logoFailed) AkhadaTheme.colors.statusDue else AkhadaTheme.colors.inkMuted,
+                style = MyGymTheme.typography.caption,
+                color = if (logoFailed) MyGymTheme.colors.statusDue else MyGymTheme.colors.inkMuted,
             )
-            AkhadaTextField(
+            MyGymTextField(
                 state.name, vm::onNameChange, stringResource(Res.string.gym_name),
                 error = state.nameError?.asString(), placeholder = stringResource(Res.string.gym_name_hint),
                 capitalization = KeyboardCapitalization.Words,
             )
-            AkhadaTextField(
+            MyGymTextField(
                 state.address, vm::onAddressChange, stringResource(Res.string.gym_address),
                 optional = true, placeholder = stringResource(Res.string.gym_address_hint),
                 singleLine = false, capitalization = KeyboardCapitalization.Words,
             )
-            state.errorMessage?.let { Text(it.asString(), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.statusDue) }
+            state.errorMessage?.let { Text(it.asString(), style = MyGymTheme.typography.caption, color = MyGymTheme.colors.statusDue) }
         }
-        AkhadaButton(
+        MyGymButton(
             stringResource(
                 when {
                     state.isSaving -> Res.string.saving
@@ -110,7 +110,7 @@ fun GymProfileScreen(onBack: () -> Unit, onSaved: (firstRun: Boolean) -> Unit) {
                 },
             ),
             vm::save,
-            Modifier.fillMaxWidth().screenGutter().navigationBarsPadding().padding(vertical = AkhadaSpace.md),
+            Modifier.fillMaxWidth().screenGutter().navigationBarsPadding().padding(vertical = MyGymSpace.md),
             enabled = !state.isSaving && !state.isLoading,
         )
     }

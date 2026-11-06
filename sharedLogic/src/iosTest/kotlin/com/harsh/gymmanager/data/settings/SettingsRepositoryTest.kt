@@ -31,17 +31,17 @@ class SettingsRepositoryTest {
     fun startsUnconfiguredThenStoresGymThemeAndLanguage() = runTest {
         assertEquals(AppSettings(), settings.observe().first())
 
-        settings.saveGym("  Akhada Gym & MMA ", "Daltonganj", logoPath = null).getOrThrow()
+        settings.saveGym("  My Gym ", "Daltonganj", logoPath = null).getOrThrow()
         settings.setTheme(ThemeMode.DARK).getOrThrow()
         settings.setLanguage(AppLanguage.HINDI).getOrThrow()
 
         val stored = settings.observe().first()
-        assertEquals("Akhada Gym & MMA", stored.gym?.name)
+        assertEquals("My Gym", stored.gym?.name)
         assertEquals("Daltonganj", stored.gym?.address)
         assertEquals(ThemeMode.DARK, stored.theme)
         assertEquals(AppLanguage.HINDI, stored.language)
 
-        settings.saveGym("Akhada", " ", logoPath = "/logo.png").getOrThrow()
+        settings.saveGym("My Gym", " ", logoPath = "/logo.png").getOrThrow()
         val updated = settings.observe().first().gym!!
         assertNull(updated.address)
         assertEquals("/logo.png", updated.logoPath)

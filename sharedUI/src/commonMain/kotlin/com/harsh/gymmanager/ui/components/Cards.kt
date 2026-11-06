@@ -14,7 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import com.harsh.gymmanager.ui.theme.AkhadaSize
+import com.harsh.gymmanager.ui.theme.MyGymSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -36,28 +36,28 @@ import com.harsh.gymmanager.ui.format.durationLabel
 import com.harsh.gymmanager.ui.format.formatDayMonth
 import com.harsh.gymmanager.ui.format.formatPhone
 import com.harsh.gymmanager.ui.format.statusShortLabel
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
+import com.harsh.gymmanager.ui.icons.MyGymIcons
 import com.harsh.gymmanager.ui.motion.SharedKeys
 import com.harsh.gymmanager.ui.motion.sharedElement
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import kotlinx.datetime.LocalDate
 
 /** A plain `surface` card; contrast with `bg` does the separating, so no border or shadow. */
 @Composable
-fun AkhadaCard(
+fun MyGymCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val inner: @Composable () -> Unit = {
-        Column(Modifier.padding(AkhadaSpace.lg), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md), content = content)
+        Column(Modifier.padding(MyGymSpace.lg), verticalArrangement = Arrangement.spacedBy(MyGymSpace.md), content = content)
     }
     if (onClick != null) {
-        Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = AkhadaRadius.cardShape, color = AkhadaTheme.colors.surface, content = inner)
+        Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = MyGymRadius.cardShape, color = MyGymTheme.colors.surface, content = inner)
     } else {
-        Surface(modifier = modifier.fillMaxWidth(), shape = AkhadaRadius.cardShape, color = AkhadaTheme.colors.surface, content = inner)
+        Surface(modifier = modifier.fillMaxWidth(), shape = MyGymRadius.cardShape, color = MyGymTheme.colors.surface, content = inner)
     }
 }
 
@@ -74,7 +74,7 @@ fun MemberRow(
     selected: Boolean = false,
     onLongClick: (() -> Unit)? = null,
 ) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val secondary = listOfNotNull(
         member.phone?.let(::formatPhone),
         member.latestEndDate?.let { if (it >= today) stringResource(Res.string.ends_on, it.formatDayMonth()) else stringResource(Res.string.ended_on, it.formatDayMonth()) },
@@ -82,23 +82,23 @@ fun MemberRow(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clip(AkhadaRadius.cardShape)
+            .clip(MyGymRadius.cardShape)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick, onLongClickLabel = stringResource(Res.string.select))
             .semantics { this.selected = selected },
-        shape = AkhadaRadius.cardShape,
+        shape = MyGymRadius.cardShape,
         color = if (selected) colors.accentSoft else colors.surface,
     ) {
         Row(
-            Modifier.padding(horizontal = AkhadaSpace.lg, vertical = AkhadaSpace.md),
+            Modifier.padding(horizontal = MyGymSpace.lg, vertical = MyGymSpace.md),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+            horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md),
         ) {
             if (selected) SelectedMark() else Avatar(member.name, member.photoPath, Modifier.sharedElement(SharedKeys.memberPhoto(member.memberId)))
             Column(Modifier.weight(1f)) {
-                Text(member.name, Modifier.sharedElement(SharedKeys.memberName(member.memberId)), style = AkhadaTheme.typography.title, color = if (selected) colors.onAccentSoft else colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(secondary, style = AkhadaTheme.typography.caption, color = if (selected) colors.onAccentSoft else colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(member.name, Modifier.sharedElement(SharedKeys.memberName(member.memberId)), style = MyGymTheme.typography.title, color = if (selected) colors.onAccentSoft else colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(secondary, style = MyGymTheme.typography.caption, color = if (selected) colors.onAccentSoft else colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
                 if (member.isArchived) {
                     Badge(stringResource(Res.string.archived), BadgeTone.Expired)
                 } else {
@@ -112,10 +112,10 @@ fun MemberRow(
 
 /** The tick that replaces a photo on a selected row. */
 @Composable
-fun SelectedMark(modifier: Modifier = Modifier, size: Dp = AkhadaSize.avatar) {
-    val colors = AkhadaTheme.colors
+fun SelectedMark(modifier: Modifier = Modifier, size: Dp = MyGymSize.avatar) {
+    val colors = MyGymTheme.colors
     Box(modifier.size(size).background(colors.ink, CircleShape), contentAlignment = Alignment.Center) {
-        Icon(AkhadaIcons.Check, contentDescription = stringResource(Res.string.selected), Modifier.size(22.dp), tint = colors.onInk)
+        Icon(MyGymIcons.Check, contentDescription = stringResource(Res.string.selected), Modifier.size(22.dp), tint = colors.onInk)
     }
 }
 
@@ -133,22 +133,22 @@ fun MemberTile(
     selected: Boolean = false,
     onLongClick: (() -> Unit)? = null,
 ) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val ends = member.latestEndDate?.let {
         if (it >= today) stringResource(Res.string.ends_on, it.formatDayMonth()) else stringResource(Res.string.ended_on, it.formatDayMonth())
     }?.replaceFirstChar { it.uppercase() } ?: stringResource(Res.string.no_membership_yet)
     Surface(
         modifier = modifier
-            .clip(AkhadaRadius.cardShape)
+            .clip(MyGymRadius.cardShape)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick, onLongClickLabel = stringResource(Res.string.select))
             .semantics { this.selected = selected },
-        shape = AkhadaRadius.cardShape,
+        shape = MyGymRadius.cardShape,
         color = if (selected) colors.accentSoft else colors.surface,
     ) {
         Column(
-            Modifier.fillMaxWidth().padding(AkhadaSpace.lg),
+            Modifier.fillMaxWidth().padding(MyGymSpace.lg),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm),
+            verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm),
         ) {
             if (selected) {
                 SelectedMark(size = TILE_PHOTO)
@@ -159,17 +159,17 @@ fun MemberTile(
                 Text(
                     member.name,
                     Modifier.sharedElement(SharedKeys.memberName(member.memberId)),
-                    style = AkhadaTheme.typography.title,
+                    style = MyGymTheme.typography.title,
                     color = if (selected) colors.onAccentSoft else colors.ink,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
                 )
-                Text(ends, style = AkhadaTheme.typography.caption, color = if (selected) colors.onAccentSoft else colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(ends, style = MyGymTheme.typography.caption, color = if (selected) colors.onAccentSoft else colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.xs, Alignment.CenterHorizontally),
-                verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs),
+                horizontalArrangement = Arrangement.spacedBy(MyGymSpace.xs, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs),
             ) {
                 if (member.isArchived) {
                     Badge(stringResource(Res.string.archived), BadgeTone.Expired)
@@ -187,14 +187,14 @@ private val TILE_PHOTO = 64.dp
 /** A number with its label in the Home grid. */
 @Composable
 fun StatTile(label: String, value: String, tone: BadgeTone, modifier: Modifier = Modifier) {
-    val colors = AkhadaTheme.colors
-    Surface(modifier = modifier, shape = AkhadaRadius.cardShape, color = colors.surface) {
-        Column(Modifier.padding(AkhadaSpace.lg), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+    val colors = MyGymTheme.colors
+    Surface(modifier = modifier, shape = MyGymRadius.cardShape, color = colors.surface) {
+        Column(Modifier.padding(MyGymSpace.lg), verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
                 StatusDot(tone.colors().first)
-                Text(label, style = AkhadaTheme.typography.caption, color = colors.inkMuted, maxLines = 1)
+                Text(label, style = MyGymTheme.typography.caption, color = colors.inkMuted, maxLines = 1)
             }
-            Text(value, style = AkhadaTheme.typography.stat, maxLines = 1)
+            Text(value, style = MyGymTheme.typography.stat, maxLines = 1)
         }
     }
 }
@@ -209,35 +209,35 @@ fun PlanCard(
     onLongClick: (() -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
 ) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val ground = if (selected) colors.accentSoft else colors.surface
     val ink = if (selected) colors.onAccentSoft else colors.ink
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clip(AkhadaRadius.cardShape)
+            .clip(MyGymRadius.cardShape)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick, onLongClickLabel = stringResource(Res.string.select))
             .semantics { this.selected = selected },
-        shape = AkhadaRadius.cardShape,
+        shape = MyGymRadius.cardShape,
         color = ground,
         contentColor = ink,
     ) {
         Row(
-            Modifier.padding(start = AkhadaSpace.lg, end = if (trailing != null) AkhadaSpace.sm else AkhadaSpace.lg, top = AkhadaSpace.lg, bottom = AkhadaSpace.lg),
+            Modifier.padding(start = MyGymSpace.lg, end = if (trailing != null) MyGymSpace.sm else MyGymSpace.lg, top = MyGymSpace.lg, bottom = MyGymSpace.lg),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+            horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md),
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-                    Text(plan.name, style = AkhadaTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                    if (selected) Icon(AkhadaIcons.Check, contentDescription = stringResource(Res.string.selected), Modifier.size(16.dp))
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
+                    Text(plan.name, style = MyGymTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                    if (selected) Icon(MyGymIcons.Check, contentDescription = stringResource(Res.string.selected), Modifier.size(16.dp))
                     if (plan.isArchived) Badge(stringResource(Res.string.archived), BadgeTone.Expired, showDot = false)
                 }
-                Text(plan.durationLabel(), style = AkhadaTheme.typography.caption, color = if (selected) ink else colors.inkMuted)
+                Text(plan.durationLabel(), style = MyGymTheme.typography.caption, color = if (selected) ink else colors.inkMuted)
             }
             Text(
                 formatRupees(plan.defaultPrice),
-                style = AkhadaTheme.typography.stat,
+                style = MyGymTheme.typography.stat,
                 color = if (plan.isArchived) colors.inkMuted else ink,
             )
             trailing?.invoke()

@@ -25,8 +25,8 @@ import com.harsh.gymmanager.LocalAppDependencies
 import com.harsh.gymmanager.domain.messaging.ReminderItem
 import com.harsh.gymmanager.presentation.formatRupees
 import com.harsh.gymmanager.presentation.messaging.RemindersViewModel
-import com.harsh.gymmanager.ui.components.AkhadaButton
-import com.harsh.gymmanager.ui.components.AkhadaIconButton
+import com.harsh.gymmanager.ui.components.MyGymButton
+import com.harsh.gymmanager.ui.components.MyGymIconButton
 import com.harsh.gymmanager.ui.components.Avatar
 import com.harsh.gymmanager.ui.components.Badge
 import com.harsh.gymmanager.ui.components.BadgeTone
@@ -36,12 +36,12 @@ import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.components.tone
 import com.harsh.gymmanager.ui.format.statusShortLabel
 import com.harsh.gymmanager.ui.format.rememberToday
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
+import com.harsh.gymmanager.ui.icons.MyGymIcons
 import com.harsh.gymmanager.ui.messaging.rememberWhatsAppOpener
 import com.harsh.gymmanager.ui.messaging.text
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 import gymmanager.sharedui.generated.resources.*
 import kotlinx.datetime.TimeZone
@@ -64,13 +64,13 @@ fun RemindersScreen(onBack: () -> Unit, onOpenMember: (Long) -> Unit) {
     Column(Modifier.fillMaxSize()) {
         LazyColumn(
             Modifier.weight(1f),
-            contentPadding = PaddingValues(bottom = AkhadaSpace.xl),
-            verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+            contentPadding = PaddingValues(bottom = MyGymSpace.xl),
+            verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
         ) {
             item { PushedHeader(stringResource(Res.string.reminders), onBack, subtitle = stringResource(Res.string.reminders_subtitle)) }
             if (!state.isLoading && state.items.isEmpty()) {
                 item {
-                    EmptyState(AkhadaIcons.MessageCircle, stringResource(Res.string.reminders_empty_title), stringResource(Res.string.reminders_empty_body))
+                    EmptyState(MyGymIcons.MessageCircle, stringResource(Res.string.reminders_empty_title), stringResource(Res.string.reminders_empty_body))
                 }
             }
             items(state.items, key = { it.member.memberId }) { item ->
@@ -88,27 +88,27 @@ fun RemindersScreen(onBack: () -> Unit, onOpenMember: (Long) -> Unit) {
         if (state.items.isNotEmpty()) {
             val next = state.next
             Column(
-                Modifier.screenGutter().navigationBarsPadding().padding(vertical = AkhadaSpace.md),
-                verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm),
+                Modifier.screenGutter().navigationBarsPadding().padding(vertical = MyGymSpace.md),
+                verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm),
             ) {
                 val message = next?.message
                 if (next == null || message == null) {
                     Text(
                         stringResource(Res.string.reminders_all_sent),
-                        style = AkhadaTheme.typography.bodyStrong,
-                        color = AkhadaTheme.colors.statusActive,
+                        style = MyGymTheme.typography.bodyStrong,
+                        color = MyGymTheme.colors.statusActive,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth().padding(vertical = AkhadaSpace.md),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = MyGymSpace.md),
                     )
                 } else {
                     val text = message.text()
-                    AkhadaButton(
+                    MyGymButton(
                         stringResource(Res.string.send_next, message.memberName.substringBefore(' '), state.position, state.total),
                         onClick = { open(message, text) { vm.sent(message) } },
                         modifier = Modifier.fillMaxWidth(),
-                        icon = AkhadaIcons.MessageCircle,
+                        icon = MyGymIcons.MessageCircle,
                     )
-                    AkhadaButton(stringResource(Res.string.skip), { vm.skip(next.member.memberId) }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+                    MyGymButton(stringResource(Res.string.skip), { vm.skip(next.member.memberId) }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
                 }
             }
         }
@@ -117,7 +117,7 @@ fun RemindersScreen(onBack: () -> Unit, onOpenMember: (Long) -> Unit) {
 
 @Composable
 private fun ReminderRow(item: ReminderItem, onClick: () -> Unit, onSend: (() -> Unit)?, modifier: Modifier = Modifier) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val member = item.member
     val today = rememberToday()
     val sentOn = item.lastSentAt?.toLocalDateTime(TimeZone.currentSystemDefault())?.date
@@ -128,26 +128,26 @@ private fun ReminderRow(item: ReminderItem, onClick: () -> Unit, onSend: (() -> 
         sentOn.daysUntil(today) == 1 -> stringResource(Res.string.sent_yesterday)
         else -> sentOn.daysUntil(today).let { pluralStringResource(Res.plurals.sent_days_ago, it, it) }
     }
-    Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = AkhadaRadius.cardShape, color = colors.surface) {
+    Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = MyGymRadius.cardShape, color = colors.surface) {
         Row(
-            Modifier.padding(horizontal = AkhadaSpace.lg, vertical = AkhadaSpace.md),
+            Modifier.padding(horizontal = MyGymSpace.lg, vertical = MyGymSpace.md),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+            horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md),
         ) {
             Avatar(member.name, member.photoPath)
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
-                Text(member.name, style = AkhadaTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+                Text(member.name, style = MyGymTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
                     Badge(statusShortLabel(member.status, member.latestEndDate, today), member.status.tone())
                     if (member.amountDue > 0) Badge(formatRupees(member.amountDue), BadgeTone.Due)
                 }
                 note?.let {
-                    Text(it, style = AkhadaTheme.typography.caption, color = if (item.sentRecently) colors.statusActive else colors.inkMuted)
+                    Text(it, style = MyGymTheme.typography.caption, color = if (item.sentRecently) colors.statusActive else colors.inkMuted)
                 }
             }
             if (onSend != null) {
-                AkhadaIconButton(
-                    AkhadaIcons.MessageCircle,
+                MyGymIconButton(
+                    MyGymIcons.MessageCircle,
                     stringResource(Res.string.wa_message_member, member.name),
                     onClick = onSend,
                     iconSize = 20.dp,

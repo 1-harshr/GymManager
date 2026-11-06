@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
  * Lucide outline icons (ISC licence, lucide.dev): 24 × 24 grid, 2px round strokes.
  * Tint them with Icon's `tint`; they draw in black by default.
  */
-object AkhadaIcons {
+object MyGymIcons {
     val Home by lazy {
         lucide(
             "Home",

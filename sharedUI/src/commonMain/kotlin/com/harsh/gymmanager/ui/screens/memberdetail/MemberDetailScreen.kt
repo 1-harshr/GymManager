@@ -49,11 +49,11 @@ import com.harsh.gymmanager.ui.LocalSnackbar
 import com.harsh.gymmanager.domain.messaging.whatsAppNumber
 import com.harsh.gymmanager.ui.LocalWhatsApp
 import com.harsh.gymmanager.presentation.messaging.MessageRequest
-import com.harsh.gymmanager.ui.components.AkhadaBottomSheet
-import com.harsh.gymmanager.ui.components.AkhadaButton
-import com.harsh.gymmanager.ui.components.AkhadaCard
-import com.harsh.gymmanager.ui.components.AkhadaIconButton
-import com.harsh.gymmanager.ui.components.AkhadaTextField
+import com.harsh.gymmanager.ui.components.MyGymBottomSheet
+import com.harsh.gymmanager.ui.components.MyGymButton
+import com.harsh.gymmanager.ui.components.MyGymCard
+import com.harsh.gymmanager.ui.components.MyGymIconButton
+import com.harsh.gymmanager.ui.components.MyGymTextField
 import com.harsh.gymmanager.ui.components.Avatar
 import com.harsh.gymmanager.ui.components.Badge
 import com.harsh.gymmanager.ui.components.BadgeTone
@@ -74,11 +74,11 @@ import com.harsh.gymmanager.ui.format.formatPhone
 import com.harsh.gymmanager.ui.format.label
 import com.harsh.gymmanager.ui.format.rememberToday
 import com.harsh.gymmanager.ui.format.statusLabel
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
+import com.harsh.gymmanager.ui.icons.MyGymIcons
 import com.harsh.gymmanager.ui.motion.SharedKeys
 import com.harsh.gymmanager.ui.motion.sharedElement
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 
 private sealed interface Confirm {
@@ -122,7 +122,7 @@ fun MemberDetailScreen(
     if (!state.isLoading && detail == null) {
         Column(Modifier.fillMaxSize()) {
             PushedHeader(stringResource(Res.string.member), onBack)
-            EmptyState(AkhadaIcons.Users, stringResource(Res.string.member_gone_title), stringResource(Res.string.member_gone_body))
+            EmptyState(MyGymIcons.Users, stringResource(Res.string.member_gone_title), stringResource(Res.string.member_gone_body))
         }
         return
     }
@@ -138,8 +138,8 @@ fun MemberDetailScreen(
 
     LazyColumn(
         Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = AkhadaSpace.xxl),
-        verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+        contentPadding = PaddingValues(bottom = MyGymSpace.xxl),
+        verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
     ) {
         item {
             PushedHeader(
@@ -149,10 +149,10 @@ fun MemberDetailScreen(
                 titleModifier = Modifier.sharedElement(SharedKeys.memberName(memberId)),
             ) {
                 if (whatsAppNumber(member.phone) != null) {
-                    AkhadaIconButton(AkhadaIcons.MessageCircle, stringResource(Res.string.wa_message_member, member.name), onClick = { offerWhatsApp(MessageRequest.AnyFor(memberId)) }, iconSize = 20.dp)
+                    MyGymIconButton(MyGymIcons.MessageCircle, stringResource(Res.string.wa_message_member, member.name), onClick = { offerWhatsApp(MessageRequest.AnyFor(memberId)) }, iconSize = 20.dp)
                 }
                 member.phone?.let { phone ->
-                    AkhadaIconButton(AkhadaIcons.Phone, stringResource(Res.string.call_person, member.name), onClick = { uriHandler.openUri("tel:$phone") }, iconSize = 20.dp)
+                    MyGymIconButton(MyGymIcons.Phone, stringResource(Res.string.call_person, member.name), onClick = { uriHandler.openUri("tel:$phone") }, iconSize = 20.dp)
                 }
                 MoreMenu(
                     actions = listOf(
@@ -166,10 +166,10 @@ fun MemberDetailScreen(
             }
         }
         item {
-            AkhadaCard(Modifier.screenGutter()) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.lg)) {
+            MyGymCard(Modifier.screenGutter()) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.lg)) {
                     Avatar(member.name, member.photoPath, Modifier.sharedElement(SharedKeys.memberPhoto(memberId)), size = 72.dp)
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
                         if (member.isArchived) {
                             Badge(stringResource(Res.string.archived), BadgeTone.Expired)
                         } else {
@@ -182,13 +182,13 @@ fun MemberDetailScreen(
                                 detail.status == MembershipStatus.EXPIRED -> stringResource(Res.string.ended_on_full, endDate.formatFull())
                                 else -> stringResource(Res.string.ends_on_full, endDate.formatFull())
                             },
-                            style = AkhadaTheme.typography.body,
+                            style = MyGymTheme.typography.body,
                         )
                         if (detail.memberships.isNotEmpty()) {
                             Text(
                                 if (detail.totalDue > 0) stringResource(Res.string.amount_due, formatRupees(detail.totalDue)) else stringResource(Res.string.nothing_due),
-                                style = AkhadaTheme.typography.bodyStrong,
-                                color = if (detail.totalDue > 0) AkhadaTheme.colors.statusDue else AkhadaTheme.colors.statusActive,
+                                style = MyGymTheme.typography.bodyStrong,
+                                color = if (detail.totalDue > 0) MyGymTheme.colors.statusDue else MyGymTheme.colors.statusActive,
                             )
                         }
                     }
@@ -199,27 +199,27 @@ fun MemberDetailScreen(
                     member.dateOfBirth?.let { stringResource(Res.string.born_on, it.formatFull()) },
                 )
                 if (facts.isNotEmpty()) {
-                    Text(facts.joinToString(" · "), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
+                    Text(facts.joinToString(" · "), style = MyGymTheme.typography.caption, color = MyGymTheme.colors.inkMuted)
                 }
-                member.notes?.let { Text(it, style = AkhadaTheme.typography.body) }
+                member.notes?.let { Text(it, style = MyGymTheme.typography.body) }
             }
         }
         item {
             // The main button is what this member needs next: a first membership, money owed, or a renewal.
-            Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+            Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
                 val sellLabel = if (detail.memberships.isEmpty()) stringResource(Res.string.sell_membership) else stringResource(Res.string.renew_membership)
                 when {
                     oldestOwing != null -> {
-                        AkhadaButton(stringResource(Res.string.record_payment), { vm.openPaymentForm(oldestOwing.id) }, Modifier.fillMaxWidth())
-                        AkhadaButton(sellLabel, onSellMembership, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+                        MyGymButton(stringResource(Res.string.record_payment), { vm.openPaymentForm(oldestOwing.id) }, Modifier.fillMaxWidth())
+                        MyGymButton(sellLabel, onSellMembership, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
                     }
-                    detail.memberships.isEmpty() || renewalDue -> AkhadaButton(sellLabel, onSellMembership, Modifier.fillMaxWidth())
-                    else -> AkhadaButton(sellLabel, onSellMembership, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+                    detail.memberships.isEmpty() || renewalDue -> MyGymButton(sellLabel, onSellMembership, Modifier.fillMaxWidth())
+                    else -> MyGymButton(sellLabel, onSellMembership, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
                 }
             }
         }
         if (detail.memberships.isNotEmpty()) {
-            item { SectionHeader(stringResource(Res.string.history), Modifier.screenGutter().padding(top = AkhadaSpace.md)) }
+            item { SectionHeader(stringResource(Res.string.history), Modifier.screenGutter().padding(top = MyGymSpace.md)) }
             items(detail.memberships, key = { it.id }) { membership ->
                 MembershipCard(
                     membership,
@@ -286,13 +286,13 @@ private fun PaymentSheet(
     onSubmit: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AkhadaBottomSheet(onDismiss) {
-        Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
-            Text(stringResource(Res.string.record_payment), style = AkhadaTheme.typography.title)
-            Text(stringResource(Res.string.due_on_plan, formatRupees(form.amountDue), planName), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
+    MyGymBottomSheet(onDismiss) {
+        Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+            Text(stringResource(Res.string.record_payment), style = MyGymTheme.typography.title)
+            Text(stringResource(Res.string.due_on_plan, formatRupees(form.amountDue), planName), style = MyGymTheme.typography.caption, color = MyGymTheme.colors.inkMuted)
         }
-        Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-            AkhadaTextField(
+        Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
+            MyGymTextField(
                 form.amountText, onAmountChange, stringResource(Res.string.amount),
                 prefix = "₹", keyboardType = KeyboardType.Number, error = form.error?.asString(),
             )
@@ -301,9 +301,9 @@ private fun PaymentSheet(
         }
         SegmentedControl(PaymentMode.entries, form.mode, { it?.let(onModeChange) }, { it.label() })
         DateField(form.paidOn, { it?.let(onDateChange) }, stringResource(Res.string.paid_on_label), latest = today)
-        AkhadaTextField(form.note, onNoteChange, stringResource(Res.string.note), optional = true, placeholder = stringResource(Res.string.payment_note_hint), imeAction = ImeAction.Done)
+        MyGymTextField(form.note, onNoteChange, stringResource(Res.string.note), optional = true, placeholder = stringResource(Res.string.payment_note_hint), imeAction = ImeAction.Done)
         val amount = com.harsh.gymmanager.presentation.parseRupees(form.amountText)
-        AkhadaButton(
+        MyGymButton(
             if (form.isSaving) stringResource(Res.string.saving) else if (amount != null && amount > 0) stringResource(Res.string.record_amount, formatRupees(amount)) else stringResource(Res.string.record_payment),
             onSubmit,
             Modifier.fillMaxWidth(),

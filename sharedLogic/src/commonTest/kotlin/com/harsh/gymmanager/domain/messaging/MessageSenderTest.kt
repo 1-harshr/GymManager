@@ -13,7 +13,7 @@ import com.harsh.gymmanager.templates.render
 import com.harsh.gymmanager.templates.variableCount
 
 class MessageSenderTest {
-    private val welcome = MemberMessage.Welcome(1, "Ravi Kumar", "919876543210", "AKHADA")
+    private val welcome = MemberMessage.Welcome(1, "Ravi Kumar", "919876543210", "My Gym")
 
     @Test
     fun linkSenderOpensTheWaMeLink() = runTest {
@@ -38,7 +38,7 @@ class MessageSenderTest {
             memberId = 1,
             memberName = "Ravi Kumar",
             whatsAppNumber = "919876543210",
-            gymName = "AKHADA",
+            gymName = "My Gym",
             receiptNumber = "12",
             planName = "Monthly",
             startDate = LocalDate(2026, 11, 6),
@@ -51,7 +51,7 @@ class MessageSenderTest {
         )
 
         assertEquals(
-            Template("gym_receipt", "en", listOf("AKHADA", "12", "Ravi", "Monthly", "6 Nov 2026", "5 Dec 2026", "₹1,000", "₹500")),
+            Template("gym_receipt", "en", listOf("My Gym", "12", "Ravi", "Monthly", "6 Nov 2026", "5 Dec 2026", "₹1,000", "₹500")),
             gymTemplate(receipt),
         )
     }
@@ -59,7 +59,7 @@ class MessageSenderTest {
     @Test
     fun reminderPicksTemplateByStatus() {
         fun reminder(status: MembershipStatus, end: LocalDate?) =
-            gymTemplate(MemberMessage.Reminder(1, "Ravi", "91", "AKHADA", status, end, amountDue = 300)).name
+            gymTemplate(MemberMessage.Reminder(1, "Ravi", "91", "My Gym", status, end, amountDue = 300)).name
 
         assertEquals("gym_membership_ending", reminder(MembershipStatus.EXPIRING_SOON, LocalDate(2026, 11, 8)))
         assertEquals("gym_membership_ended", reminder(MembershipStatus.EXPIRED, LocalDate(2026, 11, 1)))
@@ -71,10 +71,10 @@ class MessageSenderTest {
     fun everyMessageFitsAnApprovedTemplateDefinition() {
         val messages = listOf(
             welcome,
-            MemberMessage.Receipt(1, "Ravi", "91", "AKHADA", "12", "Monthly", LocalDate(2026, 11, 6), LocalDate(2026, 12, 5), 1500, 0, 1000, 500, null),
-            MemberMessage.Reminder(1, "Ravi", "91", "AKHADA", MembershipStatus.EXPIRING_SOON, LocalDate(2026, 11, 8), 0),
-            MemberMessage.Reminder(1, "Ravi", "91", "AKHADA", MembershipStatus.EXPIRED, LocalDate(2026, 11, 1), 0),
-            MemberMessage.Reminder(1, "Ravi", "91", "AKHADA", MembershipStatus.ACTIVE, null, 300),
+            MemberMessage.Receipt(1, "Ravi", "91", "My Gym", "12", "Monthly", LocalDate(2026, 11, 6), LocalDate(2026, 12, 5), 1500, 0, 1000, 500, null),
+            MemberMessage.Reminder(1, "Ravi", "91", "My Gym", MembershipStatus.EXPIRING_SOON, LocalDate(2026, 11, 8), 0),
+            MemberMessage.Reminder(1, "Ravi", "91", "My Gym", MembershipStatus.EXPIRED, LocalDate(2026, 11, 1), 0),
+            MemberMessage.Reminder(1, "Ravi", "91", "My Gym", MembershipStatus.ACTIVE, null, 300),
         )
         val used = messages.map { message ->
             val template = gymTemplate(message)
@@ -89,7 +89,7 @@ class MessageSenderTest {
     fun previewFillsTheTemplate() {
         val template = gymTemplate(welcome)
         assertEquals(
-            "Hi Ravi, welcome to AKHADA! Your membership is set up. Message us here if you have any questions.",
+            "Hi Ravi, welcome to My Gym! Your membership is set up. Message us here if you have any questions.",
             gymTemplateDefinition(template.name, template.languageCode)!!.render(template.bodyParameters),
         )
     }

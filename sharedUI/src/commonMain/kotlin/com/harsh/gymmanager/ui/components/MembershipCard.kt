@@ -27,9 +27,9 @@ import com.harsh.gymmanager.ui.format.formatDateRange
 import com.harsh.gymmanager.ui.format.formatDayMonth
 import com.harsh.gymmanager.ui.format.label
 import com.harsh.gymmanager.ui.format.statusLabel
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import kotlinx.datetime.LocalDate
 
 /** One purchase or renewal: plan, dates, charged/paid/due, and its payments. */
@@ -43,12 +43,12 @@ fun MembershipCard(
     onPaymentClick: (Payment) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = AkhadaTheme.colors
-    val typography = AkhadaTheme.typography
+    val colors = MyGymTheme.colors
+    val typography = MyGymTheme.typography
     // A renewal that hasn't started yet has no status of its own.
     val status = if (membership.startDate > today) null else membershipStatus(membership.endDate, today, EXPIRING_SOON_DAYS)
-    AkhadaCard(modifier) {
-        Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+    MyGymCard(modifier) {
+        Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
             Column(Modifier.weight(1f)) {
                 Text(membership.planName, style = typography.title)
                 val discount = if (membership.discount > 0) " · " + stringResource(Res.string.discount_off, formatRupees(membership.discount)) else ""
@@ -65,7 +65,7 @@ fun MembershipCard(
                 container = colors.surface,
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
             MoneyFigure(stringResource(Res.string.charged), formatRupees(membership.amountCharged), Modifier.weight(1f))
             MoneyFigure(stringResource(Res.string.paid), formatRupees(membership.amountPaid), Modifier.weight(1f))
             if (membership.amountDue > 0) {
@@ -77,10 +77,10 @@ fun MembershipCard(
         PaidProgress(membership)
         if (membership.payments.isNotEmpty()) {
             HorizontalDivider(color = colors.line)
-            Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
                 membership.payments.forEach { payment ->
                     Row(
-                        Modifier.fillMaxWidth().clickable(onClickLabel = stringResource(Res.string.delete_payment)) { onPaymentClick(payment) }.padding(vertical = AkhadaSpace.xs),
+                        Modifier.fillMaxWidth().clickable(onClickLabel = stringResource(Res.string.delete_payment)) { onPaymentClick(payment) }.padding(vertical = MyGymSpace.xs),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(stringResource(Res.string.payment_line, payment.paidOn.formatDayMonth(), payment.mode.label()), Modifier.weight(1f), style = typography.body, color = colors.inkMuted)
@@ -96,18 +96,18 @@ fun MembershipCard(
 }
 
 @Composable
-private fun MoneyFigure(label: String, value: String, modifier: Modifier, color: androidx.compose.ui.graphics.Color = AkhadaTheme.colors.ink) {
+private fun MoneyFigure(label: String, value: String, modifier: Modifier, color: androidx.compose.ui.graphics.Color = MyGymTheme.colors.ink) {
     Column(modifier) {
-        Text(label, style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
-        Text(value, style = AkhadaTheme.typography.stat.copy(fontSize = AkhadaTheme.typography.title.fontSize * 1.3f), color = color)
+        Text(label, style = MyGymTheme.typography.caption, color = MyGymTheme.colors.inkMuted)
+        Text(value, style = MyGymTheme.typography.stat.copy(fontSize = MyGymTheme.typography.title.fontSize * 1.3f), color = color)
     }
 }
 
 @Composable
 private fun PaidProgress(membership: Membership) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val fraction = if (membership.amountCharged == 0L) 1f else (membership.amountPaid.toFloat() / membership.amountCharged).coerceIn(0f, 1f)
-    Box(Modifier.fillMaxWidth().height(6.dp).background(colors.surfaceSunken, AkhadaRadius.pillShape)) {
-        Box(Modifier.fillMaxWidth(fraction).fillMaxHeight().background(colors.ink, AkhadaRadius.pillShape))
+    Box(Modifier.fillMaxWidth().height(6.dp).background(colors.surfaceSunken, MyGymRadius.pillShape)) {
+        Box(Modifier.fillMaxWidth(fraction).fillMaxHeight().background(colors.ink, MyGymRadius.pillShape))
     }
 }

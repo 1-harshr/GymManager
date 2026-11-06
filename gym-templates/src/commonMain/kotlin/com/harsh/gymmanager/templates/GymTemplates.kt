@@ -13,7 +13,7 @@ val gymTemplates = listOf(
         languageCode = "en",
         category = TemplateCategory.UTILITY,
         body = "Hi {{1}}, welcome to {{2}}! Your membership is set up. Message us here if you have any questions.",
-        bodyExample = listOf("Ravi", "AKHADA Gym & MMA"),
+        bodyExample = listOf("Ravi", "My Gym"),
     ),
     TemplateDefinition(
         name = "gym_receipt",
@@ -21,28 +21,28 @@ val gymTemplates = listOf(
         category = TemplateCategory.UTILITY,
         body = "Receipt from {{1}}\nReceipt no. {{2}}\n\nHi {{3}}, thank you for your payment.\n\n" +
             "Plan: {{4}}\nValid: {{5}} to {{6}}\nPaid: {{7}}\nBalance due: {{8}}\n\nThank you!",
-        bodyExample = listOf("AKHADA Gym & MMA", "12", "Ravi", "Monthly", "6 Nov 2026", "5 Dec 2026", "₹1,000", "₹500"),
+        bodyExample = listOf("My Gym", "12", "Ravi", "Monthly", "6 Nov 2026", "5 Dec 2026", "₹1,000", "₹500"),
     ),
     TemplateDefinition(
         name = "gym_membership_ending",
         languageCode = "en",
         category = TemplateCategory.UTILITY,
         body = "Hi {{1}}, your membership at {{2}} ends on {{3}}. Please renew to keep training without a break.",
-        bodyExample = listOf("Ravi", "AKHADA Gym & MMA", "8 Nov 2026"),
+        bodyExample = listOf("Ravi", "My Gym", "8 Nov 2026"),
     ),
     TemplateDefinition(
         name = "gym_membership_ended",
         languageCode = "en",
         category = TemplateCategory.UTILITY,
         body = "Hi {{1}}, your membership at {{2}} ended on {{3}}. Renew any time to get back to training.",
-        bodyExample = listOf("Ravi", "AKHADA Gym & MMA", "1 Nov 2026"),
+        bodyExample = listOf("Ravi", "My Gym", "1 Nov 2026"),
     ),
     TemplateDefinition(
         name = "gym_payment_due",
         languageCode = "en",
         category = TemplateCategory.UTILITY,
         body = "Hi {{1}}, a balance of {{2}} is due on your membership at {{3}}. Please clear it on your next visit. Thank you!",
-        bodyExample = listOf("Ravi", "₹500", "AKHADA Gym & MMA"),
+        bodyExample = listOf("Ravi", "₹500", "My Gym"),
     ),
 )
 

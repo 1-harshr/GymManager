@@ -48,10 +48,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.harsh.gymmanager.ui.theme.AkhadaElevation
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSize
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymElevation
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymSize
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -70,12 +70,12 @@ fun FloatingTabBar(
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val haptics = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
-    val itemPx = with(LocalDensity.current) { AkhadaSize.tabItemWidth.toPx() }
+    val itemPx = with(LocalDensity.current) { MyGymSize.tabItemWidth.toPx() }
     val maxPx = itemPx * (tabs.size - 1)
-    val itemHeight = AkhadaSize.tabBarHeight - AkhadaSize.tabBarPadding * 2
+    val itemHeight = MyGymSize.tabBarHeight - MyGymSize.tabBarPadding * 2
 
     val indicator = remember { Animatable(selected * itemPx) }
     val glide = spring<Float>(dampingRatio = 0.78f, stiffness = Spring.StiffnessMediumLow)
@@ -94,14 +94,14 @@ fun FloatingTabBar(
 
     Surface(
         modifier = modifier,
-        shape = AkhadaRadius.pillShape,
+        shape = MyGymRadius.pillShape,
         color = colors.surface,
-        shadowElevation = AkhadaElevation.float,
+        shadowElevation = MyGymElevation.float,
     ) {
         Box(
             Modifier
-                .padding(AkhadaSize.tabBarPadding)
-                .size(AkhadaSize.tabItemWidth * tabs.size, itemHeight)
+                .padding(MyGymSize.tabBarPadding)
+                .size(MyGymSize.tabItemWidth * tabs.size, itemHeight)
                 .pointerInput(itemPx, tabs.size) {
                     fun indexAt(x: Float) = (x / itemPx).toInt().coerceIn(0, tabs.size - 1)
                     detectHorizontalDragGestures(
@@ -142,9 +142,9 @@ fun FloatingTabBar(
             Box(
                 Modifier
                     .offset { IntOffset(indicator.value.roundToInt(), 0) }
-                    .size(AkhadaSize.tabItemWidth, itemHeight)
+                    .size(MyGymSize.tabItemWidth, itemHeight)
                     .graphicsLayer { scaleX = lift; scaleY = lift }
-                    .clip(AkhadaRadius.pillShape)
+                    .clip(MyGymRadius.pillShape)
                     .background(colors.ink),
             )
             Row {
@@ -154,8 +154,8 @@ fun FloatingTabBar(
                         val tint by animateColorAsState(if (lit) colors.onInk else colors.inkMuted, label = "tint")
                         Column(
                             Modifier
-                                .size(AkhadaSize.tabItemWidth, itemHeight)
-                                .clip(AkhadaRadius.pillShape)
+                                .size(MyGymSize.tabItemWidth, itemHeight)
+                                .clip(MyGymRadius.pillShape)
                                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
                                     onSelect(index)
                                 }
@@ -167,11 +167,11 @@ fun FloatingTabBar(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                         ) {
-                            Icon(tab.icon, contentDescription = null, Modifier.size(AkhadaSize.tabIcon), tint = tint)
+                            Icon(tab.icon, contentDescription = null, Modifier.size(MyGymSize.tabIcon), tint = tint)
                             Spacer(Modifier.height(2.dp))
                             Text(
                                 tab.label,
-                                style = AkhadaTheme.typography.tab,
+                                style = MyGymTheme.typography.tab,
                                 color = tint,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,

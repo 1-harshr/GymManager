@@ -31,15 +31,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.navigation.NavBackStackEntry
-import com.harsh.gymmanager.ui.theme.AkhadaElevation
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymElevation
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 
 /**
  * Navigation motion. Pushed screens slide in like a card over the one below, which drifts
  * back and dims; opening a member grows the page out of the list while their photo and
  * name travel into place.
  */
-object AkhadaMotion {
+object MyGymMotion {
     /** Starts quickly and settles gently, so movement feels thrown rather than timed. */
     val Settle = CubicBezierEasing(0.2f, 0.85f, 0.25f, 1f)
 
@@ -106,13 +106,13 @@ fun AnimatedVisibilityScope.Destination(content: @Composable () -> Unit) {
         Box(
             Modifier
                 .fillMaxSize()
-                .shadow(AkhadaElevation.float, RectangleShape, clip = false)
-                .background(AkhadaTheme.colors.bg),
+                .shadow(MyGymElevation.float, RectangleShape, clip = false)
+                .background(MyGymTheme.colors.bg),
         ) { content() }
     }
 }
 
-private val SharedBounds = BoundsTransform { _, _ -> AkhadaMotion.open() }
+private val SharedBounds = BoundsTransform { _, _ -> MyGymMotion.open() }
 
 /**
  * Marks something that should travel between screens, such as a member's photo and name moving

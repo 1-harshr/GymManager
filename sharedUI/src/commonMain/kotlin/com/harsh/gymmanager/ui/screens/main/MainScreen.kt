@@ -61,14 +61,14 @@ import com.harsh.gymmanager.ui.components.GlassCapsuleLift
 import com.harsh.gymmanager.ui.components.glassCapsuleBottom
 import com.harsh.gymmanager.ui.components.TabItem
 import com.harsh.gymmanager.ui.format.resolve
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.motion.AkhadaMotion
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.motion.MyGymMotion
 import com.harsh.gymmanager.ui.platform.SystemBackHandler
 import com.harsh.gymmanager.domain.model.HomeFeatures
 import com.harsh.gymmanager.ui.screens.home.HomeScreen
 import com.harsh.gymmanager.ui.screens.members.MembersScreen
 import com.harsh.gymmanager.ui.screens.plans.PlansScreen
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
+import com.harsh.gymmanager.ui.theme.MyGymSpace
 
 
 /** Matches the tab pill's spring so the bar and pill move together. */
@@ -112,9 +112,9 @@ fun MainScreen(
     var tab by rememberSaveable { mutableIntStateOf(HOME) }
     var confirmDelete by remember { mutableStateOf(false) }
     val mainTabs = listOf(
-        TabItem(stringResource(Res.string.tab_home), AkhadaIcons.Home, symbol = "house.fill"),
-        TabItem(stringResource(Res.string.tab_members), AkhadaIcons.Users, symbol = "person.2.fill"),
-        TabItem(stringResource(Res.string.tab_plans), AkhadaIcons.Tag, symbol = "tag.fill"),
+        TabItem(stringResource(Res.string.tab_home), MyGymIcons.Home, symbol = "house.fill"),
+        TabItem(stringResource(Res.string.tab_members), MyGymIcons.Users, symbol = "person.2.fill"),
+        TabItem(stringResource(Res.string.tab_plans), MyGymIcons.Tag, symbol = "tag.fill"),
     )
 
     val membersState by membersVm.state.collectAsStateWithLifecycle()
@@ -145,7 +145,7 @@ fun MainScreen(
             transitionSpec = {
                 // Tabs sit side by side, so the new one comes from the side it lives on.
                 val forward = targetState > initialState
-                val tabSpec = tween<IntOffset>(AkhadaMotion.TAB_MS, easing = AkhadaMotion.Settle)
+                val tabSpec = tween<IntOffset>(MyGymMotion.TAB_MS, easing = MyGymMotion.Settle)
                 (slideInHorizontally(tabSpec) { if (forward) it / 8 else -it / 8 } + fadeIn(tween(220, delayMillis = 60))) togetherWith
                     (slideOutHorizontally(tabSpec) { if (forward) -it / 8 else it / 8 } + fadeOut(tween(140)))
             },
@@ -202,7 +202,7 @@ fun MainScreen(
                         onClick = onAddMember,
                         contentDescription = stringResource(Res.string.add_member),
                         // Centred on the capsule rather than on the bar's frame.
-                        modifier = Modifier.padding(end = AkhadaSpace.gutter, bottom = GlassCapsuleLift * 2),
+                        modifier = Modifier.padding(end = MyGymSpace.gutter, bottom = GlassCapsuleLift * 2),
                         size = GlassCapsuleHeight,
                     )
                 }
@@ -212,7 +212,7 @@ fun MainScreen(
             targetState = selecting,
             // On iOS 26 the select-mode bar takes the tab bar capsule's exact place.
             modifier = Modifier.align(Alignment.BottomCenter).then(
-                if (usesLiquidGlass) Modifier.padding(bottom = glassCapsuleBottom) else Modifier.navigationBarsPadding().padding(bottom = AkhadaSpace.md),
+                if (usesLiquidGlass) Modifier.padding(bottom = glassCapsuleBottom) else Modifier.navigationBarsPadding().padding(bottom = MyGymSpace.md),
             ),
             transitionSpec = {
                 (fadeIn() + slideInVertically { it / 2 }) togetherWith (fadeOut() + slideOutVertically { it / 2 })
@@ -228,8 +228,8 @@ fun MainScreen(
                         onRestore = membersVm::restoreSelected,
                         onDelete = { confirmDelete = true },
                     ) else listOfNotNull(
-                        if (plansState.selectedHasActive) BulkAction(stringResource(Res.string.archive), AkhadaIcons.Archive, onClick = plansVm::archiveSelected) else null,
-                        if (plansState.selectedHasArchived) BulkAction(stringResource(Res.string.restore), AkhadaIcons.Restore, onClick = plansVm::restoreSelected) else null,
+                        if (plansState.selectedHasActive) BulkAction(stringResource(Res.string.archive), MyGymIcons.Archive, onClick = plansVm::archiveSelected) else null,
+                        if (plansState.selectedHasArchived) BulkAction(stringResource(Res.string.restore), MyGymIcons.Restore, onClick = plansVm::restoreSelected) else null,
                     ),
                 )
             } else if (!usesLiquidGlass) {
@@ -242,7 +242,7 @@ fun MainScreen(
                         enter = expandHorizontally(BarSpring, expandFrom = Alignment.Start) + fadeIn() + scaleIn(initialScale = 0.6f),
                         exit = shrinkHorizontally(BarSpring, shrinkTowards = Alignment.Start) + fadeOut() + scaleOut(targetScale = 0.6f),
                     ) {
-                        AddButton(onClick = onAddMember, contentDescription = stringResource(Res.string.add_member), modifier = Modifier.padding(start = AkhadaSpace.md))
+                        AddButton(onClick = onAddMember, contentDescription = stringResource(Res.string.add_member), modifier = Modifier.padding(start = MyGymSpace.md))
                     }
                 }
             }
@@ -270,13 +270,13 @@ private fun memberActions(
     onDelete: () -> Unit,
 ): List<BulkAction> = if (archivedList) {
     listOf(
-        BulkAction(stringResource(Res.string.restore), AkhadaIcons.Restore, onClick = onRestore),
-        BulkAction(stringResource(Res.string.delete), AkhadaIcons.Trash, destructive = true, onClick = onDelete),
+        BulkAction(stringResource(Res.string.restore), MyGymIcons.Restore, onClick = onRestore),
+        BulkAction(stringResource(Res.string.delete), MyGymIcons.Trash, destructive = true, onClick = onDelete),
     )
 } else {
     listOf(
-        BulkAction(stringResource(Res.string.renew), AkhadaIcons.Renew, onClick = onRenew),
-        BulkAction(stringResource(Res.string.archive), AkhadaIcons.Archive, onClick = onArchive),
-        BulkAction(stringResource(Res.string.delete), AkhadaIcons.Trash, destructive = true, onClick = onDelete),
+        BulkAction(stringResource(Res.string.renew), MyGymIcons.Renew, onClick = onRenew),
+        BulkAction(stringResource(Res.string.archive), MyGymIcons.Archive, onClick = onArchive),
+        BulkAction(stringResource(Res.string.delete), MyGymIcons.Trash, destructive = true, onClick = onDelete),
     )
 }

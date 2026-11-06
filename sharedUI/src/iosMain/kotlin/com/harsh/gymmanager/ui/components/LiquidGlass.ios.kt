@@ -26,8 +26,8 @@ import androidx.compose.ui.viewinterop.UIKitView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGSizeMake
@@ -115,20 +115,20 @@ private fun Color.toUIColor(): UIColor =
 
 /** The SF Symbol drawn for each app icon used on a native control. */
 private fun symbolFor(icon: ImageVector): String = when (icon) {
-    AkhadaIcons.Settings -> "gearshape"
-    AkhadaIcons.Bell -> "bell"
-    AkhadaIcons.ChevronLeft -> "chevron.left"
-    AkhadaIcons.X -> "xmark"
-    AkhadaIcons.MoreVertical -> "ellipsis"
-    AkhadaIcons.MessageCircle -> "message"
-    AkhadaIcons.Phone -> "phone"
-    AkhadaIcons.List -> "list.bullet"
-    AkhadaIcons.LayoutGrid -> "square.grid.2x2"
-    AkhadaIcons.Plus -> "plus"
-    AkhadaIcons.Renew -> "arrow.clockwise"
-    AkhadaIcons.Archive -> "archivebox"
-    AkhadaIcons.Restore -> "arrow.uturn.backward"
-    AkhadaIcons.Trash -> "trash"
+    MyGymIcons.Settings -> "gearshape"
+    MyGymIcons.Bell -> "bell"
+    MyGymIcons.ChevronLeft -> "chevron.left"
+    MyGymIcons.X -> "xmark"
+    MyGymIcons.MoreVertical -> "ellipsis"
+    MyGymIcons.MessageCircle -> "message"
+    MyGymIcons.Phone -> "phone"
+    MyGymIcons.List -> "list.bullet"
+    MyGymIcons.LayoutGrid -> "square.grid.2x2"
+    MyGymIcons.Plus -> "plus"
+    MyGymIcons.Renew -> "arrow.clockwise"
+    MyGymIcons.Archive -> "archivebox"
+    MyGymIcons.Restore -> "arrow.uturn.backward"
+    MyGymIcons.Trash -> "trash"
     else -> "circle"
 }
 
@@ -150,8 +150,8 @@ actual val systemTabBarHeight: Dp by lazy {
 actual fun SystemTabBar(tabs: List<TabItem>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier) {
     val select by rememberUpdatedState(onSelect)
     val delegate = remember { TabBarDelegate { select(it) } }
-    val accent = AkhadaTheme.colors.accent.toUIColor()
-    val dark = AkhadaTheme.colors.isDark
+    val accent = MyGymTheme.colors.accent.toUIColor()
+    val dark = MyGymTheme.colors.isDark
     val visible = nativeControlsVisible()
 
     UIKitView(
@@ -197,7 +197,7 @@ actual fun GlassIconButton(
     menu: List<MenuAction>?,
 ) {
     val click by rememberUpdatedState(onClick)
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val ink = colors.ink.toUIColor()
     val accent = colors.accent.toUIColor()
     val onAccent = colors.onAccent.toUIColor()
@@ -259,7 +259,7 @@ private val ActionBarItemWidth = 84.dp
 @Composable
 actual fun GlassActionBar(actions: List<BulkAction>, modifier: Modifier) {
     val currentActions by rememberUpdatedState(actions)
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val ink = colors.ink.toUIColor()
     val danger = colors.statusDue.toUIColor()
     val visible = nativeControlsVisible()
@@ -317,7 +317,7 @@ actual fun SystemConfirmPrompt(
     onDismiss: () -> Unit,
 ) {
     val host = LocalUIViewController.current
-    val dark = AkhadaTheme.colors.isDark
+    val dark = MyGymTheme.colors.isDark
     val confirm by rememberUpdatedState(onConfirm)
     val dismiss by rememberUpdatedState(onDismiss)
     DisposableEffect(Unit) {

@@ -15,9 +15,9 @@ import gymmanager.sharedui.generated.resources.barlow_regular
 import gymmanager.sharedui.generated.resources.barlow_semibold
 import org.jetbrains.compose.resources.Font
 
-/** Text styles from the Akhada design system: Barlow Condensed for titles and numbers, Barlow for the rest. */
+/** Text styles from the My Gym design system: Barlow Condensed for titles and numbers, Barlow for the rest. */
 @Immutable
-data class AkhadaTypography(
+data class MyGymTypography(
     /** The one hero figure per screen, e.g. revenue on Home. */
     val displayXl: TextStyle,
     val screenTitle: TextStyle,
@@ -33,7 +33,7 @@ data class AkhadaTypography(
 )
 
 @Composable
-internal fun akhadaTypography(): AkhadaTypography {
+internal fun myGymTypography(): MyGymTypography {
     val display = FontFamily(
         Font(Res.font.barlow_condensed_semibold, FontWeight.SemiBold),
         Font(Res.font.barlow_condensed_bold, FontWeight.Bold),
@@ -52,7 +52,7 @@ internal fun akhadaTypography(): AkhadaTypography {
             letterSpacing = tracking.em,
             fontFeatureSettings = if (numbers) "tnum" else null,
         )
-    return AkhadaTypography(
+    return MyGymTypography(
         displayXl = style(display, 44, 46, FontWeight.Bold, numbers = true),
         screenTitle = style(display, 30, 34, FontWeight.Bold),
         stat = style(display, 30, 34, FontWeight.Bold, numbers = true),

@@ -27,10 +27,10 @@ import com.harsh.gymmanager.ui.format.initials
 import com.harsh.gymmanager.ui.photo.MemberPhoto
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaSize
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymSize
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import gymmanager.sharedui.generated.resources.Res
 import gymmanager.sharedui.generated.resources.back
 import gymmanager.sharedui.generated.resources.gym_logo
@@ -41,8 +41,8 @@ import org.jetbrains.compose.resources.stringResource
  * when no logo has been chosen. Never recoloured.
  */
 @Composable
-fun GymLogo(modifier: Modifier = Modifier, profile: GymProfile = LocalGym.current, size: Dp = AkhadaSize.logo, logoPath: String? = profile.logoPath) {
-    val colors = AkhadaTheme.colors
+fun GymLogo(modifier: Modifier = Modifier, profile: GymProfile = LocalGym.current, size: Dp = MyGymSize.logo, logoPath: String? = profile.logoPath) {
+    val colors = MyGymTheme.colors
     val description = stringResource(Res.string.gym_logo, profile.name)
     if (logoPath != null) {
         Box(modifier.size(size).clip(CircleShape).background(colors.logoGround)) {
@@ -55,7 +55,7 @@ fun GymLogo(modifier: Modifier = Modifier, profile: GymProfile = LocalGym.curren
         ) {
             Text(
                 initials(profile.name).ifEmpty { "G" },
-                style = AkhadaTheme.typography.stat.copy(fontSize = (size.value * 0.4f).sp, lineHeight = (size.value * 0.45f).sp),
+                style = MyGymTheme.typography.stat.copy(fontSize = (size.value * 0.4f).sp, lineHeight = (size.value * 0.45f).sp),
                 color = colors.onInk,
             )
         }
@@ -68,13 +68,13 @@ fun TabHeader(
     title: String,
     subtitle: String?,
     modifier: Modifier = Modifier,
-    titleStyle: TextStyle = AkhadaTheme.typography.screenTitle,
+    titleStyle: TextStyle = MyGymTheme.typography.screenTitle,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
-        modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = AkhadaSpace.gutter, vertical = AkhadaSpace.md),
+        modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = MyGymSpace.gutter, vertical = MyGymSpace.md),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+        horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md),
     ) {
         GymLogo()
         HeaderText(title, subtitle, titleStyle, Modifier.weight(1f))
@@ -93,13 +93,13 @@ fun PushedHeader(
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
-        modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = AkhadaSpace.gutter, vertical = AkhadaSpace.md),
+        modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = MyGymSpace.gutter, vertical = MyGymSpace.md),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+        horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md),
     ) {
         CompositionLocalProvider(LocalInHeader provides true) {
-            AkhadaIconButton(AkhadaIcons.ChevronLeft, stringResource(Res.string.back), onBack)
-            HeaderText(title, subtitle, AkhadaTheme.typography.screenTitle, Modifier.weight(1f), titleModifier)
+            MyGymIconButton(MyGymIcons.ChevronLeft, stringResource(Res.string.back), onBack)
+            HeaderText(title, subtitle, MyGymTheme.typography.screenTitle, Modifier.weight(1f), titleModifier)
             actions()
         }
     }
@@ -110,7 +110,7 @@ private fun HeaderText(title: String, subtitle: String?, style: TextStyle, modif
     Column(modifier) {
         Text(title, titleModifier, style = style, maxLines = 1, overflow = TextOverflow.Ellipsis)
         if (subtitle != null) {
-            Text(subtitle, style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(subtitle, style = MyGymTheme.typography.caption, color = MyGymTheme.colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }

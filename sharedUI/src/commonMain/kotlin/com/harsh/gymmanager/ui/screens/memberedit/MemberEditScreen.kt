@@ -36,8 +36,8 @@ import com.harsh.gymmanager.LocalAppDependencies
 import com.harsh.gymmanager.domain.model.Gender
 import com.harsh.gymmanager.presentation.memberedit.MemberEditEvent
 import com.harsh.gymmanager.presentation.memberedit.MemberEditViewModel
-import com.harsh.gymmanager.ui.components.AkhadaButton
-import com.harsh.gymmanager.ui.components.AkhadaTextField
+import com.harsh.gymmanager.ui.components.MyGymButton
+import com.harsh.gymmanager.ui.components.MyGymTextField
 import com.harsh.gymmanager.ui.components.Avatar
 import com.harsh.gymmanager.ui.components.ButtonKind
 import com.harsh.gymmanager.ui.components.DateField
@@ -46,10 +46,10 @@ import com.harsh.gymmanager.ui.components.SegmentedControl
 import com.harsh.gymmanager.ui.format.asString
 import com.harsh.gymmanager.ui.format.label
 import com.harsh.gymmanager.ui.format.rememberToday
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
+import com.harsh.gymmanager.ui.icons.MyGymIcons
 import com.harsh.gymmanager.ui.photo.CameraCapture
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 
 /** Adds a member when [memberId] is null; [onSaved] gets the member's id. */
@@ -76,38 +76,38 @@ fun MemberEditScreen(memberId: Long?, onBack: () -> Unit, onSaved: (Long, Boolea
         Column(Modifier.fillMaxSize().imePadding()) {
             PushedHeader(if (state.isEditing) stringResource(Res.string.edit_member) else stringResource(Res.string.new_member), back)
             Column(
-                Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter().padding(bottom = AkhadaSpace.xl),
-                verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg),
+                Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter().padding(bottom = MyGymSpace.xl),
+                verticalArrangement = Arrangement.spacedBy(MyGymSpace.lg),
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.lg)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.lg)) {
                     Avatar(form.name.ifBlank { "?" }, form.photoPath, size = 88.dp)
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-                        AkhadaButton(
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
+                        MyGymButton(
                             if (form.photoPath == null) stringResource(Res.string.take_photo) else stringResource(Res.string.retake_photo),
                             { showCamera = true },
                             Modifier.fillMaxWidth(),
                             kind = ButtonKind.Secondary,
-                            icon = AkhadaIcons.Camera,
+                            icon = MyGymIcons.Camera,
                         )
                         if (form.photoPath != null) {
                             com.harsh.gymmanager.ui.components.GhostButton(stringResource(Res.string.remove_photo), { vm.onPhotoChange(null) })
                         }
                     }
                 }
-                AkhadaTextField(
+                MyGymTextField(
                     form.name, vm::onNameChange, stringResource(Res.string.name),
                     error = state.nameError?.asString(), capitalization = KeyboardCapitalization.Words, placeholder = stringResource(Res.string.full_name_hint),
                 )
-                AkhadaTextField(
+                MyGymTextField(
                     form.phone, vm::onPhoneChange, stringResource(Res.string.phone),
                     optional = true, keyboardType = KeyboardType.Phone, placeholder = stringResource(Res.string.phone_hint),
                     // The next few answers are taps, not typing.
                     imeAction = ImeAction.Done,
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
-                        Text(stringResource(Res.string.gender), style = AkhadaTheme.typography.caption.copy(fontWeight = AkhadaTheme.typography.bodyStrong.fontWeight))
-                        Text(stringResource(Res.string.optional), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
+                    Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+                        Text(stringResource(Res.string.gender), style = MyGymTheme.typography.caption.copy(fontWeight = MyGymTheme.typography.bodyStrong.fontWeight))
+                        Text(stringResource(Res.string.optional), style = MyGymTheme.typography.caption, color = MyGymTheme.colors.inkMuted)
                     }
                     SegmentedControl(Gender.entries, form.gender, vm::onGenderChange, { it.label() }, allowNone = true)
                 }
@@ -122,17 +122,17 @@ fun MemberEditScreen(memberId: Long?, onBack: () -> Unit, onSaved: (Long, Boolea
                     stringResource(Res.string.joined_on_label),
                     latest = today,
                 )
-                AkhadaTextField(
+                MyGymTextField(
                     form.notes, vm::onNotesChange, stringResource(Res.string.notes),
                     optional = true, singleLine = false, capitalization = KeyboardCapitalization.Sentences,
                     placeholder = stringResource(Res.string.notes_hint),
                 )
-                state.errorMessage?.let { Text(it.asString(), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.statusDue) }
+                state.errorMessage?.let { Text(it.asString(), style = MyGymTheme.typography.caption, color = MyGymTheme.colors.statusDue) }
             }
-            AkhadaButton(
+            MyGymButton(
                 if (state.isSaving) stringResource(Res.string.saving) else if (state.isEditing) stringResource(Res.string.save_changes) else stringResource(Res.string.add_member),
                 vm::save,
-                Modifier.fillMaxWidth().screenGutter().navigationBarsPadding().padding(vertical = AkhadaSpace.md),
+                Modifier.fillMaxWidth().screenGutter().navigationBarsPadding().padding(vertical = MyGymSpace.md),
                 enabled = !state.isSaving && !state.isLoading,
             )
         }

@@ -39,9 +39,9 @@ import com.harsh.gymmanager.domain.model.PaymentMode
 import com.harsh.gymmanager.presentation.formatRupees
 import com.harsh.gymmanager.presentation.sellmembership.SellMembershipEvent
 import com.harsh.gymmanager.presentation.sellmembership.SellMembershipViewModel
-import com.harsh.gymmanager.ui.components.AkhadaButton
-import com.harsh.gymmanager.ui.components.AkhadaCard
-import com.harsh.gymmanager.ui.components.AkhadaTextField
+import com.harsh.gymmanager.ui.components.MyGymButton
+import com.harsh.gymmanager.ui.components.MyGymCard
+import com.harsh.gymmanager.ui.components.MyGymTextField
 import com.harsh.gymmanager.ui.components.DateField
 import com.harsh.gymmanager.ui.components.EmptyState
 import com.harsh.gymmanager.ui.components.PlanCard
@@ -50,9 +50,9 @@ import com.harsh.gymmanager.ui.components.SectionHeader
 import com.harsh.gymmanager.ui.components.SegmentedControl
 import com.harsh.gymmanager.ui.format.asString
 import com.harsh.gymmanager.ui.format.label
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 
 @Composable
@@ -76,8 +76,8 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
             subtitle = member?.name,
         )
         Column(
-            Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(bottom = AkhadaSpace.xl),
-            verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+            Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(bottom = MyGymSpace.xl),
+            verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
         ) {
             SectionHeader(
                 stringResource(Res.string.section_plan),
@@ -86,7 +86,7 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
                 onAction = onAddPlan,
             )
             if (!state.isLoading && state.plans.isEmpty()) {
-                EmptyState(AkhadaIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_sell_body), actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan)
+                EmptyState(MyGymIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_sell_body), actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan)
                 return@Column
             }
             // The plans this gym sells most come first.
@@ -95,49 +95,49 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
             }
             if (state.selectedPlan == null) return@Column
 
-            SectionHeader(stringResource(Res.string.dates_and_price), Modifier.screenGutter().padding(top = AkhadaSpace.md))
-            Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+            SectionHeader(stringResource(Res.string.dates_and_price), Modifier.screenGutter().padding(top = MyGymSpace.md))
+            Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(MyGymSpace.lg)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
                     DateField(state.startDate, { it?.let(vm::onStartDateChange) }, stringResource(Res.string.starts), Modifier.weight(1f))
                     DateField(state.endDate, { it?.let(vm::onEndDateChange) }, stringResource(Res.string.ends), Modifier.weight(1f))
                 }
-                AkhadaTextField(state.daysText, vm::onDaysChange, stringResource(Res.string.length_days), keyboardType = KeyboardType.Number)
-                AkhadaTextField(state.priceText, vm::onPriceChange, stringResource(Res.string.price), prefix = "₹", keyboardType = KeyboardType.Number)
+                MyGymTextField(state.daysText, vm::onDaysChange, stringResource(Res.string.length_days), keyboardType = KeyboardType.Number)
+                MyGymTextField(state.priceText, vm::onPriceChange, stringResource(Res.string.price), prefix = "₹", keyboardType = KeyboardType.Number)
                 // Price, then the discount with its quick picks, then what that leaves to pay.
-                Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-                    AkhadaTextField(state.discountText, vm::onDiscountChange, stringResource(Res.string.discount), optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = "0")
+                Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
+                    MyGymTextField(state.discountText, vm::onDiscountChange, stringResource(Res.string.discount), optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = "0")
                     val discounts = discountSuggestions(parseRupees(state.priceText) ?: 0, usage).filter { it != parseRupees(state.discountText) }
                     SuggestionChips(discounts.map { stringResource(Res.string.chip_discount, formatRupees(it)) }, onPick = { vm.onDiscountChange(discounts[it].toString()) })
                     DiscountedCharge(parseRupees(state.priceText), state.amountCharged)
                 }
                 if (state.isCustomised) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
                         Text(
                             stringResource(Res.string.sale_customised, state.selectedPlan?.name.orEmpty()),
                             Modifier.weight(1f),
-                            style = AkhadaTheme.typography.caption,
-                            color = AkhadaTheme.colors.inkMuted,
+                            style = MyGymTheme.typography.caption,
+                            color = MyGymTheme.colors.inkMuted,
                         )
                         GhostButton(stringResource(Res.string.reset_to_plan), vm::resetToPlan)
                     }
                 }
             }
 
-            SectionHeader(stringResource(Res.string.paid_now), Modifier.screenGutter().padding(top = AkhadaSpace.md))
-            Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg)) {
-                Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-                    AkhadaTextField(
+            SectionHeader(stringResource(Res.string.paid_now), Modifier.screenGutter().padding(top = MyGymSpace.md))
+            Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(MyGymSpace.lg)) {
+                Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
+                    MyGymTextField(
                         state.firstPaymentText, vm::onFirstPaymentChange, stringResource(Res.string.amount_paid),
                         optional = true, prefix = "₹", keyboardType = KeyboardType.Number, placeholder = stringResource(Res.string.amount_paid_hint),
                     )
                     AmountChips(amountSuggestions(state.amountCharged ?: 0, usage, payLater = true), state.firstPaymentText, vm::onFirstPaymentChange)
                 }
                 SegmentedControl(PaymentMode.entries, state.paymentMode, { it?.let(vm::onPaymentModeChange) }, { it.label() })
-                AkhadaTextField(
+                MyGymTextField(
                     state.notes, vm::onNotesChange, stringResource(Res.string.notes), optional = true,
                     singleLine = false, capitalization = KeyboardCapitalization.Sentences,
                 )
-                AkhadaCard {
+                MyGymCard {
                     SummaryLine(stringResource(Res.string.charged), state.amountCharged?.let(::formatRupees) ?: "–")
                     SummaryLine(
                         stringResource(Res.string.due_after_this),
@@ -151,9 +151,9 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
                 }
             }
         }
-        Column(Modifier.screenGutter().navigationBarsPadding().padding(vertical = AkhadaSpace.md), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-            state.errorMessage?.let { Text(it.asString(), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.statusDue) }
-            AkhadaButton(
+        Column(Modifier.screenGutter().navigationBarsPadding().padding(vertical = MyGymSpace.md), verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
+            state.errorMessage?.let { Text(it.asString(), style = MyGymTheme.typography.caption, color = MyGymTheme.colors.statusDue) }
+            MyGymButton(
                 if (state.isSaving) stringResource(Res.string.saving) else stringResource(Res.string.save_membership),
                 vm::save,
                 Modifier.fillMaxWidth(),
@@ -166,11 +166,11 @@ fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membership
 @Composable
 private fun SummaryLine(label: String, value: String, due: Boolean = false) {
     Row {
-        Text(label, Modifier.weight(1f), style = AkhadaTheme.typography.body, color = AkhadaTheme.colors.inkMuted)
+        Text(label, Modifier.weight(1f), style = MyGymTheme.typography.body, color = MyGymTheme.colors.inkMuted)
         Text(
             value,
-            style = AkhadaTheme.typography.bodyStrong.copy(fontFeatureSettings = "tnum"),
-            color = if (due) AkhadaTheme.colors.statusDue else AkhadaTheme.colors.ink,
+            style = MyGymTheme.typography.bodyStrong.copy(fontFeatureSettings = "tnum"),
+            color = if (due) MyGymTheme.colors.statusDue else MyGymTheme.colors.ink,
         )
     }
 }
@@ -179,12 +179,12 @@ private fun SummaryLine(label: String, value: String, due: Boolean = false) {
 @Composable
 private fun DiscountedCharge(price: Long?, charged: Long?) {
     if (price == null || charged == null || charged >= price) return
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
         Text(
             formatRupees(price),
-            style = AkhadaTheme.typography.body.copy(textDecoration = TextDecoration.LineThrough),
-            color = AkhadaTheme.colors.inkMuted,
+            style = MyGymTheme.typography.body.copy(textDecoration = TextDecoration.LineThrough),
+            color = MyGymTheme.colors.inkMuted,
         )
-        Text(stringResource(Res.string.discounted_to_pay, formatRupees(charged)), style = AkhadaTheme.typography.bodyStrong)
+        Text(stringResource(Res.string.discounted_to_pay, formatRupees(charged)), style = MyGymTheme.typography.bodyStrong)
     }
 }

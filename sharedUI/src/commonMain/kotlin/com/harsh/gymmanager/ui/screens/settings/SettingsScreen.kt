@@ -1,7 +1,7 @@
 package com.harsh.gymmanager.ui.screens.settings
 
 import org.jetbrains.compose.resources.StringResource
-import com.harsh.gymmanager.ui.components.AkhadaTextField
+import com.harsh.gymmanager.ui.components.MyGymTextField
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -34,7 +34,7 @@ import com.harsh.gymmanager.ui.format.resolve
 import com.harsh.gymmanager.ui.platform.rememberBackupPicker
 import com.harsh.gymmanager.ui.platform.rememberFileSaver
 import com.harsh.gymmanager.ui.platform.rememberNotificationPermission
-import com.harsh.gymmanager.ui.components.AkhadaBottomSheet
+import com.harsh.gymmanager.ui.components.MyGymBottomSheet
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
@@ -55,17 +55,17 @@ import com.harsh.gymmanager.domain.model.AppSettings
 import com.harsh.gymmanager.domain.model.HomeFeatures
 import com.harsh.gymmanager.domain.model.MorningUpdate
 import com.harsh.gymmanager.domain.model.ThemeMode
-import com.harsh.gymmanager.ui.components.AkhadaButton
-import com.harsh.gymmanager.ui.components.AkhadaCard
-import com.harsh.gymmanager.ui.components.AkhadaSwitch
+import com.harsh.gymmanager.ui.components.MyGymButton
+import com.harsh.gymmanager.ui.components.MyGymCard
+import com.harsh.gymmanager.ui.components.MyGymSwitch
 import com.harsh.gymmanager.ui.components.ButtonKind
 import com.harsh.gymmanager.ui.components.GymLogo
 import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.components.SectionHeader
 import com.harsh.gymmanager.ui.components.SegmentedControl
-import com.harsh.gymmanager.ui.theme.AkhadaSize
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymSize
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
@@ -81,25 +81,25 @@ fun SettingsScreen(
     onHomeFeaturesChange: (HomeFeatures) -> Unit,
     onOpenWhatsApp: () -> Unit,
 ) {
-    val colors = AkhadaTheme.colors
-    val typography = AkhadaTheme.typography
+    val colors = MyGymTheme.colors
+    val typography = MyGymTheme.typography
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         PushedHeader(stringResource(Res.string.settings), onBack)
-        Column(Modifier.screenGutter().navigationBarsPadding().padding(bottom = AkhadaSpace.xxl), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+        Column(Modifier.screenGutter().navigationBarsPadding().padding(bottom = MyGymSpace.xxl), verticalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
             SectionHeader(stringResource(Res.string.section_gym))
-            AkhadaCard(onClick = onEditGym) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                    settings.gym?.let { GymLogo(profile = it, size = AkhadaSize.avatar + AkhadaSpace.lg) }
+            MyGymCard(onClick = onEditGym) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
+                    settings.gym?.let { GymLogo(profile = it, size = MyGymSize.avatar + MyGymSpace.lg) }
                     Column(Modifier.weight(1f)) {
                         Text(settings.gym?.name.orEmpty(), style = typography.title)
                         settings.gym?.address?.let { Text(it, style = typography.caption, color = colors.inkMuted) }
                     }
                 }
-                AkhadaButton(stringResource(Res.string.edit_gym), onEditGym, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+                MyGymButton(stringResource(Res.string.edit_gym), onEditGym, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
             }
 
-            SectionHeader(stringResource(Res.string.section_appearance), Modifier.padding(top = AkhadaSpace.md))
-            AkhadaCard {
+            SectionHeader(stringResource(Res.string.section_appearance), Modifier.padding(top = MyGymSpace.md))
+            MyGymCard {
                 val themeLabels = mapOf(
                     ThemeMode.SYSTEM to stringResource(Res.string.theme_system),
                     ThemeMode.LIGHT to stringResource(Res.string.theme_light),
@@ -109,8 +109,8 @@ fun SettingsScreen(
                 Text(stringResource(Res.string.theme_hint), style = typography.caption, color = colors.inkMuted)
             }
 
-            SectionHeader(stringResource(Res.string.section_language), Modifier.padding(top = AkhadaSpace.md))
-            AkhadaCard {
+            SectionHeader(stringResource(Res.string.section_language), Modifier.padding(top = MyGymSpace.md))
+            MyGymCard {
                 val languageLabels = mapOf(
                     AppLanguage.SYSTEM to stringResource(Res.string.language_system),
                     AppLanguage.ENGLISH to stringResource(Res.string.language_english),
@@ -119,8 +119,8 @@ fun SettingsScreen(
                 SegmentedControl(AppLanguage.entries, settings.language, { it?.let(onLanguageChange) }, { languageLabels.getValue(it) })
             }
 
-            SectionHeader(stringResource(Res.string.section_home_screen), Modifier.padding(top = AkhadaSpace.md))
-            AkhadaCard {
+            SectionHeader(stringResource(Res.string.section_home_screen), Modifier.padding(top = MyGymSpace.md))
+            MyGymCard {
                 val features = settings.homeFeatures
                 SwitchRow(
                     stringResource(Res.string.ai_insights),
@@ -134,22 +134,22 @@ fun SettingsScreen(
                 ) { onHomeFeaturesChange(features.copy(collectionsChart = it)) }
             }
 
-            SectionHeader(stringResource(Res.string.section_whatsapp), Modifier.padding(top = AkhadaSpace.md))
+            SectionHeader(stringResource(Res.string.section_whatsapp), Modifier.padding(top = MyGymSpace.md))
             WhatsAppSettingsCard(onOpenWhatsApp)
 
-            SectionHeader(stringResource(Res.string.section_notifications), Modifier.padding(top = AkhadaSpace.md))
+            SectionHeader(stringResource(Res.string.section_notifications), Modifier.padding(top = MyGymSpace.md))
             MorningUpdateCard(settings.morningUpdate, onMorningUpdateChange)
 
-            SectionHeader(stringResource(Res.string.section_data), Modifier.padding(top = AkhadaSpace.md))
+            SectionHeader(stringResource(Res.string.section_data), Modifier.padding(top = MyGymSpace.md))
             BackupCard(settings)
 
             LocalDemoMode.current?.let { demoMode ->
-                SectionHeader(stringResource(Res.string.section_demo), Modifier.padding(top = AkhadaSpace.md))
+                SectionHeader(stringResource(Res.string.section_demo), Modifier.padding(top = MyGymSpace.md))
                 DemoCard(demoMode)
             }
 
-            SectionHeader(stringResource(Res.string.section_about), Modifier.padding(top = AkhadaSpace.md))
-            AkhadaCard {
+            SectionHeader(stringResource(Res.string.section_about), Modifier.padding(top = MyGymSpace.md))
+            MyGymCard {
                 Text(stringResource(Res.string.version, "1.0"), style = typography.body)
             }
             Text(
@@ -157,7 +157,7 @@ fun SettingsScreen(
                 style = typography.caption,
                 color = colors.inkMuted,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(top = AkhadaSpace.sm),
+                modifier = Modifier.fillMaxWidth().padding(top = MyGymSpace.sm),
             )
         }
     }
@@ -166,20 +166,20 @@ fun SettingsScreen(
 /** A setting that's on or off: its name, what it does, and the switch. */
 @Composable
 internal fun SwitchRow(title: String, body: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
-            Text(title, style = AkhadaTheme.typography.bodyStrong)
-            Text(body, style = AkhadaTheme.typography.body, color = AkhadaTheme.colors.inkMuted)
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+            Text(title, style = MyGymTheme.typography.bodyStrong)
+            Text(body, style = MyGymTheme.typography.body, color = MyGymTheme.colors.inkMuted)
         }
-        AkhadaSwitch(checked = checked, onCheckedChange = onCheckedChange)
+        MyGymSwitch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 
 /** The daily notification: on or off, and when. Turning it on asks for notification permission first. */
 @Composable
 private fun MorningUpdateCard(update: MorningUpdate, onChange: (MorningUpdate) -> Unit) {
-    val colors = AkhadaTheme.colors
-    val typography = AkhadaTheme.typography
+    val colors = MyGymTheme.colors
+    val typography = MyGymTheme.typography
     val snackbar = LocalSnackbar.current
     val scope = rememberCoroutineScope()
     var pickingTime by remember { mutableStateOf(false) }
@@ -188,13 +188,13 @@ private fun MorningUpdateCard(update: MorningUpdate, onChange: (MorningUpdate) -
         if (granted) onChange(update.copy(enabled = true)) else scope.launch { snackbar.showSnackbar(denied) }
     }
 
-    AkhadaCard {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+    MyGymCard {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
                 Text(stringResource(Res.string.morning_update), style = typography.bodyStrong)
                 Text(stringResource(Res.string.morning_update_body), style = typography.body, color = colors.inkMuted)
             }
-            AkhadaSwitch(
+            MyGymSwitch(
                 checked = update.enabled,
                 onCheckedChange = { on -> if (on) askPermission() else onChange(update.copy(enabled = false)) },
             )
@@ -202,7 +202,7 @@ private fun MorningUpdateCard(update: MorningUpdate, onChange: (MorningUpdate) -
         if (update.enabled) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(Res.string.morning_update_time), Modifier.weight(1f), style = typography.body, color = colors.inkMuted)
-                AkhadaButton(timeLabel(update.minuteOfDay), { pickingTime = true }, kind = ButtonKind.Secondary)
+                MyGymButton(timeLabel(update.minuteOfDay), { pickingTime = true }, kind = ButtonKind.Secondary)
             }
         }
     }
@@ -224,10 +224,10 @@ private fun MorningUpdateCard(update: MorningUpdate, onChange: (MorningUpdate) -
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TimeSheet(title: String, minuteOfDay: Int, onPick: (minuteOfDay: Int) -> Unit, onDismiss: () -> Unit) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val state = rememberTimePickerState(initialHour = minuteOfDay / 60, initialMinute = minuteOfDay % 60, is24Hour = false)
-    AkhadaBottomSheet(onDismiss) {
-        Text(title, style = AkhadaTheme.typography.title)
+    MyGymBottomSheet(onDismiss) {
+        Text(title, style = MyGymTheme.typography.title)
         TimePicker(
             state,
             Modifier.align(Alignment.CenterHorizontally),
@@ -246,8 +246,8 @@ internal fun TimeSheet(title: String, minuteOfDay: Int, onPick: (minuteOfDay: In
                 timeSelectorUnselectedContentColor = colors.ink,
             ),
         )
-        AkhadaButton(stringResource(Res.string.done), { onPick(state.hour * 60 + state.minute) }, Modifier.fillMaxWidth())
-        AkhadaButton(stringResource(Res.string.cancel), onDismiss, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+        MyGymButton(stringResource(Res.string.done), { onPick(state.hour * 60 + state.minute) }, Modifier.fillMaxWidth())
+        MyGymButton(stringResource(Res.string.cancel), onDismiss, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
     }
 }
 
@@ -266,19 +266,19 @@ internal fun timeLabel(minuteOfDay: Int): String {
  */
 @Composable
 private fun DemoCard(demoMode: DemoMode) {
-    val colors = AkhadaTheme.colors
-    val typography = AkhadaTheme.typography
+    val colors = MyGymTheme.colors
+    val typography = MyGymTheme.typography
     val inDemo = demoMode.active != null
     var asking by remember { mutableStateOf(false) }
-    AkhadaCard {
-        Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+    MyGymCard {
+        Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
             Text(stringResource(Res.string.demo_title), style = typography.bodyStrong)
             Text(stringResource(if (inDemo) Res.string.demo_active_body else Res.string.demo_body), style = typography.body, color = colors.inkMuted)
         }
         if (inDemo) {
-            AkhadaButton(stringResource(Res.string.demo_exit), demoMode::exit, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+            MyGymButton(stringResource(Res.string.demo_exit), demoMode::exit, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
         } else {
-            AkhadaButton(stringResource(Res.string.demo_start), { asking = true }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+            MyGymButton(stringResource(Res.string.demo_start), { asking = true }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
         }
     }
     if (asking) DemoPasswordSheet(demoMode, onDismiss = { asking = false })
@@ -305,12 +305,12 @@ private fun DemoPasswordSheet(demoMode: DemoMode, onDismiss: () -> Unit) {
             }
         }
     }
-    AkhadaBottomSheet(onDismiss = { if (!starting) onDismiss() }) {
-        Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
-            Text(stringResource(Res.string.demo_start), style = AkhadaTheme.typography.title)
-            Text(stringResource(Res.string.demo_sheet_body), style = AkhadaTheme.typography.body, color = AkhadaTheme.colors.inkMuted)
+    MyGymBottomSheet(onDismiss = { if (!starting) onDismiss() }) {
+        Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+            Text(stringResource(Res.string.demo_start), style = MyGymTheme.typography.title)
+            Text(stringResource(Res.string.demo_sheet_body), style = MyGymTheme.typography.body, color = MyGymTheme.colors.inkMuted)
         }
-        AkhadaTextField(
+        MyGymTextField(
             password,
             { password = it.filter(Char::isDigit).take(8); error = null },
             stringResource(Res.string.demo_password),
@@ -320,7 +320,7 @@ private fun DemoPasswordSheet(demoMode: DemoMode, onDismiss: () -> Unit) {
             imeAction = ImeAction.Done,
             onDone = ::start,
         )
-        AkhadaButton(
+        MyGymButton(
             stringResource(if (starting) Res.string.demo_starting else Res.string.demo_start),
             ::start,
             Modifier.fillMaxWidth(),
@@ -332,8 +332,8 @@ private fun DemoPasswordSheet(demoMode: DemoMode, onDismiss: () -> Unit) {
 /** Saving a backup file and restoring one; restoring asks first, since it replaces everything. */
 @Composable
 private fun BackupCard(settings: AppSettings) {
-    val colors = AkhadaTheme.colors
-    val typography = AkhadaTheme.typography
+    val colors = MyGymTheme.colors
+    val typography = MyGymTheme.typography
     val deps = LocalAppDependencies.current
     val snackbar = LocalSnackbar.current
     val vm = viewModel { BackupViewModel(deps.backup) }
@@ -352,14 +352,14 @@ private fun BackupCard(settings: AppSettings) {
 
     // Sample data must never become a backup, or be restored over.
     if (LocalDemoMode.current?.active != null) {
-        AkhadaCard {
+        MyGymCard {
             Text(stringResource(Res.string.data_title), style = typography.bodyStrong)
             Text(stringResource(Res.string.backups_off_in_demo), style = typography.body, color = colors.inkMuted)
         }
         return
     }
-    AkhadaCard {
-        Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+    MyGymCard {
+        Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
             Text(stringResource(Res.string.data_title), style = typography.bodyStrong)
             Text(stringResource(Res.string.data_body), style = typography.body, color = colors.inkMuted)
         }
@@ -369,13 +369,13 @@ private fun BackupCard(settings: AppSettings) {
             style = typography.caption,
             color = if (last != null) colors.statusActive else colors.statusExpiring,
         )
-        AkhadaButton(
+        MyGymButton(
             if (state.isWorking && state.pendingRestore == null) stringResource(Res.string.backing_up) else stringResource(Res.string.back_up_now),
             vm::backUp,
             Modifier.fillMaxWidth(),
             enabled = !state.isWorking,
         )
-        AkhadaButton(stringResource(Res.string.restore_backup), pick, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary, enabled = !state.isWorking)
+        MyGymButton(stringResource(Res.string.restore_backup), pick, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary, enabled = !state.isWorking)
     }
 
     state.pendingRestore?.let { backup ->

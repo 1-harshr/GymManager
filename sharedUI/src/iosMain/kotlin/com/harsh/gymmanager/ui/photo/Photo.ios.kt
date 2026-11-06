@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.uikit.LocalUIViewController
-import com.harsh.gymmanager.ui.components.AkhadaButton
+import com.harsh.gymmanager.ui.components.MyGymButton
 import com.harsh.gymmanager.ui.components.ButtonKind
 import com.harsh.gymmanager.ui.platform.PhotoPickerDelegate
 import com.harsh.gymmanager.ui.platform.presentPhotoPicker
@@ -33,8 +33,8 @@ import com.harsh.gymmanager.ui.platform.resolveStoredPath
 import com.harsh.gymmanager.ui.platform.saveImage
 import com.harsh.gymmanager.ui.platform.squareScaled
 import com.harsh.gymmanager.ui.platform.toByteArray
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import gymmanager.sharedui.generated.resources.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -62,7 +62,7 @@ actual fun MemberPhoto(path: String, contentDescription: String?, modifier: Modi
     if (image != null) {
         Image(image, contentDescription, modifier, contentScale = ContentScale.Crop)
     } else {
-        Box(modifier.background(AkhadaTheme.colors.surfaceSunken))
+        Box(modifier.background(MyGymTheme.colors.surfaceSunken))
     }
 }
 
@@ -106,19 +106,19 @@ actual fun CameraCapture(onPhotoTaken: (String) -> Unit, onClose: () -> Unit) {
         return
     }
     Column(
-        Modifier.fillMaxSize().background(Color.Black).statusBarsPadding().navigationBarsPadding().padding(AkhadaSpace.xl),
-        verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg, Alignment.CenterVertically),
+        Modifier.fillMaxSize().background(Color.Black).statusBarsPadding().navigationBarsPadding().padding(MyGymSpace.xl),
+        verticalArrangement = Arrangement.spacedBy(MyGymSpace.lg, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(stringResource(Res.string.camera_unavailable_title), style = AkhadaTheme.typography.title, color = Color.White)
+        Text(stringResource(Res.string.camera_unavailable_title), style = MyGymTheme.typography.title, color = Color.White)
         Text(
             stringResource(Res.string.camera_unavailable_body),
-            style = AkhadaTheme.typography.body,
+            style = MyGymTheme.typography.body,
             color = Color.White.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
         )
-        AkhadaButton(stringResource(Res.string.choose_from_photos), { presentPhotoPicker(host, libraryDelegate) }, Modifier.fillMaxWidth())
-        AkhadaButton(stringResource(Res.string.not_now), onClose, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+        MyGymButton(stringResource(Res.string.choose_from_photos), { presentPhotoPicker(host, libraryDelegate) }, Modifier.fillMaxWidth())
+        MyGymButton(stringResource(Res.string.not_now), onClose, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
     }
 }
 

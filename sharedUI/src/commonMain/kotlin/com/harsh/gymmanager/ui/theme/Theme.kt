@@ -12,37 +12,37 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 
-private val LocalAkhadaColors = staticCompositionLocalOf { AkhadaLightColors }
-private val LocalAkhadaTypography = staticCompositionLocalOf<AkhadaTypography> {
-    error("AkhadaTheme is missing")
+private val LocalMyGymColors = staticCompositionLocalOf { MyGymLightColors }
+private val LocalMyGymTypography = staticCompositionLocalOf<MyGymTypography> {
+    error("MyGymTheme is missing")
 }
 
-object AkhadaTheme {
-    val colors: AkhadaColors
-        @Composable @ReadOnlyComposable get() = LocalAkhadaColors.current
-    val typography: AkhadaTypography
-        @Composable @ReadOnlyComposable get() = LocalAkhadaTypography.current
+object MyGymTheme {
+    val colors: MyGymColors
+        @Composable @ReadOnlyComposable get() = LocalMyGymColors.current
+    val typography: MyGymTypography
+        @Composable @ReadOnlyComposable get() = LocalMyGymTypography.current
 }
 
 /**
- * Akhada's own tokens, plus a Material scheme mapped from them so the few Material
+ * My Gym's own tokens, plus a Material scheme mapped from them so the few Material
  * components we use (date picker, text selection, ripples) don't show Material's defaults.
  */
 @Composable
-fun AkhadaTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colors = if (darkTheme) AkhadaDarkColors else AkhadaLightColors
-    val typography = akhadaTypography()
+fun MyGymTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+    val colors = if (darkTheme) MyGymDarkColors else MyGymLightColors
+    val typography = myGymTypography()
     val scheme = colors.toMaterialScheme()
-    CompositionLocalProvider(LocalAkhadaColors provides colors, LocalAkhadaTypography provides typography) {
+    CompositionLocalProvider(LocalMyGymColors provides colors, LocalMyGymTypography provides typography) {
         MaterialTheme(
             colorScheme = scheme,
             typography = typography.toMaterialTypography(),
             shapes = Shapes(
-                extraSmall = AkhadaRadius.fieldShape,
-                small = AkhadaRadius.fieldShape,
-                medium = AkhadaRadius.cardShape,
-                large = AkhadaRadius.cardShape,
-                extraLarge = AkhadaRadius.sheetShape,
+                extraSmall = MyGymRadius.fieldShape,
+                small = MyGymRadius.fieldShape,
+                medium = MyGymRadius.cardShape,
+                large = MyGymRadius.cardShape,
+                extraLarge = MyGymRadius.sheetShape,
             ),
         ) {
             CompositionLocalProvider(LocalContentColor provides colors.ink, content = content)
@@ -50,7 +50,7 @@ fun AkhadaTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable
     }
 }
 
-private fun AkhadaColors.toMaterialScheme() = if (isDark) {
+private fun MyGymColors.toMaterialScheme() = if (isDark) {
     darkColorScheme(
         primary = accent, onPrimary = onAccent, primaryContainer = accentSoft, onPrimaryContainer = onAccentSoft,
         secondary = ink, onSecondary = onInk, secondaryContainer = surfaceSunken, onSecondaryContainer = ink,
@@ -78,7 +78,7 @@ private fun AkhadaColors.toMaterialScheme() = if (isDark) {
     )
 }
 
-private fun AkhadaTypography.toMaterialTypography() = Typography(
+private fun MyGymTypography.toMaterialTypography() = Typography(
     displayLarge = displayXl, displayMedium = displayXl, displaySmall = screenTitle,
     headlineLarge = screenTitle, headlineMedium = screenTitle, headlineSmall = stat,
     titleLarge = title, titleMedium = title, titleSmall = bodyStrong,

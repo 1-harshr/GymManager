@@ -3,7 +3,7 @@ package com.harsh.gymmanager
 import gymmanager.sharedui.generated.resources.demo_exit
 import gymmanager.sharedui.generated.resources.demo_banner
 import org.jetbrains.compose.resources.stringResource
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
+import com.harsh.gymmanager.ui.theme.MyGymSpace
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -67,8 +67,8 @@ import com.harsh.gymmanager.presentation.messaging.MessageRequest
 import com.harsh.gymmanager.ui.LocalGym
 import com.harsh.gymmanager.ui.LocalLanguage
 import com.harsh.gymmanager.ui.LocalSnackbar
-import com.harsh.gymmanager.ui.components.AkhadaSnackbarHost
-import com.harsh.gymmanager.ui.motion.AkhadaMotion
+import com.harsh.gymmanager.ui.components.MyGymSnackbarHost
+import com.harsh.gymmanager.ui.motion.MyGymMotion
 import com.harsh.gymmanager.ui.motion.Destination
 import com.harsh.gymmanager.ui.motion.LocalSharedTransitionScope
 import com.harsh.gymmanager.ui.platform.LocalAppLocale
@@ -89,7 +89,7 @@ import com.harsh.gymmanager.navigation.WhatsAppRoute
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import gymmanager.sharedui.generated.resources.Res
 import gymmanager.sharedui.generated.resources.changes_saved
 import gymmanager.sharedui.generated.resources.gym_saved
@@ -149,8 +149,8 @@ fun App(dependencies: AppDependencies, onReady: () -> Unit = {}) {
     val language = tag ?: Locale.current.language
     CompositionLocalProvider(LocalAppLocale provides tag, LocalLanguage provides language) {
         val content: @Composable () -> Unit = {
-            AkhadaTheme(darkTheme = dark) {
-                Column(Modifier.fillMaxSize().background(AkhadaTheme.colors.bg)) {
+            MyGymTheme(darkTheme = dark) {
+                Column(Modifier.fillMaxSize().background(MyGymTheme.colors.bg)) {
                     if (inDemo) DemoBanner()
                     // Below the banner, screens don't need their own room for the status bar.
                     Box(Modifier.weight(1f).then(if (inDemo) Modifier.consumeWindowInsets(WindowInsets.statusBars) else Modifier)) {
@@ -211,15 +211,15 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                     NavHost(
                         navController = nav,
                         startDestination = startDestination,
-                        enterTransition = AkhadaMotion.pushEnter,
-                        exitTransition = AkhadaMotion.pushExit,
-                        popEnterTransition = AkhadaMotion.popEnter,
-                        popExitTransition = AkhadaMotion.popExit,
+                        enterTransition = MyGymMotion.pushEnter,
+                        exitTransition = MyGymMotion.pushExit,
+                        popEnterTransition = MyGymMotion.popEnter,
+                        popExitTransition = MyGymMotion.popExit,
                     ) {
                         composable<MainRoute>(
                             // Opening a member grows their page out of the list instead of sliding it in.
-                            exitTransition = { if (targetState.destination.hasRoute<MemberDetailRoute>()) AkhadaMotion.openExit else AkhadaMotion.pushExit(this) },
-                            popEnterTransition = { if (initialState.destination.hasRoute<MemberDetailRoute>()) AkhadaMotion.closeEnter else AkhadaMotion.popEnter(this) },
+                            exitTransition = { if (targetState.destination.hasRoute<MemberDetailRoute>()) MyGymMotion.openExit else MyGymMotion.pushExit(this) },
+                            popEnterTransition = { if (initialState.destination.hasRoute<MemberDetailRoute>()) MyGymMotion.closeEnter else MyGymMotion.popEnter(this) },
                         ) {
                             Destination {
                                 MainScreen(
@@ -271,8 +271,8 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                             }
                         }
                         composable<MemberDetailRoute>(
-                            enterTransition = { if (initialState.destination.hasRoute<MainRoute>()) AkhadaMotion.openEnter else AkhadaMotion.pushEnter(this) },
-                            popExitTransition = { if (targetState.destination.hasRoute<MainRoute>()) AkhadaMotion.closeExit else AkhadaMotion.popExit(this) },
+                            enterTransition = { if (initialState.destination.hasRoute<MainRoute>()) MyGymMotion.openEnter else MyGymMotion.pushEnter(this) },
+                            popExitTransition = { if (targetState.destination.hasRoute<MainRoute>()) MyGymMotion.closeExit else MyGymMotion.popExit(this) },
                         ) { entry ->
                             Destination {
                                 val id = entry.toRoute<MemberDetailRoute>().memberId
@@ -363,7 +363,7 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                 WhatsAppSheet(prompt, onSelect = whatsApp::select, onSent = whatsApp::sent, onDismiss = whatsApp::dismiss)
             }
             // Sits above the floating tab bar.
-            AkhadaSnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 88.dp))
+            MyGymSnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 88.dp))
         }
     }
 }
@@ -371,15 +371,15 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
 /** Always on screen during a demo, so sample data is never mistaken for the gym's records. */
 @Composable
 private fun DemoBanner() {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val demoMode = LocalDemoMode.current ?: return
     Row(
-        Modifier.fillMaxWidth().background(colors.accent).statusBarsPadding().padding(start = AkhadaSpace.gutter, end = AkhadaSpace.sm),
+        Modifier.fillMaxWidth().background(colors.accent).statusBarsPadding().padding(start = MyGymSpace.gutter, end = MyGymSpace.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(stringResource(Res.string.demo_banner), Modifier.weight(1f), style = AkhadaTheme.typography.bodyStrong, color = colors.onAccent)
+        Text(stringResource(Res.string.demo_banner), Modifier.weight(1f), style = MyGymTheme.typography.bodyStrong, color = colors.onAccent)
         TextButton(onClick = demoMode::exit) {
-            Text(stringResource(Res.string.demo_exit), style = AkhadaTheme.typography.bodyStrong, color = colors.onAccent)
+            Text(stringResource(Res.string.demo_exit), style = MyGymTheme.typography.bodyStrong, color = colors.onAccent)
         }
     }
 }

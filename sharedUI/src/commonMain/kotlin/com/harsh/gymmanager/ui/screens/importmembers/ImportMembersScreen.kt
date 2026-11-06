@@ -28,8 +28,8 @@ import com.harsh.gymmanager.domain.importing.ImportIssueKind
 import com.harsh.gymmanager.domain.importing.ImportPreview
 import com.harsh.gymmanager.presentation.importmembers.ImportMembersEvent
 import com.harsh.gymmanager.presentation.importmembers.ImportMembersViewModel
-import com.harsh.gymmanager.ui.components.AkhadaButton
-import com.harsh.gymmanager.ui.components.AkhadaCard
+import com.harsh.gymmanager.ui.components.MyGymButton
+import com.harsh.gymmanager.ui.components.MyGymCard
 import com.harsh.gymmanager.ui.components.Badge
 import com.harsh.gymmanager.ui.components.BadgeTone
 import com.harsh.gymmanager.ui.components.ButtonKind
@@ -37,7 +37,7 @@ import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.components.SectionHeader
 import com.harsh.gymmanager.ui.format.asString
 import com.harsh.gymmanager.ui.format.formatPhone
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
+import com.harsh.gymmanager.ui.icons.MyGymIcons
 import com.harsh.gymmanager.ui.platform.rememberTextFilePicker
 import com.harsh.gymmanager.ui.platform.rememberFileSaver
 import com.harsh.gymmanager.ui.LocalSnackbar
@@ -46,9 +46,9 @@ import com.harsh.gymmanager.domain.importing.membersCsvTemplate
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 
 private const val PREVIEW_LIMIT = 20
@@ -56,7 +56,7 @@ private const val PREVIEW_LIMIT = 20
 @Composable
 fun ImportMembersScreen(onBack: () -> Unit, onImported: (Int) -> Unit) {
     val deps = LocalAppDependencies.current
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val vm = viewModel { ImportMembersViewModel(deps.importMembers) }
     val state by vm.state.collectAsStateWithLifecycle()
     val pickFile = rememberTextFilePicker(vm::onFilePicked)
@@ -71,33 +71,33 @@ fun ImportMembersScreen(onBack: () -> Unit, onImported: (Int) -> Unit) {
     Column(Modifier.fillMaxSize()) {
         PushedHeader(stringResource(Res.string.import_members), onBack, subtitle = state.fileName ?: stringResource(Res.string.from_csv))
         Column(
-            Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter().padding(bottom = AkhadaSpace.xl),
-            verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+            Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter().padding(bottom = MyGymSpace.xl),
+            verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
         ) {
             if (preview == null) {
-                AkhadaCard {
-                    Text(stringResource(Res.string.import_intro_title), style = AkhadaTheme.typography.title)
+                MyGymCard {
+                    Text(stringResource(Res.string.import_intro_title), style = MyGymTheme.typography.title)
                     Text(
                         stringResource(Res.string.import_intro_body),
-                        style = AkhadaTheme.typography.body,
+                        style = MyGymTheme.typography.body,
                         color = colors.inkMuted,
                     )
                     Text(
                         "Name,Phone,Gender,Date of birth,Joined on,Notes\nRavi Kumar,98765 43210,M,15/08/1998,05/11/2026,Knee injury",
                         Modifier
                             .fillMaxWidth()
-                            .background(colors.surfaceSunken, AkhadaRadius.fieldShape)
+                            .background(colors.surfaceSunken, MyGymRadius.fieldShape)
                             .horizontalScroll(rememberScrollState())
-                            .padding(AkhadaSpace.md),
-                        style = AkhadaTheme.typography.caption.copy(fontFamily = FontFamily.Monospace),
+                            .padding(MyGymSpace.md),
+                        style = MyGymTheme.typography.caption.copy(fontFamily = FontFamily.Monospace),
                         softWrap = false,
                     )
                     Text(
                         stringResource(Res.string.import_intro_note),
-                        style = AkhadaTheme.typography.caption,
+                        style = MyGymTheme.typography.caption,
                         color = colors.inkMuted,
                     )
-                    AkhadaButton(
+                    MyGymButton(
                         stringResource(Res.string.download_template),
                         { saveFile(MEMBERS_TEMPLATE_FILE_NAME, membersCsvTemplate().encodeToByteArray()) },
                         Modifier.fillMaxWidth(),
@@ -107,25 +107,25 @@ fun ImportMembersScreen(onBack: () -> Unit, onImported: (Int) -> Unit) {
             } else {
                 ImportSummary(preview)
             }
-            state.errorMessage?.let { Text(it.asString(), style = AkhadaTheme.typography.body, color = colors.statusDue) }
+            state.errorMessage?.let { Text(it.asString(), style = MyGymTheme.typography.body, color = colors.statusDue) }
         }
-        Column(Modifier.screenGutter().navigationBarsPadding().padding(vertical = AkhadaSpace.md), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+        Column(Modifier.screenGutter().navigationBarsPadding().padding(vertical = MyGymSpace.md), verticalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
             val ready = preview?.members?.size ?: 0
             if (ready > 0) {
-                AkhadaButton(
+                MyGymButton(
                     if (state.isImporting) stringResource(Res.string.adding) else pluralStringResource(Res.plurals.add_members_button, ready, ready),
                     vm::import,
                     Modifier.fillMaxWidth(),
                     enabled = !state.isImporting,
                 )
             }
-            AkhadaButton(
+            MyGymButton(
                 if (state.isReading) stringResource(Res.string.reading) else if (preview == null) stringResource(Res.string.choose_csv) else stringResource(Res.string.choose_different_file),
                 pickFile,
                 Modifier.fillMaxWidth(),
                 kind = if (ready > 0) ButtonKind.Secondary else ButtonKind.Primary,
                 enabled = !state.isReading && !state.isImporting,
-                icon = AkhadaIcons.FileUp,
+                icon = MyGymIcons.FileUp,
             )
         }
     }
@@ -133,28 +133,28 @@ fun ImportMembersScreen(onBack: () -> Unit, onImported: (Int) -> Unit) {
 
 @Composable
 private fun ImportSummary(preview: ImportPreview) {
-    val colors = AkhadaTheme.colors
-    AkhadaCard {
+    val colors = MyGymTheme.colors
+    MyGymCard {
         Text(
             if (preview.members.isEmpty()) stringResource(Res.string.no_members_to_add) else pluralStringResource(Res.plurals.members_ready, preview.members.size, preview.members.size),
-            style = AkhadaTheme.typography.title,
+            style = MyGymTheme.typography.title,
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
             Badge(pluralStringResource(Res.plurals.rows_count, preview.rowCount, preview.rowCount), BadgeTone.Expired, showDot = false)
             if (preview.skippedCount > 0) Badge(stringResource(Res.string.skipped_count, preview.skippedCount), BadgeTone.Due)
             if (preview.warningCount > 0) Badge(pluralStringResource(Res.plurals.warnings_count, preview.warningCount, preview.warningCount), BadgeTone.Expiring)
         }
     }
     if (preview.issues.isNotEmpty()) {
-        SectionHeader(stringResource(Res.string.check_rows), Modifier.padding(top = AkhadaSpace.md))
-        AkhadaCard {
+        SectionHeader(stringResource(Res.string.check_rows), Modifier.padding(top = MyGymSpace.md))
+        MyGymCard {
             preview.issues.forEach { issue ->
-                Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                    Text(stringResource(Res.string.row_number, issue.line), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+                Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
+                    Text(stringResource(Res.string.row_number, issue.line), style = MyGymTheme.typography.caption, color = colors.inkMuted)
                     Text(
                         issue.asString(),
                         Modifier.weight(1f),
-                        style = AkhadaTheme.typography.caption,
+                        style = MyGymTheme.typography.caption,
                         color = if (issue.skipped) colors.statusDue else colors.ink,
                     )
                 }
@@ -162,16 +162,16 @@ private fun ImportSummary(preview: ImportPreview) {
         }
     }
     if (preview.members.isNotEmpty()) {
-        SectionHeader(stringResource(Res.string.members_to_add), Modifier.padding(top = AkhadaSpace.md))
-        AkhadaCard {
+        SectionHeader(stringResource(Res.string.members_to_add), Modifier.padding(top = MyGymSpace.md))
+        MyGymCard {
             preview.members.take(PREVIEW_LIMIT).forEach { member ->
                 Row {
-                    Text(member.name, Modifier.weight(1f), style = AkhadaTheme.typography.body)
-                    Text(member.phone?.let(::formatPhone) ?: stringResource(Res.string.no_phone), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+                    Text(member.name, Modifier.weight(1f), style = MyGymTheme.typography.body)
+                    Text(member.phone?.let(::formatPhone) ?: stringResource(Res.string.no_phone), style = MyGymTheme.typography.caption, color = colors.inkMuted)
                 }
             }
             if (preview.members.size > PREVIEW_LIMIT) {
-                Text(stringResource(Res.string.and_more, preview.members.size - PREVIEW_LIMIT), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+                Text(stringResource(Res.string.and_more, preview.members.size - PREVIEW_LIMIT), style = MyGymTheme.typography.caption, color = colors.inkMuted)
             }
         }
     }

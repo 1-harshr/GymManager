@@ -28,9 +28,9 @@ import com.harsh.gymmanager.domain.model.PaymentMode
 import com.harsh.gymmanager.presentation.bulkrenew.BulkRenewEvent
 import com.harsh.gymmanager.presentation.bulkrenew.BulkRenewViewModel
 import com.harsh.gymmanager.presentation.formatRupees
-import com.harsh.gymmanager.ui.components.AkhadaButton
-import com.harsh.gymmanager.ui.components.AkhadaCard
-import com.harsh.gymmanager.ui.components.AkhadaSwitch
+import com.harsh.gymmanager.ui.components.MyGymButton
+import com.harsh.gymmanager.ui.components.MyGymCard
+import com.harsh.gymmanager.ui.components.MyGymSwitch
 import com.harsh.gymmanager.ui.components.Avatar
 import com.harsh.gymmanager.ui.components.EmptyState
 import com.harsh.gymmanager.ui.components.PlanCard
@@ -40,15 +40,15 @@ import com.harsh.gymmanager.ui.components.SegmentedControl
 import com.harsh.gymmanager.ui.format.asString
 import com.harsh.gymmanager.ui.format.label
 import com.harsh.gymmanager.ui.format.formatDateRange
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 
 @Composable
 fun BulkRenewScreen(memberIds: Set<Long>, onBack: () -> Unit, onDone: (Int) -> Unit, onAddPlan: () -> Unit) {
     val deps = LocalAppDependencies.current
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val vm = viewModel(key = "bulk-renew-${memberIds.sorted().joinToString(",")}") {
         BulkRenewViewModel(memberIds, deps.planUseCases, deps.bulkRenew)
     }
@@ -58,12 +58,12 @@ fun BulkRenewScreen(memberIds: Set<Long>, onBack: () -> Unit, onDone: (Int) -> U
     Column(Modifier.fillMaxSize()) {
         PushedHeader(pluralStringResource(Res.plurals.renew_members_title, memberIds.size, memberIds.size), onBack, subtitle = stringResource(Res.string.bulk_renew_subtitle))
         Column(
-            Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(bottom = AkhadaSpace.xl),
-            verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+            Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(bottom = MyGymSpace.xl),
+            verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
         ) {
             SectionHeader(stringResource(Res.string.section_plan), Modifier.screenGutter())
             if (!state.isLoading && state.plans.isEmpty()) {
-                EmptyState(AkhadaIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_renew_body), actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan)
+                EmptyState(MyGymIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_renew_body), actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan)
                 return@Column
             }
             state.plans.mostUsedFirst(rememberUsageStats().value).forEach { plan ->
@@ -71,18 +71,18 @@ fun BulkRenewScreen(memberIds: Set<Long>, onBack: () -> Unit, onDone: (Int) -> U
             }
             if (state.selectedPlan == null) return@Column
 
-            SectionHeader(stringResource(Res.string.section_payment), Modifier.screenGutter().padding(top = AkhadaSpace.md))
-            AkhadaCard(Modifier.screenGutter()) {
+            SectionHeader(stringResource(Res.string.section_payment), Modifier.screenGutter().padding(top = MyGymSpace.md))
+            MyGymCard(Modifier.screenGutter()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text(stringResource(Res.string.mark_all_paid), style = AkhadaTheme.typography.bodyStrong)
+                        Text(stringResource(Res.string.mark_all_paid), style = MyGymTheme.typography.bodyStrong)
                         Text(
                             if (state.markPaid) stringResource(Res.string.recorded_today, formatRupees(state.total)) else stringResource(Res.string.each_will_owe, formatRupees(state.selectedPlan!!.defaultPrice)),
-                            style = AkhadaTheme.typography.caption,
+                            style = MyGymTheme.typography.caption,
                             color = colors.inkMuted,
                         )
                     }
-                    AkhadaSwitch(
+                    MyGymSwitch(
                         checked = state.markPaid,
                         onCheckedChange = vm::onMarkPaidChange,
                     )
@@ -92,31 +92,31 @@ fun BulkRenewScreen(memberIds: Set<Long>, onBack: () -> Unit, onDone: (Int) -> U
                 }
             }
 
-            SectionHeader(stringResource(Res.string.section_new_dates), Modifier.screenGutter().padding(top = AkhadaSpace.md))
+            SectionHeader(stringResource(Res.string.section_new_dates), Modifier.screenGutter().padding(top = MyGymSpace.md))
             if (state.items.size < memberIds.size && state.items.isNotEmpty()) {
                 Text(
                     stringResource(Res.string.archived_left_out),
                     Modifier.screenGutter(),
-                    style = AkhadaTheme.typography.caption,
+                    style = MyGymTheme.typography.caption,
                     color = colors.inkMuted,
                 )
             }
             state.items.forEach { item ->
-                AkhadaCard(Modifier.screenGutter()) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+                MyGymCard(Modifier.screenGutter()) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
                         Avatar(item.member.name, item.member.photoPath)
                         Column(Modifier.weight(1f)) {
-                            Text(item.member.name, style = AkhadaTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text(formatDateRange(item.startDate, item.endDate), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+                            Text(item.member.name, style = MyGymTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(formatDateRange(item.startDate, item.endDate), style = MyGymTheme.typography.caption, color = colors.inkMuted)
                         }
                     }
                 }
             }
         }
-        Column(Modifier.screenGutter().navigationBarsPadding().padding(vertical = AkhadaSpace.md), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-            state.errorMessage?.let { Text(it.asString(), style = AkhadaTheme.typography.caption, color = colors.statusDue) }
+        Column(Modifier.screenGutter().navigationBarsPadding().padding(vertical = MyGymSpace.md), verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
+            state.errorMessage?.let { Text(it.asString(), style = MyGymTheme.typography.caption, color = colors.statusDue) }
             val count = state.items.size
-            AkhadaButton(
+            MyGymButton(
                 when {
                     state.isSaving -> stringResource(Res.string.saving)
                     state.selectedPlan == null -> stringResource(Res.string.choose_a_plan)

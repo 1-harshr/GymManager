@@ -28,15 +28,15 @@ import com.harsh.gymmanager.domain.messaging.MemberMessage
 import com.harsh.gymmanager.domain.messaging.MessageKind
 import com.harsh.gymmanager.presentation.messaging.WhatsAppPrompt
 import com.harsh.gymmanager.ui.LocalSnackbar
-import com.harsh.gymmanager.ui.components.AkhadaBottomSheet
-import com.harsh.gymmanager.ui.components.AkhadaButton
+import com.harsh.gymmanager.ui.components.MyGymBottomSheet
+import com.harsh.gymmanager.ui.components.MyGymButton
 import com.harsh.gymmanager.ui.components.ButtonKind
 import com.harsh.gymmanager.ui.components.SegmentedControl
 import com.harsh.gymmanager.ui.format.formatPhone
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import gymmanager.sharedui.generated.resources.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -91,13 +91,13 @@ fun MemberMessage.previewText(viaServer: Boolean): String {
 /** Shows the message before WhatsApp opens; with several options the owner picks one. */
 @Composable
 fun WhatsAppSheet(prompt: WhatsAppPrompt, onSelect: (Int) -> Unit, onSent: () -> Unit, onDismiss: () -> Unit) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val message = prompt.message
     val viaServer = rememberSendsThroughServer()
     val text = message.previewText(viaServer)
     val open = rememberWhatsAppOpener()
-    AkhadaBottomSheet(onDismiss) {
-        Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+    MyGymBottomSheet(onDismiss) {
+        Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
             Text(
                 stringResource(
                     when (message.kind) {
@@ -106,31 +106,31 @@ fun WhatsAppSheet(prompt: WhatsAppPrompt, onSelect: (Int) -> Unit, onSent: () ->
                         MessageKind.REMINDER -> Res.string.wa_title_reminder
                     }
                 ),
-                style = AkhadaTheme.typography.title,
+                style = MyGymTheme.typography.title,
             )
             Text(
                 stringResource(Res.string.wa_to, message.memberName, formatPhone(message.whatsAppNumber.removePrefix("91"))),
-                style = AkhadaTheme.typography.caption,
+                style = MyGymTheme.typography.caption,
                 color = colors.inkMuted,
             )
         }
         if (prompt.options.size > 1) {
             SegmentedControl(prompt.options.indices.toList(), prompt.selected, { it?.let(onSelect) }, { prompt.options[it].kind.label() })
         }
-        Surface(color = colors.surfaceSunken, shape = AkhadaRadius.cardShape, modifier = Modifier.fillMaxWidth()) {
+        Surface(color = colors.surfaceSunken, shape = MyGymRadius.cardShape, modifier = Modifier.fillMaxWidth()) {
             Text(
                 text,
-                style = AkhadaTheme.typography.body,
-                modifier = Modifier.heightIn(max = 300.dp).verticalScroll(rememberScrollState()).padding(AkhadaSpace.lg),
+                style = MyGymTheme.typography.body,
+                modifier = Modifier.heightIn(max = 300.dp).verticalScroll(rememberScrollState()).padding(MyGymSpace.lg),
             )
         }
-        Text(stringResource(if (viaServer) Res.string.wa_send_hint else Res.string.wa_hint), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
-        AkhadaButton(
+        Text(stringResource(if (viaServer) Res.string.wa_send_hint else Res.string.wa_hint), style = MyGymTheme.typography.caption, color = colors.inkMuted)
+        MyGymButton(
             stringResource(if (viaServer) Res.string.wa_send else Res.string.wa_open),
             onClick = { open(message, text, onSent) },
             modifier = Modifier.fillMaxWidth(),
-            icon = AkhadaIcons.MessageCircle,
+            icon = MyGymIcons.MessageCircle,
         )
-        AkhadaButton(stringResource(Res.string.not_now), onClick = onDismiss, modifier = Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+        MyGymButton(stringResource(Res.string.not_now), onClick = onDismiss, modifier = Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
     }
 }

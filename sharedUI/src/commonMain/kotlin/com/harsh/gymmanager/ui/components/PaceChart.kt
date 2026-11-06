@@ -32,9 +32,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.harsh.gymmanager.presentation.formatRupees
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import gymmanager.sharedui.generated.resources.Res
 import gymmanager.sharedui.generated.resources.chart_day
 import org.jetbrains.compose.resources.stringResource
@@ -58,13 +58,13 @@ fun PaceChart(
     description: String,
     modifier: Modifier = Modifier,
 ) {
-    val colors = AkhadaTheme.colors
-    val typography = AkhadaTheme.typography
+    val colors = MyGymTheme.colors
+    val typography = MyGymTheme.typography
     val days = maxOf(daysInMonth, lastMonth.size, 2)
     val top = (maxOf(thisMonth.maxOrNull() ?: 0L, lastMonth.maxOrNull() ?: 0L).coerceAtLeast(1L) * 1.1f)
     var scrubDay by remember { mutableStateOf<Int?>(null) }
 
-    Column(modifier.semantics { contentDescription = description }, verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+    Column(modifier.semantics { contentDescription = description }, verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
         Box(Modifier.fillMaxWidth().height(CHART_HEIGHT)) {
             Canvas(
                 Modifier.fillMaxWidth().height(CHART_HEIGHT)
@@ -113,7 +113,7 @@ fun PaceChart(
             Text(startLabel, Modifier.weight(1f), style = typography.caption, color = colors.inkMuted)
             Text(endLabel, style = typography.caption, color = colors.inkMuted)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.lg), verticalAlignment = Alignment.CenterVertically) {
+        Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.lg), verticalAlignment = Alignment.CenterVertically) {
             LegendKey(colors.accent, thisLabel)
             if (lastMonth.isNotEmpty()) LegendKey(colors.chartReference, lastLabel)
         }
@@ -134,17 +134,17 @@ private fun DrawScope.drawSeries(values: List<Long>, color: Color, ring: Color?,
 /** Values lead, series names follow, each keyed by a short stroke of its colour. */
 @Composable
 private fun ScrubReadout(day: Int, rows: List<Triple<Color, String, Long>>, modifier: Modifier = Modifier) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     Column(
-        modifier.background(colors.surface, AkhadaRadius.fieldShape).padding(horizontal = AkhadaSpace.md, vertical = AkhadaSpace.sm),
+        modifier.background(colors.surface, MyGymRadius.fieldShape).padding(horizontal = MyGymSpace.md, vertical = MyGymSpace.sm),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        Text(stringResource(Res.string.chart_day, day), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+        Text(stringResource(Res.string.chart_day, day), style = MyGymTheme.typography.caption, color = colors.inkMuted)
         rows.forEach { (color, label, value) ->
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
                 LineKey(color)
-                Text(formatRupees(value), style = AkhadaTheme.typography.bodyStrong)
-                Text(label, style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+                Text(formatRupees(value), style = MyGymTheme.typography.bodyStrong)
+                Text(label, style = MyGymTheme.typography.caption, color = colors.inkMuted)
             }
         }
     }
@@ -152,15 +152,15 @@ private fun ScrubReadout(day: Int, rows: List<Triple<Color, String, Long>>, modi
 
 @Composable
 private fun LegendKey(color: Color, label: String) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
         LineKey(color)
-        Text(label, style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
+        Text(label, style = MyGymTheme.typography.caption, color = MyGymTheme.colors.inkMuted)
     }
 }
 
 @Composable
 private fun LineKey(color: Color) {
-    Box(Modifier.size(width = 14.dp, height = 2.dp).background(color, AkhadaRadius.pillShape))
+    Box(Modifier.size(width = 14.dp, height = 2.dp).background(color, MyGymRadius.pillShape))
 }
 
 private val CHART_HEIGHT = 128.dp

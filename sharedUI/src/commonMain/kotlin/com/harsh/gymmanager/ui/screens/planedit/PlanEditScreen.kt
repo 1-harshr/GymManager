@@ -32,13 +32,13 @@ import com.harsh.gymmanager.LocalAppDependencies
 import com.harsh.gymmanager.domain.model.DurationUnit
 import com.harsh.gymmanager.presentation.planedit.PlanEditEvent
 import com.harsh.gymmanager.presentation.planedit.PlanEditViewModel
-import com.harsh.gymmanager.ui.components.AkhadaButton
-import com.harsh.gymmanager.ui.components.AkhadaTextField
+import com.harsh.gymmanager.ui.components.MyGymButton
+import com.harsh.gymmanager.ui.components.MyGymTextField
 import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.components.SegmentedControl
 import com.harsh.gymmanager.ui.format.asString
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 
 /** Adds a plan when [planId] is null. */
@@ -62,14 +62,14 @@ fun PlanEditScreen(planId: Long?, onBack: () -> Unit, onSaved: () -> Unit) {
         PushedHeader(if (state.isEditing) stringResource(Res.string.edit_plan) else stringResource(Res.string.new_plan), back)
         Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter(),
-            verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg),
+            verticalArrangement = Arrangement.spacedBy(MyGymSpace.lg),
         ) {
-            AkhadaTextField(
+            MyGymTextField(
                 state.name, vm::onNameChange, stringResource(Res.string.plan_name),
                 error = state.nameError?.asString(), placeholder = stringResource(Res.string.plan_name_hint), capitalization = KeyboardCapitalization.Words,
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md), verticalAlignment = Alignment.Bottom) {
-                AkhadaTextField(
+            Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md), verticalAlignment = Alignment.Bottom) {
+                MyGymTextField(
                     state.durationText, vm::onDurationChange, stringResource(Res.string.plan_length),
                     Modifier.weight(1f), error = state.durationError?.asString(), keyboardType = KeyboardType.Number,
                 )
@@ -89,23 +89,23 @@ fun PlanEditScreen(planId: Long?, onBack: () -> Unit, onSaved: () -> Unit) {
                     vm.onDurationUnitChange(unit)
                 },
             )
-            AkhadaTextField(
+            MyGymTextField(
                 state.priceText, vm::onPriceChange, stringResource(Res.string.price),
                 error = state.priceError?.asString(), prefix = "₹", keyboardType = KeyboardType.Number, imeAction = ImeAction.Done,
             )
             if (state.isEditing) {
                 Text(
                     stringResource(Res.string.plan_edit_note),
-                    style = AkhadaTheme.typography.caption,
-                    color = AkhadaTheme.colors.inkMuted,
+                    style = MyGymTheme.typography.caption,
+                    color = MyGymTheme.colors.inkMuted,
                 )
             }
-            state.errorMessage?.let { Text(it.asString(), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.statusDue) }
+            state.errorMessage?.let { Text(it.asString(), style = MyGymTheme.typography.caption, color = MyGymTheme.colors.statusDue) }
         }
-        AkhadaButton(
+        MyGymButton(
             if (state.isSaving) stringResource(Res.string.saving) else if (state.isEditing) stringResource(Res.string.save_changes) else stringResource(Res.string.add_plan),
             vm::save,
-            Modifier.fillMaxWidth().screenGutter().navigationBarsPadding().padding(vertical = AkhadaSpace.md),
+            Modifier.fillMaxWidth().screenGutter().navigationBarsPadding().padding(vertical = MyGymSpace.md),
             enabled = !state.isSaving && !state.isLoading,
         )
     }

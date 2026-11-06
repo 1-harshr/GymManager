@@ -41,8 +41,8 @@ class BackupUseCases(
         json.encodeToString(BackupFile.serializer(), backup).encodeToByteArray()
     }
 
-    /** "gym-manager-backup-2026-11-05.json", dated today. */
-    fun fileName(): String = "gym-manager-backup-${clock.now().toLocalDateTime(timeZone).date}.json"
+    /** "my-gym-backup-2026-11-05.json", dated today. */
+    fun fileName(): String = "my-gym-backup-${clock.now().toLocalDateTime(timeZone).date}.json"
 
     /** Call once the file has actually been saved somewhere. */
     suspend fun markSaved(): Result<Unit> = resultOf { settings.setLastBackupAt(clock.now()) }

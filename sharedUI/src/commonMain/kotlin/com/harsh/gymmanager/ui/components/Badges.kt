@@ -17,8 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.harsh.gymmanager.domain.MembershipStatus
 import com.harsh.gymmanager.presentation.formatRupees
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 
 enum class BadgeTone { Active, Expiring, Expired, Due }
 
@@ -30,7 +30,7 @@ fun MembershipStatus.tone(): BadgeTone = when (this) {
 
 @Composable
 fun BadgeTone.colors(): Pair<Color, Color> {
-    val c = AkhadaTheme.colors
+    val c = MyGymTheme.colors
     return when (this) {
         BadgeTone.Active -> c.statusActive to c.statusActiveSoft
         BadgeTone.Expiring -> c.statusExpiring to c.statusExpiringSoft
@@ -44,12 +44,12 @@ fun BadgeTone.colors(): Pair<Color, Color> {
 fun Badge(text: String, tone: BadgeTone, modifier: Modifier = Modifier, showDot: Boolean = true) {
     val (ink, ground) = tone.colors()
     Row(
-        modifier.background(ground, AkhadaRadius.pillShape).padding(horizontal = 10.dp, vertical = 4.dp),
+        modifier.background(ground, MyGymRadius.pillShape).padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         if (showDot) StatusDot(ink)
-        Text(text, style = AkhadaTheme.typography.caption.copy(fontWeight = AkhadaTheme.typography.bodyStrong.fontWeight), color = ink, maxLines = 1)
+        Text(text, style = MyGymTheme.typography.caption.copy(fontWeight = MyGymTheme.typography.bodyStrong.fontWeight), color = ink, maxLines = 1)
     }
 }
 

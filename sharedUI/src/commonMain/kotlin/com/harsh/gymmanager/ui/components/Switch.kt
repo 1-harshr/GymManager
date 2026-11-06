@@ -4,12 +4,12 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 
 /** The app's on/off switch: ink when on, sunken when off. */
 @Composable
-fun AkhadaSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
-    val colors = AkhadaTheme.colors
+fun MyGymSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+    val colors = MyGymTheme.colors
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,

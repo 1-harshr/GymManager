@@ -15,7 +15,7 @@ class ContrastTest {
         return (max(la, lb) / min(la, lb)).toDouble()
     }
 
-    private fun pairs(c: AkhadaColors) = listOf(
+    private fun pairs(c: MyGymColors) = listOf(
         "ink/bg" to (c.ink to c.bg), "ink/surface" to (c.ink to c.surface), "ink/sunken" to (c.ink to c.surfaceSunken),
         "muted/bg" to (c.inkMuted to c.bg), "muted/surface" to (c.inkMuted to c.surface),
         "muted/sunken" to (c.inkMuted to c.surfaceSunken), "onInk/ink" to (c.onInk to c.ink),
@@ -28,7 +28,7 @@ class ContrastTest {
 
     @Test
     fun textPairsMeetAa() {
-        for ((theme, colors) in listOf("light" to AkhadaLightColors, "dark" to AkhadaDarkColors)) {
+        for ((theme, colors) in listOf("light" to MyGymLightColors, "dark" to MyGymDarkColors)) {
             for ((name, pair) in pairs(colors)) {
                 val ratio = contrast(pair.first, pair.second)
                 assertTrue(ratio >= 4.5, "$theme $name is ${ratio}:1")

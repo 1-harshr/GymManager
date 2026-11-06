@@ -61,12 +61,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.harsh.gymmanager.ui.components.AkhadaButton
-import com.harsh.gymmanager.ui.components.AkhadaIconButton
+import com.harsh.gymmanager.ui.components.MyGymButton
+import com.harsh.gymmanager.ui.components.MyGymIconButton
 import com.harsh.gymmanager.ui.components.ButtonKind
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
@@ -83,7 +83,7 @@ actual fun MemberPhoto(path: String, contentDescription: String?, modifier: Modi
     if (image != null) {
         Image(image, contentDescription, modifier, contentScale = ContentScale.Crop)
     } else {
-        Box(modifier.background(AkhadaTheme.colors.surfaceSunken))
+        Box(modifier.background(MyGymTheme.colors.surfaceSunken))
     }
 }
 
@@ -113,19 +113,19 @@ private fun hasCameraPermission(context: Context) =
 @Composable
 private fun PermissionNeeded(onRetry: () -> Unit, onClose: () -> Unit) {
     Column(
-        Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(AkhadaSpace.xl),
-        verticalArrangement = Arrangement.spacedBy(AkhadaSpace.lg, Alignment.CenterVertically),
+        Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(MyGymSpace.xl),
+        verticalArrangement = Arrangement.spacedBy(MyGymSpace.lg, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(stringResource(Res.string.camera_off_title), style = AkhadaTheme.typography.title, color = Color.White)
+        Text(stringResource(Res.string.camera_off_title), style = MyGymTheme.typography.title, color = Color.White)
         Text(
             stringResource(Res.string.camera_off_body),
-            style = AkhadaTheme.typography.body,
+            style = MyGymTheme.typography.body,
             color = Color.White.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
         )
-        AkhadaButton(stringResource(Res.string.allow_camera), onRetry, Modifier.fillMaxWidth())
-        AkhadaButton(stringResource(Res.string.not_now), onClose, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+        MyGymButton(stringResource(Res.string.allow_camera), onRetry, Modifier.fillMaxWidth())
+        MyGymButton(stringResource(Res.string.not_now), onClose, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
     }
 }
 
@@ -160,16 +160,16 @@ private fun CameraScreen(onPhotoTaken: (String) -> Unit, onClose: () -> Unit) {
     }
 
     Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
-        Row(Modifier.fillMaxWidth().padding(AkhadaSpace.gutter), verticalAlignment = Alignment.CenterVertically) {
-            AkhadaIconButton(AkhadaIcons.X, stringResource(Res.string.close_camera), onClose, container = Color.White.copy(alpha = 0.16f), content = Color.White)
+        Row(Modifier.fillMaxWidth().padding(MyGymSpace.gutter), verticalAlignment = Alignment.CenterVertically) {
+            MyGymIconButton(MyGymIcons.X, stringResource(Res.string.close_camera), onClose, container = Color.White.copy(alpha = 0.16f), content = Color.White)
             Spacer(Modifier.weight(1f))
-            Text(if (captured == null) stringResource(Res.string.member_photo) else stringResource(Res.string.use_this_photo), style = AkhadaTheme.typography.title, color = Color.White)
+            Text(if (captured == null) stringResource(Res.string.member_photo) else stringResource(Res.string.use_this_photo), style = MyGymTheme.typography.title, color = Color.White)
             Spacer(Modifier.weight(1f))
             Spacer(Modifier.size(44.dp))
         }
         // A square frame, since photos show as circles everywhere in the app.
         Box(
-            Modifier.fillMaxWidth().padding(horizontal = AkhadaSpace.gutter).aspectRatio(1f).clip(androidx.compose.foundation.shape.RoundedCornerShape(28.dp)).background(Color(0xFF1A1A1A)),
+            Modifier.fillMaxWidth().padding(horizontal = MyGymSpace.gutter).aspectRatio(1f).clip(androidx.compose.foundation.shape.RoundedCornerShape(28.dp)).background(Color(0xFF1A1A1A)),
             contentAlignment = Alignment.Center,
         ) {
             val path = captured
@@ -180,13 +180,13 @@ private fun CameraScreen(onPhotoTaken: (String) -> Unit, onClose: () -> Unit) {
             }
         }
         if (failed) {
-            Text(stringResource(Res.string.photo_failed), Modifier.fillMaxWidth().padding(AkhadaSpace.lg), style = AkhadaTheme.typography.body, color = Color.White, textAlign = TextAlign.Center)
+            Text(stringResource(Res.string.photo_failed), Modifier.fillMaxWidth().padding(MyGymSpace.lg), style = MyGymTheme.typography.body, color = Color.White, textAlign = TextAlign.Center)
         }
         Spacer(Modifier.weight(1f))
         val path = captured
         if (path == null) {
             Row(
-                Modifier.fillMaxWidth().padding(horizontal = AkhadaSpace.xl, vertical = AkhadaSpace.xl),
+                Modifier.fillMaxWidth().padding(horizontal = MyGymSpace.xl, vertical = MyGymSpace.xl),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
@@ -211,16 +211,16 @@ private fun CameraScreen(onPhotoTaken: (String) -> Unit, onClose: () -> Unit) {
                         .padding(6.dp)
                         .semantics { contentDescription = shutterLabel },
                 ) {}
-                AkhadaIconButton(
-                    AkhadaIcons.SwitchCamera, stringResource(Res.string.switch_camera),
+                MyGymIconButton(
+                    MyGymIcons.SwitchCamera, stringResource(Res.string.switch_camera),
                     onClick = { lens = if (lens == CameraSelector.LENS_FACING_FRONT) CameraSelector.LENS_FACING_BACK else CameraSelector.LENS_FACING_FRONT },
                     size = 48.dp, container = Color.White.copy(alpha = 0.16f), content = Color.White,
                 )
             }
         } else {
-            Column(Modifier.fillMaxWidth().padding(AkhadaSpace.gutter), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                AkhadaButton(stringResource(Res.string.use_photo), { onPhotoTaken(path) }, Modifier.fillMaxWidth())
-                AkhadaButton(
+            Column(Modifier.fillMaxWidth().padding(MyGymSpace.gutter), verticalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
+                MyGymButton(stringResource(Res.string.use_photo), { onPhotoTaken(path) }, Modifier.fillMaxWidth())
+                MyGymButton(
                     stringResource(Res.string.retake),
                     { File(path).delete(); captured = null },
                     Modifier.fillMaxWidth(),

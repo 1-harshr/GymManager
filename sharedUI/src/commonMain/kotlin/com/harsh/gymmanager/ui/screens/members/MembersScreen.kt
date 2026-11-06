@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import com.harsh.gymmanager.domain.model.MemberSummary
 import com.harsh.gymmanager.domain.usecase.MemberFilter
 import com.harsh.gymmanager.presentation.members.MembersUiState
-import com.harsh.gymmanager.ui.components.AkhadaIconButton
+import com.harsh.gymmanager.ui.components.MyGymIconButton
 import com.harsh.gymmanager.ui.components.EmptyState
 import com.harsh.gymmanager.ui.components.FilterChips
 import com.harsh.gymmanager.ui.components.GhostButton
@@ -35,9 +35,9 @@ import com.harsh.gymmanager.ui.components.MemberRow
 import com.harsh.gymmanager.ui.components.SearchBar
 import com.harsh.gymmanager.ui.components.TabHeader
 import com.harsh.gymmanager.ui.format.rememberToday
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaSize
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymSize
+import com.harsh.gymmanager.ui.theme.MyGymSpace
 import com.harsh.gymmanager.ui.theme.screenGutter
 
 @Composable
@@ -76,11 +76,11 @@ fun MembersScreen(
     val today = rememberToday()
     val subtitle = if (state.isLoading) null else pluralStringResource(Res.plurals.members_count, state.members.size, state.members.size)
     // As many tiles across as fit at their smallest; never fewer than two.
-    val columns = ((maxWidth - AkhadaSpace.gutter * 2 + AkhadaSpace.md) / (TILE_MIN_WIDTH + AkhadaSpace.md)).toInt().coerceAtLeast(2)
+    val columns = ((maxWidth - MyGymSpace.gutter * 2 + MyGymSpace.md) / (TILE_MIN_WIDTH + MyGymSpace.md)).toInt().coerceAtLeast(2)
     LazyColumn(
         Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = AkhadaSize.contentBottomClearance),
-        verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+        contentPadding = PaddingValues(bottom = MyGymSize.contentBottomClearance),
+        verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
     ) {
         item {
             if (state.isSelecting) {
@@ -95,12 +95,12 @@ fun MembersScreen(
                         contentDescription = stringResource(Res.string.more_member_actions),
                     )
                     // Shows the view it switches to.
-                    AkhadaIconButton(
-                        if (asGrid) AkhadaIcons.List else AkhadaIcons.LayoutGrid,
+                    MyGymIconButton(
+                        if (asGrid) MyGymIcons.List else MyGymIcons.LayoutGrid,
                         stringResource(if (asGrid) Res.string.show_as_list else Res.string.show_as_grid),
                         { onAsGridChange(!asGrid) },
                     )
-                    AkhadaIconButton(AkhadaIcons.Settings, stringResource(Res.string.settings), onOpenSettings)
+                    MyGymIconButton(MyGymIcons.Settings, stringResource(Res.string.settings), onOpenSettings)
                 }
             }
         }
@@ -112,19 +112,19 @@ fun MembersScreen(
                 when {
                     nothingYet -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         EmptyState(
-                            AkhadaIcons.Users, stringResource(Res.string.no_members_title), stringResource(Res.string.no_members_body),
+                            MyGymIcons.Users, stringResource(Res.string.no_members_title), stringResource(Res.string.no_members_body),
                             actionLabel = stringResource(Res.string.add_member), onAction = onAddMember,
                         )
                         GhostButton(stringResource(Res.string.import_from_file), onImport)
                     }
-                    state.query.isNotBlank() -> EmptyState(AkhadaIcons.Search, stringResource(Res.string.no_match_title, state.query.trim()), stringResource(Res.string.no_match_body))
-                    else -> EmptyState(AkhadaIcons.Users, stringResource(Res.string.no_filter_match_title), stringResource(Res.string.no_filter_match_body))
+                    state.query.isNotBlank() -> EmptyState(MyGymIcons.Search, stringResource(Res.string.no_match_title, state.query.trim()), stringResource(Res.string.no_match_body))
+                    else -> EmptyState(MyGymIcons.Users, stringResource(Res.string.no_filter_match_title), stringResource(Res.string.no_filter_match_body))
                 }
             }
         }
         if (asGrid) {
             items(state.members.chunked(columns), key = { row -> "row-${row.first().memberId}" }) { row ->
-                Row(Modifier.screenGutter().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+                Row(Modifier.screenGutter().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
                     row.forEach { member ->
                         MemberTile(
                             member,

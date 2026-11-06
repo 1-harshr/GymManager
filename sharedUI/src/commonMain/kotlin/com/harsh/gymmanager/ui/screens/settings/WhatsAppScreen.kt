@@ -38,20 +38,20 @@ import com.harsh.gymmanager.presentation.settings.WhatsAppViewModel
 import com.harsh.gymmanager.templates.gymTemplates
 import com.harsh.gymmanager.ui.LocalGym
 import com.harsh.gymmanager.ui.LocalSnackbar
-import com.harsh.gymmanager.ui.components.AkhadaButton
-import com.harsh.gymmanager.ui.components.AkhadaCard
-import com.harsh.gymmanager.ui.components.AkhadaTextField
+import com.harsh.gymmanager.ui.components.MyGymButton
+import com.harsh.gymmanager.ui.components.MyGymCard
+import com.harsh.gymmanager.ui.components.MyGymTextField
 import com.harsh.gymmanager.ui.components.ButtonKind
 import com.harsh.gymmanager.ui.components.ConfirmSheet
 import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.components.SectionHeader
 import com.harsh.gymmanager.ui.components.StatusDot
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
+import com.harsh.gymmanager.ui.icons.MyGymIcons
 import com.harsh.gymmanager.ui.messaging.label
 import com.harsh.gymmanager.ui.platform.sendsRemindersInBackground
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.getString
@@ -93,8 +93,8 @@ fun WhatsAppScreen(onBack: () -> Unit) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         PushedHeader(stringResource(Res.string.section_whatsapp), onBack, subtitle = stringResource(Res.string.wa_screen_subtitle))
         Column(
-            Modifier.screenGutter().navigationBarsPadding().padding(bottom = AkhadaSpace.xxl),
-            verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+            Modifier.screenGutter().navigationBarsPadding().padding(bottom = MyGymSpace.xxl),
+            verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
         ) {
             when {
                 state.isLoading -> Unit
@@ -106,9 +106,9 @@ fun WhatsAppScreen(onBack: () -> Unit) {
                 else -> {
                     OnCard(onChange = { editing = true }, onStop = { confirmingStop = true })
                     TestCard(state.testing, vm::sendTest)
-                    SectionHeader(stringResource(Res.string.section_wa_auto), Modifier.padding(top = AkhadaSpace.md))
+                    SectionHeader(stringResource(Res.string.section_wa_auto), Modifier.padding(top = MyGymSpace.md))
                     AutoSendCard(state.autoSend, vm::setAutoSend)
-                    SectionHeader(stringResource(Res.string.section_wa_recent), Modifier.padding(top = AkhadaSpace.md))
+                    SectionHeader(stringResource(Res.string.section_wa_recent), Modifier.padding(top = MyGymSpace.md))
                     RecentCard(state.recent)
                     TemplatesSection()
                 }
@@ -135,43 +135,43 @@ fun WhatsAppScreen(onBack: () -> Unit) {
 internal fun WhatsAppSettingsCard(onOpen: () -> Unit) {
     val whatsApp = LocalAppDependencies.current.whatsApp
     val settings by whatsApp.observeSettings().collectAsStateWithLifecycle(WhatsAppSettings())
-    AkhadaCard(onClick = onOpen) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-            Icon(AkhadaIcons.MessageCircle, contentDescription = null, tint = AkhadaTheme.colors.ink)
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
-                Text(stringResource(Res.string.wa_settings_title), style = AkhadaTheme.typography.bodyStrong)
+    MyGymCard(onClick = onOpen) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
+            Icon(MyGymIcons.MessageCircle, contentDescription = null, tint = MyGymTheme.colors.ink)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+                Text(stringResource(Res.string.wa_settings_title), style = MyGymTheme.typography.bodyStrong)
                 Text(
                     stringResource(if (whatsApp.isAvailable && settings.isSetUp) Res.string.wa_settings_on else Res.string.wa_settings_off),
-                    style = AkhadaTheme.typography.body,
-                    color = AkhadaTheme.colors.inkMuted,
+                    style = MyGymTheme.typography.body,
+                    color = MyGymTheme.colors.inkMuted,
                 )
             }
-            Icon(AkhadaIcons.ChevronRight, contentDescription = null, tint = AkhadaTheme.colors.inkMuted)
+            Icon(MyGymIcons.ChevronRight, contentDescription = null, tint = MyGymTheme.colors.inkMuted)
         }
     }
 }
 
 @Composable
 private fun UnavailableCard() {
-    AkhadaCard {
-        Text(stringResource(Res.string.wa_unavailable_title), style = AkhadaTheme.typography.title)
-        Text(stringResource(Res.string.wa_unavailable_body), style = AkhadaTheme.typography.body, color = AkhadaTheme.colors.inkMuted)
+    MyGymCard {
+        Text(stringResource(Res.string.wa_unavailable_title), style = MyGymTheme.typography.title)
+        Text(stringResource(Res.string.wa_unavailable_body), style = MyGymTheme.typography.body, color = MyGymTheme.colors.inkMuted)
     }
 }
 
 @Composable
 private fun SetupCard(current: String, onSave: (String) -> Unit, onCancel: (() -> Unit)?) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     var url by remember { mutableStateOf(current) }
-    AkhadaCard {
-        Text(stringResource(Res.string.wa_setup_title), style = AkhadaTheme.typography.title)
-        Text(stringResource(Res.string.wa_setup_body), style = AkhadaTheme.typography.body)
-        Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
+    MyGymCard {
+        Text(stringResource(Res.string.wa_setup_title), style = MyGymTheme.typography.title)
+        Text(stringResource(Res.string.wa_setup_body), style = MyGymTheme.typography.body)
+        Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
             listOf(Res.string.wa_setup_step1, Res.string.wa_setup_step2, Res.string.wa_setup_step3).forEach {
-                Text(stringResource(it), style = AkhadaTheme.typography.body, color = colors.inkMuted)
+                Text(stringResource(it), style = MyGymTheme.typography.body, color = colors.inkMuted)
             }
         }
-        AkhadaTextField(
+        MyGymTextField(
             value = url,
             onValueChange = { url = it },
             label = stringResource(Res.string.wa_webhook_label),
@@ -179,25 +179,25 @@ private fun SetupCard(current: String, onSave: (String) -> Unit, onCancel: (() -
             keyboardType = KeyboardType.Uri,
             imeAction = ImeAction.Done,
         )
-        AkhadaButton(stringResource(Res.string.wa_webhook_save), { onSave(url) }, Modifier.fillMaxWidth(), enabled = url.isNotBlank(), icon = AkhadaIcons.MessageCircle)
+        MyGymButton(stringResource(Res.string.wa_webhook_save), { onSave(url) }, Modifier.fillMaxWidth(), enabled = url.isNotBlank(), icon = MyGymIcons.MessageCircle)
         if (onCancel != null) {
-            AkhadaButton(stringResource(Res.string.cancel), onCancel, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+            MyGymButton(stringResource(Res.string.cancel), onCancel, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
         }
     }
 }
 
 @Composable
 private fun OnCard(onChange: () -> Unit, onStop: () -> Unit) {
-    val colors = AkhadaTheme.colors
-    AkhadaCard {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
+    val colors = MyGymTheme.colors
+    MyGymCard {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
             StatusDot(colors.statusActive)
-            Text(stringResource(Res.string.wa_on_title), style = AkhadaTheme.typography.bodyStrong)
+            Text(stringResource(Res.string.wa_on_title), style = MyGymTheme.typography.bodyStrong)
         }
-        Text(stringResource(Res.string.wa_on_body), style = AkhadaTheme.typography.body, color = colors.inkMuted)
-        Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm)) {
-            AkhadaButton(stringResource(Res.string.wa_change_webhook), onChange, Modifier.weight(1f), kind = ButtonKind.Secondary)
-            AkhadaButton(stringResource(Res.string.wa_stop), onStop, Modifier.weight(1f), kind = ButtonKind.Danger)
+        Text(stringResource(Res.string.wa_on_body), style = MyGymTheme.typography.body, color = colors.inkMuted)
+        Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
+            MyGymButton(stringResource(Res.string.wa_change_webhook), onChange, Modifier.weight(1f), kind = ButtonKind.Secondary)
+            MyGymButton(stringResource(Res.string.wa_stop), onStop, Modifier.weight(1f), kind = ButtonKind.Danger)
         }
     }
 }
@@ -205,38 +205,38 @@ private fun OnCard(onChange: () -> Unit, onStop: () -> Unit) {
 @Composable
 private fun TestCard(testing: Boolean, onSend: (String) -> Unit) {
     var phone by remember { mutableStateOf("") }
-    AkhadaCard {
-        Text(stringResource(Res.string.wa_test_title), style = AkhadaTheme.typography.bodyStrong)
-        Text(stringResource(Res.string.wa_test_body), style = AkhadaTheme.typography.body, color = AkhadaTheme.colors.inkMuted)
-        AkhadaTextField(
+    MyGymCard {
+        Text(stringResource(Res.string.wa_test_title), style = MyGymTheme.typography.bodyStrong)
+        Text(stringResource(Res.string.wa_test_body), style = MyGymTheme.typography.body, color = MyGymTheme.colors.inkMuted)
+        MyGymTextField(
             value = phone,
             onValueChange = { phone = it },
             label = stringResource(Res.string.wa_test_number),
             keyboardType = KeyboardType.Phone,
             imeAction = ImeAction.Done,
         )
-        AkhadaButton(stringResource(Res.string.wa_test_send), { onSend(phone) }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary, enabled = !testing && phone.isNotBlank())
+        MyGymButton(stringResource(Res.string.wa_test_send), { onSend(phone) }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary, enabled = !testing && phone.isNotBlank())
     }
 }
 
 @Composable
 private fun AutoSendCard(auto: AutoSend, onChange: (AutoSend) -> Unit) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     var pickingTime by remember { mutableStateOf(false) }
-    AkhadaCard {
+    MyGymCard {
         SwitchRow(stringResource(Res.string.wa_auto_welcome), stringResource(Res.string.wa_auto_welcome_body), auto.welcome) { onChange(auto.copy(welcome = it)) }
         SwitchRow(stringResource(Res.string.wa_auto_receipts), stringResource(Res.string.wa_auto_receipts_body), auto.receipts) { onChange(auto.copy(receipts = it)) }
         SwitchRow(stringResource(Res.string.wa_auto_reminders), stringResource(Res.string.wa_auto_reminders_body), auto.reminders) { onChange(auto.copy(reminders = it)) }
         if (auto.reminders) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(Res.string.wa_reminder_time), Modifier.weight(1f), style = AkhadaTheme.typography.body, color = colors.inkMuted)
-                AkhadaButton(timeLabel(auto.reminderMinuteOfDay), { pickingTime = true }, kind = ButtonKind.Secondary)
+                Text(stringResource(Res.string.wa_reminder_time), Modifier.weight(1f), style = MyGymTheme.typography.body, color = colors.inkMuted)
+                MyGymButton(timeLabel(auto.reminderMinuteOfDay), { pickingTime = true }, kind = ButtonKind.Secondary)
             }
             if (!sendsRemindersInBackground) {
-                Text(stringResource(Res.string.wa_auto_reminders_ios), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+                Text(stringResource(Res.string.wa_auto_reminders_ios), style = MyGymTheme.typography.caption, color = colors.inkMuted)
             }
         }
-        Text(stringResource(Res.string.wa_auto_offline), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+        Text(stringResource(Res.string.wa_auto_offline), style = MyGymTheme.typography.caption, color = colors.inkMuted)
     }
     if (pickingTime) {
         TimeSheet(
@@ -253,9 +253,9 @@ private fun AutoSendCard(auto: AutoSend, onChange: (AutoSend) -> Unit) {
 
 @Composable
 private fun RecentCard(recent: List<OutboxMessage>) {
-    AkhadaCard {
+    MyGymCard {
         if (recent.isEmpty()) {
-            Text(stringResource(Res.string.wa_recent_empty), style = AkhadaTheme.typography.body, color = AkhadaTheme.colors.inkMuted)
+            Text(stringResource(Res.string.wa_recent_empty), style = MyGymTheme.typography.body, color = MyGymTheme.colors.inkMuted)
         }
         recent.forEach { RecentRow(it) }
     }
@@ -263,19 +263,19 @@ private fun RecentCard(recent: List<OutboxMessage>) {
 
 @Composable
 private fun RecentRow(message: OutboxMessage) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val failed = message.status == OutboxStatus.FAILED
-    Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+    Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
         StatusDot(message.status.color(), Modifier.padding(top = 7.dp))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(stringResource(Res.string.wa_recent_row, message.memberName, message.kind.label()), style = AkhadaTheme.typography.bodyStrong)
+            Text(stringResource(Res.string.wa_recent_row, message.memberName, message.kind.label()), style = MyGymTheme.typography.bodyStrong)
             Text(
                 when (message.status) {
                     OutboxStatus.PENDING -> stringResource(Res.string.wa_status_pending)
                     OutboxStatus.SENT -> stringResource(Res.string.wa_status_sent)
                     OutboxStatus.FAILED -> stringResource(Res.string.wa_status_failed, message.errorMessage.orEmpty())
                 },
-                style = AkhadaTheme.typography.caption,
+                style = MyGymTheme.typography.caption,
                 color = if (failed) colors.statusDue else colors.inkMuted,
             )
         }
@@ -284,28 +284,28 @@ private fun RecentRow(message: OutboxMessage) {
 
 @Composable
 private fun OutboxStatus.color(): Color = when (this) {
-    OutboxStatus.PENDING -> AkhadaTheme.colors.statusExpiring
-    OutboxStatus.SENT -> AkhadaTheme.colors.statusActive
-    OutboxStatus.FAILED -> AkhadaTheme.colors.statusDue
+    OutboxStatus.PENDING -> MyGymTheme.colors.statusExpiring
+    OutboxStatus.SENT -> MyGymTheme.colors.statusActive
+    OutboxStatus.FAILED -> MyGymTheme.colors.statusDue
 }
 
 /** The template names and wording to create in WhatsApp Manager, copyable. */
 @Composable
 private fun TemplatesSection() {
-    val colors = AkhadaTheme.colors
-    SectionHeader(stringResource(Res.string.section_wa_templates), Modifier.padding(top = AkhadaSpace.md))
-    AkhadaCard {
-        Text(stringResource(Res.string.wa_templates_body), style = AkhadaTheme.typography.body, color = colors.inkMuted)
+    val colors = MyGymTheme.colors
+    SectionHeader(stringResource(Res.string.section_wa_templates), Modifier.padding(top = MyGymSpace.md))
+    MyGymCard {
+        Text(stringResource(Res.string.wa_templates_body), style = MyGymTheme.typography.body, color = colors.inkMuted)
         SelectionContainer {
-            Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
                 gymTemplates.forEach { template ->
                     Column(
-                        Modifier.fillMaxWidth().padding(top = AkhadaSpace.xs),
-                        verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs),
+                        Modifier.fillMaxWidth().padding(top = MyGymSpace.xs),
+                        verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs),
                     ) {
-                        Text(template.name, style = AkhadaTheme.typography.bodyStrong)
-                        Surface(color = colors.surfaceSunken, shape = AkhadaRadius.cardShape, modifier = Modifier.fillMaxWidth()) {
-                            Text(template.body, style = AkhadaTheme.typography.caption, modifier = Modifier.padding(AkhadaSpace.md))
+                        Text(template.name, style = MyGymTheme.typography.bodyStrong)
+                        Surface(color = colors.surfaceSunken, shape = MyGymRadius.cardShape, modifier = Modifier.fillMaxWidth()) {
+                            Text(template.body, style = MyGymTheme.typography.caption, modifier = Modifier.padding(MyGymSpace.md))
                         }
                     }
                 }

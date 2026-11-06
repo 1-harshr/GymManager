@@ -27,7 +27,7 @@ class KtorMessageWebhookTest {
         recipient = "919876543210",
         templateName = "gym_payment_due",
         languageCode = "en",
-        parameters = listOf("Ravi", "₹200", "AKHADA"),
+        parameters = listOf("Ravi", "₹200", "My Gym"),
         createdAt = Instant.fromEpochMilliseconds(0),
         updatedAt = Instant.fromEpochMilliseconds(0),
     )
@@ -49,7 +49,7 @@ class KtorMessageWebhookTest {
         assertEquals(
             Json.parseToJsonElement(
                 """{"id":"c1","to":"919876543210","template":"gym_payment_due","language":"en",
-                "params":["Ravi","₹200","AKHADA"],"p1":"Ravi","p2":"₹200","p3":"AKHADA","kind":"receipt","member":"Ravi Kumar"}"""
+                "params":["Ravi","₹200","My Gym"],"p1":"Ravi","p2":"₹200","p3":"My Gym","kind":"receipt","member":"Ravi Kumar"}"""
             ),
             JsonObject(sent - "graph_body"),
         )
@@ -57,7 +57,7 @@ class KtorMessageWebhookTest {
             Json.parseToJsonElement(
                 """{"messaging_product":"whatsapp","to":"919876543210","type":"template","template":{"name":"gym_payment_due",
                 "language":{"code":"en"},"components":[{"type":"body","parameters":[
-                {"type":"text","text":"Ravi"},{"type":"text","text":"₹200"},{"type":"text","text":"AKHADA"}]}]}}"""
+                {"type":"text","text":"Ravi"},{"type":"text","text":"₹200"},{"type":"text","text":"My Gym"}]}]}}"""
             ),
             Json.parseToJsonElement(sent.getValue("graph_body").jsonPrimitive.content),
         )

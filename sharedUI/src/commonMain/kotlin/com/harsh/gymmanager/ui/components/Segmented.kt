@@ -16,8 +16,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 
 /**
  * Two or three mutually exclusive options in one pill. With [allowNone], tapping the
@@ -32,9 +32,9 @@ fun <T> SegmentedControl(
     modifier: Modifier = Modifier,
     allowNone: Boolean = false,
 ) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     Row(
-        modifier.fillMaxWidth().background(colors.surfaceSunken, AkhadaRadius.pillShape).padding(4.dp).selectableGroup(),
+        modifier.fillMaxWidth().background(colors.surfaceSunken, MyGymRadius.pillShape).padding(4.dp).selectableGroup(),
     ) {
         options.forEach { option ->
             val on = option == selected
@@ -42,15 +42,15 @@ fun <T> SegmentedControl(
                 Modifier
                     .weight(1f)
                     .height(40.dp)
-                    .then(if (on) Modifier.shadow(1.dp, AkhadaRadius.pillShape) else Modifier)
-                    .clip(AkhadaRadius.pillShape)
+                    .then(if (on) Modifier.shadow(1.dp, MyGymRadius.pillShape) else Modifier)
+                    .clip(MyGymRadius.pillShape)
                     .background(if (on) colors.surface else colors.surfaceSunken)
                     .selectable(selected = on, role = Role.RadioButton) {
                         onSelect(if (on && allowNone) null else option)
                     },
                 contentAlignment = Alignment.Center,
             ) {
-                Text(label(option), style = AkhadaTheme.typography.bodyStrong, color = if (on) colors.ink else colors.inkMuted)
+                Text(label(option), style = MyGymTheme.typography.bodyStrong, color = if (on) colors.ink else colors.inkMuted)
             }
         }
     }

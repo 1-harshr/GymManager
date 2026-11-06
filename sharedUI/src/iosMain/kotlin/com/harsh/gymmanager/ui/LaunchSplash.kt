@@ -20,13 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.motion.AkhadaMotion
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.motion.MyGymMotion
 import kotlinx.coroutines.delay
 
 /**
  * Draws the same picture as the native launch screen (LaunchBackground and LaunchIcon in the asset
- * catalog), holds it for [AkhadaMotion.SPLASH_HOLD_MS] and until the app is ready, then fades it away.
+ * catalog), holds it for [MyGymMotion.SPLASH_HOLD_MS] and until the app is ready, then fades it away.
  * It follows the system appearance, as the launch screen does, rather than the app's theme setting.
  * [onGone] runs once it has faded out.
  */
@@ -36,12 +36,12 @@ fun LaunchSplash(appReady: Boolean, onGone: () -> Unit = {}) {
     var gone by remember { mutableStateOf(false) }
     val exit = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
-        delay(AkhadaMotion.SPLASH_HOLD_MS)
+        delay(MyGymMotion.SPLASH_HOLD_MS)
         held = true
     }
     LaunchedEffect(held, appReady) {
         if (held && appReady) {
-            exit.animateTo(1f, tween(AkhadaMotion.SPLASH_EXIT_MS, easing = AkhadaMotion.Settle))
+            exit.animateTo(1f, tween(MyGymMotion.SPLASH_EXIT_MS, easing = MyGymMotion.Settle))
             gone = true
             onGone()
         }
@@ -61,7 +61,7 @@ fun LaunchSplash(appReady: Boolean, onGone: () -> Unit = {}) {
                 .background(Color(0xFFB0441B), RoundedCornerShape(27.dp)),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(AkhadaIcons.Dumbbell, contentDescription = null, tint = Color.White, modifier = Modifier.size(70.dp))
+            Icon(MyGymIcons.Dumbbell, contentDescription = null, tint = Color.White, modifier = Modifier.size(70.dp))
         }
     }
 }

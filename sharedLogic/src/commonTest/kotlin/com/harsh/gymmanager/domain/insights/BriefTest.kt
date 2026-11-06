@@ -27,14 +27,14 @@ class BriefTest {
 
     @Test
     fun factsCarryTheWorkedOutNumbers() {
-        val facts = briefFacts(insights, "Akhada")
+        val facts = briefFacts(insights, "My Gym")
         assertTrue("₹11,800" in facts, facts)
         assertTrue("18% ahead of last month" in facts, facts)
     }
 
     @Test
     fun repliesMayRegroupNumbersButNotInventThem() {
-        val facts = briefFacts(insights, "Akhada")
+        val facts = briefFacts(insights, "My Gym")
         assertTrue(isFaithful("You've collected ₹11800 so far, 18% ahead of last month.", facts))
         assertFalse(isFaithful("You've collected ₹11,800 and should hit ₹25,000.", facts))
     }
@@ -44,14 +44,14 @@ class BriefTest {
         val model = FakeModel("Collections are ₹11,800, 18% ahead of last month. A strong start.")
         val brief = WriteBriefUseCase(model)
 
-        assertEquals("Collections are ₹11,800, 18% ahead of last month. A strong start.", brief.write(insights, "Akhada"))
-        brief.write(insights, "Akhada")
+        assertEquals("Collections are ₹11,800, 18% ahead of last month. A strong start.", brief.write(insights, "My Gym"))
+        brief.write(insights, "My Gym")
         assertEquals(1, model.calls)
     }
 
     @Test
     fun fallsBackWhenTheModelIsMissingOrMakesNumbersUp() = runTest {
-        assertNull(WriteBriefUseCase(NoOnDeviceModel).write(insights, "Akhada"))
-        assertNull(WriteBriefUseCase(FakeModel("You'll make ₹90,000 this month!")).write(insights, "Akhada"))
+        assertNull(WriteBriefUseCase(NoOnDeviceModel).write(insights, "My Gym"))
+        assertNull(WriteBriefUseCase(FakeModel("You'll make ₹90,000 this month!")).write(insights, "My Gym"))
     }
 }

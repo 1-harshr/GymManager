@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 
-/** Spacing, radius and size tokens from the Akhada design system. */
-object AkhadaSpace {
+/** Spacing, radius and size tokens from the My Gym design system. */
+object MyGymSpace {
     val xs = 4.dp
     val sm = 8.dp
     val md = 12.dp
@@ -17,7 +17,7 @@ object AkhadaSpace {
     val gutter = lg
 }
 
-object AkhadaRadius {
+object MyGymRadius {
     val field = 14.dp
     val card = 20.dp
     val sheet = 28.dp
@@ -28,7 +28,7 @@ object AkhadaRadius {
     val pillShape = RoundedCornerShape(percent = 50)
 }
 
-object AkhadaSize {
+object MyGymSize {
     val touchTarget = 48.dp
     val tabBarHeight = 64.dp
     val tabBarPadding = 6.dp
@@ -43,11 +43,11 @@ object AkhadaSize {
     val contentBottomClearance = 104.dp
 }
 
-object AkhadaElevation {
+object MyGymElevation {
     /** Only things that float over content: tab bar, add button, snackbar. */
     val float = 12.dp
 }
 
 /** The screen side gutter, for rows that sit directly on `bg`. */
 fun androidx.compose.ui.Modifier.screenGutter() =
-    this.then(androidx.compose.ui.Modifier.padding(horizontal = AkhadaSpace.gutter))
+    this.then(androidx.compose.ui.Modifier.padding(horizontal = MyGymSpace.gutter))

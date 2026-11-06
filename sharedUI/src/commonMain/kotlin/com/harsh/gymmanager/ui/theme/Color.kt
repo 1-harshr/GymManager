@@ -3,9 +3,9 @@ package com.harsh.gymmanager.ui.theme
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
-/** Colour roles from the Akhada design system's tokens.json; names match the tokens. */
+/** Colour roles from the My Gym design system's tokens.json; names match the tokens. */
 @Immutable
-data class AkhadaColors(
+data class MyGymColors(
     val bg: Color,
     val surface: Color,
     val surfaceSunken: Color,
@@ -33,7 +33,7 @@ data class AkhadaColors(
     val isDark: Boolean,
 )
 
-val AkhadaLightColors = AkhadaColors(
+val MyGymLightColors = MyGymColors(
     bg = Color(0xFFF3F3F0),
     surface = Color(0xFFFFFFFF),
     surfaceSunken = Color(0xFFE9E9E5),
@@ -59,7 +59,7 @@ val AkhadaLightColors = AkhadaColors(
     isDark = false,
 )
 
-val AkhadaDarkColors = AkhadaColors(
+val MyGymDarkColors = MyGymColors(
     bg = Color(0xFF0F0F10),
     surface = Color(0xFF19191B),
     surfaceSunken = Color(0xFF252528),

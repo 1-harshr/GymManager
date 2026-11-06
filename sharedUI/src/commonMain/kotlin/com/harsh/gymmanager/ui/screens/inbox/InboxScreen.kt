@@ -33,11 +33,11 @@ import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.components.SectionHeader
 import com.harsh.gymmanager.ui.format.formatDayMonth
 import com.harsh.gymmanager.ui.format.rememberToday
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSize
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymSize
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 import gymmanager.sharedui.generated.resources.*
 import kotlinx.datetime.DateTimeUnit
@@ -55,12 +55,12 @@ fun InboxScreen(onBack: () -> Unit, onOpenMember: (Long) -> Unit) {
 
     LazyColumn(
         Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = AkhadaSpace.xl),
-        verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+        contentPadding = PaddingValues(bottom = MyGymSpace.xl),
+        verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
     ) {
         item { PushedHeader(stringResource(Res.string.inbox_title), onBack) }
         if (!state.isLoading && state.items.isEmpty()) {
-            item { EmptyState(AkhadaIcons.Bell, stringResource(Res.string.inbox_empty_title), stringResource(Res.string.inbox_empty_body)) }
+            item { EmptyState(MyGymIcons.Bell, stringResource(Res.string.inbox_empty_title), stringResource(Res.string.inbox_empty_body)) }
         }
         state.items.groupBy { it.createdOn }.forEach { (day, items) ->
             item(key = "day-$day") {
@@ -70,7 +70,7 @@ fun InboxScreen(onBack: () -> Unit, onOpenMember: (Long) -> Unit) {
                         yesterday -> stringResource(Res.string.day_yesterday)
                         else -> day.formatDayMonth()
                     },
-                    Modifier.screenGutter().padding(top = AkhadaSpace.sm),
+                    Modifier.screenGutter().padding(top = MyGymSpace.sm),
                 )
             }
             items(items, key = { it.id }) { item ->
@@ -83,36 +83,36 @@ fun InboxScreen(onBack: () -> Unit, onOpenMember: (Long) -> Unit) {
 
 @Composable
 private fun AlertRow(item: InboxItem, isNew: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val (icon, title, detail) = when (item.kind) {
         InboxKind.ENDS_TODAY -> Triple(
-            AkhadaIcons.Calendar,
+            MyGymIcons.Calendar,
             stringResource(Res.string.alert_ends_today, item.memberName),
             stringResource(Res.string.alert_ends_today_detail, formatRupees(item.amount)),
         )
         InboxKind.LAPSED -> Triple(
-            AkhadaIcons.Renew,
+            MyGymIcons.Renew,
             stringResource(Res.string.alert_lapsed, item.memberName, item.date.formatDayMonth()),
             stringResource(Res.string.alert_lapsed_detail),
         )
         InboxKind.DUE_OVERDUE -> Triple(
-            AkhadaIcons.Clock,
+            MyGymIcons.Clock,
             stringResource(Res.string.alert_due, item.memberName, formatRupees(item.amount), item.date.formatDayMonth()),
             stringResource(Res.string.alert_due_detail),
         )
     }
-    Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = AkhadaRadius.cardShape, color = if (isNew) colors.accentSoft else colors.surface) {
+    Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = MyGymRadius.cardShape, color = if (isNew) colors.accentSoft else colors.surface) {
         Row(
-            Modifier.padding(horizontal = AkhadaSpace.lg, vertical = AkhadaSpace.md),
+            Modifier.padding(horizontal = MyGymSpace.lg, vertical = MyGymSpace.md),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+            horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md),
         ) {
-            Box(Modifier.size(AkhadaSize.iconButton).background(if (isNew) colors.surface else colors.surfaceSunken, AkhadaRadius.pillShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(MyGymSize.iconButton).background(if (isNew) colors.surface else colors.surfaceSunken, MyGymRadius.pillShape), contentAlignment = Alignment.Center) {
                 Icon(icon, contentDescription = null, tint = if (item.kind == InboxKind.DUE_OVERDUE) colors.statusDue else colors.ink, modifier = Modifier.size(20.dp))
             }
             Column(Modifier.weight(1f)) {
-                Text(title, style = AkhadaTheme.typography.bodyStrong, color = if (isNew) colors.onAccentSoft else colors.ink)
-                Text(detail, style = AkhadaTheme.typography.caption, color = if (isNew) colors.onAccentSoft else colors.inkMuted)
+                Text(title, style = MyGymTheme.typography.bodyStrong, color = if (isNew) colors.onAccentSoft else colors.ink)
+                Text(detail, style = MyGymTheme.typography.caption, color = if (isNew) colors.onAccentSoft else colors.inkMuted)
             }
         }
     }

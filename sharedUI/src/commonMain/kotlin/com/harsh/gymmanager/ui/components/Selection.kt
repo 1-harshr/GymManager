@@ -21,27 +21,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaElevation
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSize
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymElevation
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymSize
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 
 /** The header while selecting: cancel, how many are ticked, and Select all. */
 @Composable
 fun SelectionHeader(count: Int, onCancel: () -> Unit, onSelectAll: () -> Unit, modifier: Modifier = Modifier) {
     Row(
-        modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = AkhadaSpace.gutter, vertical = AkhadaSpace.md),
+        modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = MyGymSpace.gutter, vertical = MyGymSpace.md),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+        horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md),
     ) {
         CompositionLocalProvider(LocalInHeader provides true) {
-            AkhadaIconButton(AkhadaIcons.X, stringResource(Res.string.cancel_selection), onCancel)
+            MyGymIconButton(MyGymIcons.X, stringResource(Res.string.cancel_selection), onCancel)
         }
         Column(Modifier.weight(1f)) {
-            Text(pluralStringResource(Res.plurals.selected_count, count, count), style = AkhadaTheme.typography.screenTitle)
-            Text(stringResource(Res.string.selection_hint), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
+            Text(pluralStringResource(Res.plurals.selected_count, count, count), style = MyGymTheme.typography.screenTitle)
+            Text(stringResource(Res.string.selection_hint), style = MyGymTheme.typography.caption, color = MyGymTheme.colors.inkMuted)
         }
         GhostButton(stringResource(Res.string.select_all), onSelectAll)
     }
@@ -56,21 +56,21 @@ fun BulkActionBar(actions: List<BulkAction>, modifier: Modifier = Modifier) {
         GlassActionBar(actions, modifier)
         return
     }
-    val colors = AkhadaTheme.colors
-    Surface(modifier = modifier, shape = AkhadaRadius.pillShape, color = colors.surface, shadowElevation = AkhadaElevation.float) {
-        Row(Modifier.padding(AkhadaSize.tabBarPadding)) {
+    val colors = MyGymTheme.colors
+    Surface(modifier = modifier, shape = MyGymRadius.pillShape, color = colors.surface, shadowElevation = MyGymElevation.float) {
+        Row(Modifier.padding(MyGymSize.tabBarPadding)) {
             actions.forEach { action ->
                 val tint = if (action.destructive) colors.statusDue else colors.ink
                 Surface(
                     onClick = action.onClick,
-                    shape = AkhadaRadius.pillShape,
+                    shape = MyGymRadius.pillShape,
                     color = colors.surface,
                     contentColor = tint,
-                    modifier = Modifier.width(AkhadaSize.tabItemWidth + 8.dp).height(AkhadaSize.tabBarHeight - AkhadaSize.tabBarPadding * 2),
+                    modifier = Modifier.width(MyGymSize.tabItemWidth + 8.dp).height(MyGymSize.tabBarHeight - MyGymSize.tabBarPadding * 2),
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                        Icon(action.icon, contentDescription = null, Modifier.size(AkhadaSize.tabIcon))
-                        Text(action.label, style = AkhadaTheme.typography.tab, maxLines = 1)
+                        Icon(action.icon, contentDescription = null, Modifier.size(MyGymSize.tabIcon))
+                        Text(action.label, style = MyGymTheme.typography.tab, maxLines = 1)
                     }
                 }
             }

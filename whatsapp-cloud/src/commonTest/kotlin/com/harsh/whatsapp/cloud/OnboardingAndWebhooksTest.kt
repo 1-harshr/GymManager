@@ -58,14 +58,14 @@ class OnboardingAndWebhooksTest {
     fun createTemplateSendsBodyWithExample() = runTest {
         val account = WhatsAppBusinessAccount("waba1", { "t" }, http { json("""{"id":"77","status":"PENDING","category":"UTILITY"}""") })
 
-        val result = account.createTemplate(TemplateDefinition("gym_welcome", "en", TemplateCategory.UTILITY, "Hi {{1}}, welcome to {{2}}!", listOf("Ravi", "AKHADA")))
+        val result = account.createTemplate(TemplateDefinition("gym_welcome", "en", TemplateCategory.UTILITY, "Hi {{1}}, welcome to {{2}}!", listOf("Ravi", "My Gym")))
 
         assertEquals(WhatsAppResult.Success(TemplateInfo("77", "gym_welcome", "en", "PENDING", "UTILITY")), result)
         assertEquals(HttpMethod.Post, requests.single().first.method)
         assertEquals(
             Json.parseToJsonElement(
                 """{"name":"gym_welcome","language":"en","category":"UTILITY",
-                "components":[{"type":"BODY","text":"Hi {{1}}, welcome to {{2}}!","example":{"body_text":[["Ravi","AKHADA"]]}}]}"""
+                "components":[{"type":"BODY","text":"Hi {{1}}, welcome to {{2}}!","example":{"body_text":[["Ravi","My Gym"]]}}]}"""
             ),
             Json.parseToJsonElement(requests.single().second),
         )

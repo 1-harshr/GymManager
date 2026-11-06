@@ -17,8 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.harsh.gymmanager.LocalAppDependencies
 import com.harsh.gymmanager.ui.LocalLanguage
-import com.harsh.gymmanager.ui.components.AkhadaCard
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
+import com.harsh.gymmanager.ui.components.MyGymCard
+import com.harsh.gymmanager.ui.theme.MyGymRadius
 import org.jetbrains.compose.resources.pluralStringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,16 +32,16 @@ import com.harsh.gymmanager.domain.model.HomeFeatures
 import com.harsh.gymmanager.presentation.dashboard.DashboardUiState
 import com.harsh.gymmanager.presentation.formatRupees
 import com.harsh.gymmanager.ui.LocalGym
-import com.harsh.gymmanager.ui.components.AkhadaIconButton
+import com.harsh.gymmanager.ui.components.MyGymIconButton
 import com.harsh.gymmanager.ui.components.BadgeTone
 import com.harsh.gymmanager.ui.components.StatTile
 import com.harsh.gymmanager.ui.components.TabHeader
 import com.harsh.gymmanager.ui.format.formatWeekday
 import com.harsh.gymmanager.ui.format.rememberToday
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaSize
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymSize
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 
 /**
@@ -72,29 +72,29 @@ fun HomeScreen(
 
     LazyColumn(
         Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = AkhadaSize.contentBottomClearance),
-        verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+        contentPadding = PaddingValues(bottom = MyGymSize.contentBottomClearance),
+        verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
     ) {
         item {
             TabHeader(
                 title = gymName,
                 subtitle = today.formatWeekday(),
-                titleStyle = AkhadaTheme.typography.title,
+                titleStyle = MyGymTheme.typography.title,
             ) {
                 BellButton(state.unreadAlerts, onOpenInbox)
-                AkhadaIconButton(AkhadaIcons.Settings, stringResource(Res.string.settings), onOpenSettings)
+                MyGymIconButton(MyGymIcons.Settings, stringResource(Res.string.settings), onOpenSettings)
             }
         }
         if (board == null || insights == null) return@LazyColumn
         if (features.aiInsights) item { Box(Modifier.screenGutter()) { BriefCard(insights, aiBrief) } }
         item { Box(Modifier.screenGutter()) { CollectionsCard(insights.pace, insights.today, showChart = features.collectionsChart) } }
         item {
-            Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+            Column(Modifier.screenGutter(), verticalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
                     StatTile(stringResource(Res.string.stat_active), board.activeCount.toString(), BadgeTone.Active, Modifier.weight(1f))
                     StatTile(stringResource(Res.string.stat_expiring_week), board.expiringSoon.size.toString(), BadgeTone.Expiring, Modifier.weight(1f))
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
                     StatTile(stringResource(Res.string.stat_expired), board.expiredCount.toString(), BadgeTone.Expired, Modifier.weight(1f))
                     StatTile(stringResource(Res.string.stat_dues, board.membersWithDuesCount), formatRupees(board.totalDue), BadgeTone.Due, Modifier.weight(1f))
                 }
@@ -115,8 +115,8 @@ fun HomeScreen(
 /** Opens the inbox; a badge counts unread alerts. */
 @Composable
 private fun BellButton(unread: Int, onClick: () -> Unit) {
-    AkhadaIconButton(
-        AkhadaIcons.Bell,
+    MyGymIconButton(
+        MyGymIcons.Bell,
         if (unread > 0) stringResource(Res.string.open_alerts_unread, unread) else stringResource(Res.string.open_alerts),
         onClick,
         badge = when {
@@ -130,17 +130,17 @@ private fun BellButton(unread: Int, onClick: () -> Unit) {
 /** Leads to the WhatsApp reminder run; shown only while someone is due one. */
 @Composable
 private fun RemindersTile(count: Int, onClick: () -> Unit) {
-    val colors = AkhadaTheme.colors
-    AkhadaCard(onClick = onClick) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md)) {
-            Box(Modifier.size(AkhadaSize.iconButton).background(colors.accentSoft, AkhadaRadius.pillShape), contentAlignment = Alignment.Center) {
-                Icon(AkhadaIcons.MessageCircle, contentDescription = null, tint = colors.onAccentSoft, modifier = Modifier.size(20.dp))
+    val colors = MyGymTheme.colors
+    MyGymCard(onClick = onClick) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
+            Box(Modifier.size(MyGymSize.iconButton).background(colors.accentSoft, MyGymRadius.pillShape), contentAlignment = Alignment.Center) {
+                Icon(MyGymIcons.MessageCircle, contentDescription = null, tint = colors.onAccentSoft, modifier = Modifier.size(20.dp))
             }
             Column(Modifier.weight(1f)) {
-                Text(stringResource(Res.string.reminders_tile), style = AkhadaTheme.typography.bodyStrong)
-                Text(pluralStringResource(Res.plurals.reminders_to_send, count, count), style = AkhadaTheme.typography.caption, color = colors.inkMuted)
+                Text(stringResource(Res.string.reminders_tile), style = MyGymTheme.typography.bodyStrong)
+                Text(pluralStringResource(Res.plurals.reminders_to_send, count, count), style = MyGymTheme.typography.caption, color = colors.inkMuted)
             }
-            Icon(AkhadaIcons.ChevronRight, contentDescription = null, tint = colors.inkMuted, modifier = Modifier.size(20.dp))
+            Icon(MyGymIcons.ChevronRight, contentDescription = null, tint = colors.inkMuted, modifier = Modifier.size(20.dp))
         }
     }
 }

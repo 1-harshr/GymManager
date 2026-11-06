@@ -46,10 +46,10 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.harsh.gymmanager.ui.format.formatFull
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -58,15 +58,15 @@ import kotlin.time.Instant
 
 @Composable
 private fun FieldLabel(label: String, optional: Boolean) {
-    Row(horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
-        Text(label, style = AkhadaTheme.typography.caption.copy(fontWeight = AkhadaTheme.typography.bodyStrong.fontWeight))
-        if (optional) Text(stringResource(Res.string.optional), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
+    Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+        Text(label, style = MyGymTheme.typography.caption.copy(fontWeight = MyGymTheme.typography.bodyStrong.fontWeight))
+        if (optional) Text(stringResource(Res.string.optional), style = MyGymTheme.typography.caption, color = MyGymTheme.colors.inkMuted)
     }
 }
 
 @Composable
 private fun FieldError(error: String?) {
-    if (error != null) Text(error, style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.statusDue)
+    if (error != null) Text(error, style = MyGymTheme.typography.caption, color = MyGymTheme.colors.statusDue)
 }
 
 /**
@@ -75,7 +75,7 @@ private fun FieldError(error: String?) {
  * give the last field of a form [ImeAction.Done].
  */
 @Composable
-fun AkhadaTextField(
+fun MyGymTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
@@ -93,8 +93,8 @@ fun AkhadaTextField(
     /** Called when the keyboard's Done is pressed, after it closes. */
     onDone: () -> Unit = {},
 ) {
-    val colors = AkhadaTheme.colors
-    val typography = AkhadaTheme.typography
+    val colors = MyGymTheme.colors
+    val typography = MyGymTheme.typography
     val interaction = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
     val focused by interaction.collectIsFocusedAsState()
@@ -123,9 +123,9 @@ fun AkhadaTextField(
                         .fillMaxWidth()
                         .heightIn(min = 52.dp)
                         .fieldGround(focused = focused, error = error != null)
-                        .padding(horizontal = AkhadaSpace.lg, vertical = 14.dp),
+                        .padding(horizontal = MyGymSpace.lg, vertical = 14.dp),
                     verticalAlignment = if (singleLine) Alignment.CenterVertically else Alignment.Top,
-                    horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm),
+                    horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm),
                 ) {
                     if (prefix != null) Text(prefix, style = typography.title.copy(fontFamily = typography.stat.fontFamily), color = colors.inkMuted)
                     Box(Modifier.weight(1f)) {
@@ -141,14 +141,14 @@ fun AkhadaTextField(
 
 @Composable
 private fun Modifier.fieldGround(focused: Boolean, error: Boolean): Modifier {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val ring = when {
         error -> colors.statusDue
         focused -> colors.ink
         else -> null
     }
-    val filled = background(colors.surfaceSunken, AkhadaRadius.fieldShape)
-    return if (ring != null) filled.border(2.dp, ring, AkhadaRadius.fieldShape) else filled
+    val filled = background(colors.surfaceSunken, MyGymRadius.fieldShape)
+    return if (ring != null) filled.border(2.dp, ring, MyGymRadius.fieldShape) else filled
 }
 
 /**
@@ -166,7 +166,7 @@ fun DateField(
     latest: LocalDate? = null,
     openAt: LocalDate? = null,
 ) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     var picking by remember { mutableStateOf(false) }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         FieldLabel(label, optional)
@@ -176,27 +176,27 @@ fun DateField(
                 .heightIn(min = 52.dp)
                 .fieldGround(focused = false, error = false)
                 .clickable(onClickLabel = stringResource(Res.string.choose_field, label)) { picking = true }
-                .padding(start = AkhadaSpace.lg, end = AkhadaSpace.md),
+                .padding(start = MyGymSpace.lg, end = MyGymSpace.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 value?.formatFull() ?: placeholder ?: stringResource(Res.string.choose_a_date),
                 Modifier.weight(1f),
-                style = AkhadaTheme.typography.body,
+                style = MyGymTheme.typography.body,
                 color = if (value == null) colors.inkMuted else colors.ink,
             )
             if (optional && value != null) {
-                AkhadaIconButton(
-                    AkhadaIcons.X, stringResource(Res.string.clear_field, label), onClick = { onValueChange(null) },
+                MyGymIconButton(
+                    MyGymIcons.X, stringResource(Res.string.clear_field, label), onClick = { onValueChange(null) },
                     size = 36.dp, iconSize = 18.dp, container = colors.surfaceSunken, content = colors.inkMuted,
                 )
             } else {
-                Icon(AkhadaIcons.Calendar, contentDescription = null, Modifier.size(20.dp), tint = colors.inkMuted)
+                Icon(MyGymIcons.Calendar, contentDescription = null, Modifier.size(20.dp), tint = colors.inkMuted)
             }
         }
     }
     if (picking) {
-        AkhadaDatePickerDialog(
+        MyGymDatePickerDialog(
             initial = value,
             latest = latest,
             openAt = openAt,
@@ -208,14 +208,14 @@ fun DateField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AkhadaDatePickerDialog(
+fun MyGymDatePickerDialog(
     initial: LocalDate?,
     onDismiss: () -> Unit,
     onConfirm: (LocalDate) -> Unit,
     latest: LocalDate? = null,
     openAt: LocalDate? = null,
 ) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     // The picker works in UTC midnight millis; convert at the edges only.
     fun LocalDate.millis() = atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
     val state = rememberDatePickerState(
@@ -245,10 +245,10 @@ fun AkhadaDatePickerDialog(
                         onConfirm(Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.UTC).date)
                     } ?: onDismiss()
                 },
-            ) { Text(stringResource(Res.string.done), color = colors.ink, style = AkhadaTheme.typography.bodyStrong) }
+            ) { Text(stringResource(Res.string.done), color = colors.ink, style = MyGymTheme.typography.bodyStrong) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.cancel), color = colors.inkMuted, style = AkhadaTheme.typography.bodyStrong) }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.cancel), color = colors.inkMuted, style = MyGymTheme.typography.bodyStrong) }
         },
         colors = pickerColors,
     ) {
@@ -265,18 +265,18 @@ fun AkhadaDatePickerDialog(
 @Composable
 fun SuggestionChips(labels: List<String>, onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
     if (labels.isEmpty()) return
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     FlowRow(
         modifier,
-        horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm),
-        verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm),
+        horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm),
+        verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm),
     ) {
         labels.forEachIndexed { index, label ->
-            Surface(onClick = { onPick(index) }, shape = AkhadaRadius.pillShape, color = colors.accentSoft, contentColor = colors.onAccentSoft) {
+            Surface(onClick = { onPick(index) }, shape = MyGymRadius.pillShape, color = colors.accentSoft, contentColor = colors.onAccentSoft) {
                 Text(
                     label,
-                    Modifier.heightIn(min = 32.dp).padding(horizontal = AkhadaSpace.md, vertical = 6.dp),
-                    style = AkhadaTheme.typography.caption.copy(fontWeight = AkhadaTheme.typography.bodyStrong.fontWeight),
+                    Modifier.heightIn(min = 32.dp).padding(horizontal = MyGymSpace.md, vertical = 6.dp),
+                    style = MyGymTheme.typography.caption.copy(fontWeight = MyGymTheme.typography.bodyStrong.fontWeight),
                 )
             }
         }

@@ -30,21 +30,21 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaRadius
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 
 /** The pill search field at the top of Members. */
 @Composable
 fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier, placeholder: String? = null) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val focusManager = LocalFocusManager.current
     BasicTextField(
         value = query,
         onValueChange = onQueryChange,
         singleLine = true,
-        textStyle = AkhadaTheme.typography.body.copy(color = colors.ink),
+        textStyle = MyGymTheme.typography.body.copy(color = colors.ink),
         cursorBrush = SolidColor(colors.ink),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         // Results filter as you type, so the search key just puts the keyboard away.
@@ -52,18 +52,18 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier
         modifier = modifier.fillMaxWidth(),
         decorationBox = { inner ->
             Row(
-                Modifier.height(48.dp).background(colors.surface, AkhadaRadius.pillShape).padding(start = AkhadaSpace.lg, end = AkhadaSpace.xs),
+                Modifier.height(48.dp).background(colors.surface, MyGymRadius.pillShape).padding(start = MyGymSpace.lg, end = MyGymSpace.xs),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm),
+                horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm),
             ) {
-                Icon(AkhadaIcons.Search, contentDescription = null, Modifier.size(20.dp), tint = colors.inkMuted)
+                Icon(MyGymIcons.Search, contentDescription = null, Modifier.size(20.dp), tint = colors.inkMuted)
                 Box(Modifier.weight(1f)) {
-                    if (query.isEmpty()) Text(placeholder ?: stringResource(Res.string.search_hint), style = AkhadaTheme.typography.body, color = colors.inkMuted)
+                    if (query.isEmpty()) Text(placeholder ?: stringResource(Res.string.search_hint), style = MyGymTheme.typography.body, color = colors.inkMuted)
                     inner()
                 }
                 if (query.isNotEmpty()) {
-                    AkhadaIconButton(
-                        AkhadaIcons.X, stringResource(Res.string.clear_search), onClick = { onQueryChange("") },
+                    MyGymIconButton(
+                        MyGymIcons.X, stringResource(Res.string.clear_search), onClick = { onQueryChange("") },
                         size = 40.dp, iconSize = 18.dp, container = colors.surface, content = colors.inkMuted,
                     )
                 }
@@ -75,24 +75,24 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier
 /** One row of mutually exclusive filters that scrolls edge to edge. */
 @Composable
 fun <T> FilterChips(options: List<T>, selected: T, onSelect: (T) -> Unit, label: @Composable (T) -> String, modifier: Modifier = Modifier) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     LazyRow(
         modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = AkhadaSpace.gutter),
-        horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.sm),
+        contentPadding = PaddingValues(horizontal = MyGymSpace.gutter),
+        horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm),
     ) {
         items(options) { option ->
             val on = option == selected
             Surface(
                 onClick = { onSelect(option) },
-                shape = AkhadaRadius.pillShape,
+                shape = MyGymRadius.pillShape,
                 color = if (on) colors.ink else colors.surface,
                 contentColor = if (on) colors.onInk else colors.ink,
             ) {
                 Text(
                     label(option),
                     Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
-                    style = AkhadaTheme.typography.caption.copy(fontWeight = AkhadaTheme.typography.bodyStrong.fontWeight),
+                    style = MyGymTheme.typography.caption.copy(fontWeight = MyGymTheme.typography.bodyStrong.fontWeight),
                 )
             }
         }
@@ -103,7 +103,7 @@ fun <T> FilterChips(options: List<T>, selected: T, onSelect: (T) -> Unit, label:
 @Composable
 fun SectionHeader(text: String, modifier: Modifier = Modifier, action: String? = null, onAction: () -> Unit = {}) {
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(text.uppercase(), Modifier.weight(1f), style = AkhadaTheme.typography.label, color = AkhadaTheme.colors.inkMuted)
+        Text(text.uppercase(), Modifier.weight(1f), style = MyGymTheme.typography.label, color = MyGymTheme.colors.inkMuted)
         if (action != null) GhostButton(action, onAction)
     }
 }
@@ -118,19 +118,19 @@ fun EmptyState(
     actionLabel: String? = null,
     onAction: () -> Unit = {},
 ) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     Column(
-        modifier.fillMaxWidth().padding(horizontal = AkhadaSpace.lg, vertical = AkhadaSpace.xl),
+        modifier.fillMaxWidth().padding(horizontal = MyGymSpace.lg, vertical = MyGymSpace.xl),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(AkhadaSpace.sm),
+        verticalArrangement = Arrangement.spacedBy(MyGymSpace.sm),
     ) {
         Box(Modifier.size(64.dp).background(colors.surfaceSunken, CircleShape), contentAlignment = Alignment.Center) {
             Icon(icon, contentDescription = null, Modifier.size(28.dp), tint = colors.ink)
         }
-        Text(title, style = AkhadaTheme.typography.title, textAlign = TextAlign.Center)
-        Text(body, style = AkhadaTheme.typography.body, color = colors.inkMuted, textAlign = TextAlign.Center)
+        Text(title, style = MyGymTheme.typography.title, textAlign = TextAlign.Center)
+        Text(body, style = MyGymTheme.typography.body, color = colors.inkMuted, textAlign = TextAlign.Center)
         if (actionLabel != null) {
-            AkhadaButton(actionLabel, onAction, Modifier.padding(top = AkhadaSpace.sm))
+            MyGymButton(actionLabel, onAction, Modifier.padding(top = MyGymSpace.sm))
         }
     }
 }

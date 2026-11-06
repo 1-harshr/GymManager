@@ -1,6 +1,6 @@
 package com.harsh.gymmanager.ui.screens.plans
 
-import com.harsh.gymmanager.ui.components.AkhadaSwitch
+import com.harsh.gymmanager.ui.components.MyGymSwitch
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.pluralStringResource
@@ -18,8 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.harsh.gymmanager.domain.model.Plan
 import com.harsh.gymmanager.presentation.plans.PlansUiState
-import com.harsh.gymmanager.ui.components.AkhadaButton
-import com.harsh.gymmanager.ui.components.AkhadaIconButton
+import com.harsh.gymmanager.ui.components.MyGymButton
+import com.harsh.gymmanager.ui.components.MyGymIconButton
 import com.harsh.gymmanager.ui.components.ButtonKind
 import com.harsh.gymmanager.ui.components.EmptyState
 import com.harsh.gymmanager.ui.components.MenuAction
@@ -27,10 +27,10 @@ import com.harsh.gymmanager.ui.components.MoreMenu
 import com.harsh.gymmanager.ui.components.PlanCard
 import com.harsh.gymmanager.ui.components.SelectionHeader
 import com.harsh.gymmanager.ui.components.TabHeader
-import com.harsh.gymmanager.ui.icons.AkhadaIcons
-import com.harsh.gymmanager.ui.theme.AkhadaSize
-import com.harsh.gymmanager.ui.theme.AkhadaSpace
-import com.harsh.gymmanager.ui.theme.AkhadaTheme
+import com.harsh.gymmanager.ui.icons.MyGymIcons
+import com.harsh.gymmanager.ui.theme.MyGymSize
+import com.harsh.gymmanager.ui.theme.MyGymSpace
+import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 
 @Composable
@@ -46,34 +46,34 @@ fun PlansScreen(
     onSelectAll: () -> Unit,
     onClearSelection: () -> Unit,
 ) {
-    val colors = AkhadaTheme.colors
+    val colors = MyGymTheme.colors
     val activeCount = state.plans.count { !it.isArchived }
     LazyColumn(
         Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = AkhadaSize.contentBottomClearance),
-        verticalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
+        contentPadding = PaddingValues(bottom = MyGymSize.contentBottomClearance),
+        verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
     ) {
         item {
             if (state.isSelecting) {
                 SelectionHeader(state.selectedIds.size, onCancel = onClearSelection, onSelectAll = onSelectAll)
             } else {
                 TabHeader(stringResource(Res.string.tab_plans), if (state.isLoading) null else pluralStringResource(Res.plurals.plans_count, activeCount, activeCount)) {
-                    AkhadaIconButton(AkhadaIcons.Settings, stringResource(Res.string.settings), onOpenSettings)
+                    MyGymIconButton(MyGymIcons.Settings, stringResource(Res.string.settings), onOpenSettings)
                 }
             }
         }
         if (!state.isLoading && state.plans.isEmpty() && !state.showArchived) {
             item {
                 EmptyState(
-                    AkhadaIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_body),
+                    MyGymIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_body),
                     actionLabel = stringResource(Res.string.add_plan), onAction = onAddPlan,
                 )
             }
         } else {
             item {
                 Row(Modifier.fillMaxWidth().screenGutter(), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(Res.string.show_archived_plans), Modifier.weight(1f), style = AkhadaTheme.typography.body, color = colors.inkMuted)
-                    AkhadaSwitch(
+                    Text(stringResource(Res.string.show_archived_plans), Modifier.weight(1f), style = MyGymTheme.typography.body, color = colors.inkMuted)
+                    MyGymSwitch(
                         checked = state.showArchived,
                         onCheckedChange = onShowArchivedChange,
                     )
@@ -99,10 +99,10 @@ fun PlansScreen(
                 )
             }
             if (!state.isSelecting) item {
-                AkhadaButton(
+                MyGymButton(
                     stringResource(Res.string.add_plan), onAddPlan,
-                    Modifier.fillMaxWidth().screenGutter().padding(top = AkhadaSpace.sm),
-                    kind = ButtonKind.Secondary, icon = AkhadaIcons.Plus,
+                    Modifier.fillMaxWidth().screenGutter().padding(top = MyGymSpace.sm),
+                    kind = ButtonKind.Secondary, icon = MyGymIcons.Plus,
                 )
             }
         }
