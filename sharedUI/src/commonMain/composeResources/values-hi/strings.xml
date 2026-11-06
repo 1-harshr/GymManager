@@ -601,19 +601,24 @@
     <string name="template_saved">टेम्पलेट सेव हो गया। इसे भरें, CSV के रूप में सेव करें, फिर यहाँ चुनें।</string>
 
     <!-- Sign-in -->
-    <string name="signin_title">साइन इन करें</string>
-    <string name="signin_subtitle">अपना जिम खोलने के लिए अपने मोबाइल नंबर से साइन इन करें।</string>
+    <string name="signin_title">आपका पूरा जिम,\nहर फ़ोन पर</string>
+    <string name="signin_subtitle">सदस्य, रिन्यूअल और पेमेंट, आपके और आपके स्टाफ़ के हर फ़ोन पर एक जैसे रहते हैं।</string>
+    <string name="signin_sms_note">हम इस नंबर पर 6 अंकों का कोड SMS करेंगे।</string>
+    <string name="signin_just_looking">बस देख रहे हैं?</string>
+    <string name="signin_code_cells">6 अंकों का कोड</string>
+    <string name="signin_no_code">कोड नहीं मिला?</string>
+    <string name="app_name">My Gym</string>
     <string name="signin_phone">मोबाइल नंबर</string>
-    <string name="signin_send_code">कोड भेजें</string>
+    <string name="signin_send_code">कोड पाएँ</string>
     <string name="signin_sending">भेजा जा रहा है…</string>
     <string name="signin_code_title">कोड डालें</string>
-    <string name="signin_code_body">हमने %1$s पर 6 अंकों का कोड भेजा है।</string>
+    <string name="signin_code_body">%1$s पर भेजा गया</string>
     <string name="signin_code">कोड</string>
     <string name="signin_verify">पुष्टि करें</string>
     <string name="signin_verifying">जाँच हो रही है…</string>
     <string name="signin_change_number">नंबर बदलें</string>
     <string name="signin_resend">फिर से भेजें</string>
-    <string name="signin_resend_in">%1$d सेकंड में फिर से भेजें</string>
+    <string name="signin_resend_in">%1$s में फिर से भेजें</string>
     <string name="signin_try_demo">डेमो देखें</string>
     <string name="err_enter_phone">10 अंकों का मोबाइल नंबर डालें</string>
     <string name="err_enter_code">6 अंकों का कोड डालें</string>

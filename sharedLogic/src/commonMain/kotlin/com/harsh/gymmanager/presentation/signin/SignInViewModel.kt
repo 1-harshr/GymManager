@@ -34,7 +34,12 @@ data class SignInUiState(
     val codeError: UiMessage? = null,
     /** Seconds until "Send again" works; 0 when it does. */
     val resendInSeconds: Int = 0,
-)
+    /** Goes up with each rejected code, so the screen can react even when the message repeats. */
+    val failedAttempts: Int = 0,
+) {
+    val isPhoneComplete: Boolean get() = phone.length == PHONE_DIGITS
+    val isCodeComplete: Boolean get() = code.length == CODE_DIGITS
+}
 
 /**
  * Signs in by phone: send a code, then type it in. There's nothing to do on success; the app
@@ -61,6 +66,8 @@ class SignInViewModel(private val auth: AuthRepository) : ViewModel() {
 
     /** Fills in the last digit of the code verifies it straight away. */
     fun onCodeChange(value: String) {
+        // The field stays focused while a code is checked, so typing then is ignored rather than lost mid-check.
+        if (_state.value.isBusy) return
         val code = value.filter(Char::isDigit).take(CODE_DIGITS)
         _state.update { it.copy(code = code, codeError = null) }
         if (code.length == CODE_DIGITS) verifyCode()
@@ -109,7 +116,11 @@ class SignInViewModel(private val auth: AuthRepository) : ViewModel() {
         viewModelScope.launch {
             resultOf { auth.verifyPhoneCode(fullPhone, current.code) }
                 // Stays busy on success: this screen is about to be replaced.
-                .onFailure { e -> _state.update { it.copy(isBusy = false, code = "", codeError = e.toUiMessage()) } }
+                .onFailure { e ->
+                    _state.update {
+                        it.copy(isBusy = false, code = "", codeError = e.toUiMessage(), failedAttempts = it.failedAttempts + 1)
+                    }
+                }
         }
     }
 
