@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -6,6 +7,43 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidxRoom)
     alias(libs.plugins.kotlinSerialization)
+}
+
+/*
+ * Which Supabase project the app talks to. Set supabase.url and supabase.publishableKey in local.properties
+ * to use a hosted project; without them the app uses local Supabase (`supabase start`), whose key is the
+ * same fixed development key on every machine.
+ */
+val localProperties = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+val supabaseUrl = localProperties.getProperty("supabase.url") ?: "http://127.0.0.1:54321"
+val supabasePublishableKey = localProperties.getProperty("supabase.publishableKey")
+    ?: "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH"
+
+val generateSupabaseConfig by tasks.registering {
+    // Locals rather than the script's own values, which the configuration cache can't store.
+    val url = supabaseUrl
+    val publishableKey = supabasePublishableKey
+    val outputDir = layout.buildDirectory.dir("generated/supabaseConfig/kotlin")
+    inputs.property("url", url)
+    inputs.property("publishableKey", publishableKey)
+    outputs.dir(outputDir)
+    doLast {
+        val file = outputDir.get().file("com/harsh/gymmanager/data/remote/SupabaseBuildConfig.kt").asFile
+        file.parentFile.mkdirs()
+        file.writeText(
+            """
+            |package com.harsh.gymmanager.data.remote
+            |
+            |// Generated from local.properties by sharedLogic/build.gradle.kts; don't edit.
+            |internal object SupabaseBuildConfig {
+            |    const val URL = "$url"
+            |    const val PUBLISHABLE_KEY = "$publishableKey"
+            |}
+            |""".trimMargin()
+        )
+    }
 }
 
 kotlin {
@@ -54,6 +92,11 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             api(project(":whatsapp-cloud"))
             api(project(":gym-templates"))
+            implementation(libs.supabase.auth)
+            implementation(libs.supabase.postgrest)
+        }
+        commonMain {
+            kotlin.srcDir(generateSupabaseConfig)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
