@@ -30,9 +30,9 @@ class GymManagerApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        backend = SupabaseBackend(MainScope())
+        backend = SupabaseBackend(MainScope(), AndroidStoredFiles(this))
         val model = GeminiNanoModel()
-        container = AppContainer(this, { settingsStore }, model, backend.gyms, backend.data)
+        container = AppContainer(this, { settingsStore }, model, backend)
         demoMode = DemoMode(
             createDemo = {
                 DefaultAppDependencies(

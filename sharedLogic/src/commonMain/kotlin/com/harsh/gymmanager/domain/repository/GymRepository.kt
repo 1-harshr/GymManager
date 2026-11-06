@@ -47,8 +47,8 @@ interface GymRepository {
     /** Joins the gym that issued [code], as the role the invite was made for. */
     suspend fun joinGym(code: String, yourName: String)
 
-    /** Owner only. */
-    suspend fun updateGym(name: String, address: String?)
+    /** Owner only. [logoPath] is a logo picked on this phone, the one the gym already has, or null for none. */
+    suspend fun updateGym(name: String, address: String?, logoPath: String?)
 
     /** Everyone at the gym, owners first. */
     suspend fun staff(): List<StaffMember>

@@ -34,6 +34,7 @@ import kotlin.time.Instant
 internal class SupabaseGymRepository(
     private val supabase: SupabaseClient,
     private val auth: AuthRepository,
+    private val photos: PhotoSync,
     scope: CoroutineScope,
     private val clock: Clock = Clock.System,
 ) : GymRepository {
@@ -58,7 +59,7 @@ internal class SupabaseGymRepository(
     private suspend fun load(userId: String) {
         _membership.value = try {
             val row = supabase.postgrest.from("gym_staff")
-                .select(Columns.raw("gym_id, user_id, role, name, joined_at, gyms(name, address)")) {
+                .select(Columns.raw("gym_id, user_id, role, name, joined_at, gyms(name, address, logo_path)")) {
                     filter { eq("user_id", userId) }
                 }
                 .decodeSingleOrNull<StaffRow>()
@@ -70,6 +71,7 @@ internal class SupabaseGymRepository(
                         gymId = row.gymId,
                         gymName = row.gym.name,
                         gymAddress = row.gym.address,
+                        gymLogo = row.gym.logoPath,
                         role = row.role.toStaffRole(),
                         yourName = row.name,
                     ),
@@ -107,12 +109,14 @@ internal class SupabaseGymRepository(
         refresh()
     }
 
-    override suspend fun updateGym(name: String, address: String?) = explained {
+    override suspend fun updateGym(name: String, address: String?, logoPath: String?) = explained {
         val gymId = currentMembership().gymId
+        val logo = photos.toStored(GYM_LOGOS_BUCKET, logoPath, gymId, owner = "logo")
         supabase.postgrest.from("gyms").update(
             buildJsonObject {
                 put("name", name.trim())
                 put("address", address?.trim()?.ifEmpty { null })
+                put("logo_path", logo)
             },
         ) {
             filter { eq("id", gymId) }
@@ -217,7 +221,11 @@ internal class SupabaseGymRepository(
     )
 
     @Serializable
-    private data class GymRow(val name: String, val address: String? = null)
+    private data class GymRow(
+        val name: String,
+        val address: String? = null,
+        @SerialName("logo_path") val logoPath: String? = null,
+    )
 
     @Serializable
     private data class InviteRow(

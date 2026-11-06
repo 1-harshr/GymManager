@@ -15,7 +15,6 @@ import androidx.compose.ui.window.ComposeUIViewController
 import com.harsh.gymmanager.ui.LaunchSplash
 import com.harsh.gymmanager.ui.components.splashShowing
 import com.harsh.gymmanager.data.local.buildGymDatabase
-import com.harsh.gymmanager.data.remote.CloudGymSettingsRepository
 import com.harsh.gymmanager.data.remote.SupabaseBackend
 import com.harsh.gymmanager.data.local.gymDatabaseBuilder
 import com.harsh.gymmanager.data.settings.SETTINGS_FILE_NAME
@@ -40,13 +39,13 @@ internal val iosDependencies: AppDependencies by lazy {
         onDeviceModel = InstalledOnDeviceModel,
         // iOS can't send at a set time in the background; messages go out while the app is open.
         createWhatsAppScheduler = { messaging -> InAppWhatsAppScheduler(MainScope()) { messaging().flush() } },
-        wrapSettings = { CloudGymSettingsRepository(it, backend.gyms) },
+        wrapSettings = backend::gymSettings,
         remote = backend.data,
     )
 }
 
 /** Sign-in and the gym's data online, for as long as the app runs. */
-private val backend by lazy { SupabaseBackend(MainScope()) }
+private val backend by lazy { SupabaseBackend(MainScope(), IosStoredFiles()) }
 
 /** Sample data for showing the app, in its own database file next to the real one. */
 @OptIn(ExperimentalForeignApi::class)

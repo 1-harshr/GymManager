@@ -27,6 +27,7 @@ internal class SupabaseMemberRepository(
     private val supabase: SupabaseClient,
     private val refresher: Refresher,
     private val gyms: GymRepository,
+    private val photos: PhotoSync,
     private val clock: Clock = Clock.System,
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
 ) : MemberRepository {
@@ -40,7 +41,7 @@ internal class SupabaseMemberRepository(
         supabase.postgrest.from("member_summary")
             .select { filter { eq("is_archived", archived) } }
             .decodeList<MemberSummaryRow>()
-            .map { it.toDomain(today) }
+            .map { it.toDomain(today).copy(photoPath = it.photoPath?.let { stored -> photos.shown(MEMBER_PHOTOS_BUCKET, stored) }) }
             .sortedBy { it.name.lowercase() }
     }
 
@@ -67,11 +68,20 @@ internal class SupabaseMemberRepository(
     }
 
     override fun observeMember(id: String): Flow<Member?> = refresher.observe {
-        members.select { filter { eq("id", id) } }.decodeSingleOrNull<MemberRow>()?.toDomain()
+        members.select { filter { eq("id", id) } }.decodeSingleOrNull<MemberRow>()?.toLocalDomain()
     }
 
+    private suspend fun MemberRow.toLocalDomain(): Member =
+        toDomain().copy(photoPath = photoPath?.let { photos.shown(MEMBER_PHOTOS_BUCKET, it) })
+
+    /** The photo goes up once the member has an id to name it by. */
     override suspend fun addMember(member: Member): String = write {
-        members.insert(member.toRow(gyms.currentGymId())) { select(Columns.raw("id")) }.decodeSingle<IdRow>().id
+        val gymId = gyms.currentGymId()
+        val id = members.insert(member.toRow(gymId, photo = null)) { select(Columns.raw("id")) }.decodeSingle<IdRow>().id
+        photos.toStored(MEMBER_PHOTOS_BUCKET, member.photoPath, gymId, owner = id)?.let { stored ->
+            members.update(buildJsonObject { put("photo_path", stored) }) { filter { eq("id", id) } }
+        }
+        id
     }
 
     /** One request, so either all are added or none. */
@@ -79,14 +89,14 @@ internal class SupabaseMemberRepository(
         if (members.isEmpty()) return emptyList()
         val gymId = gyms.currentGymId()
         return write {
-            this.members.insert(members.map { it.toRow(gymId) }) { select(Columns.raw("id")) }.decodeList<IdRow>().map { it.id }
+            this.members.insert(members.map { it.toRow(gymId, photo = null) }) { select(Columns.raw("id")) }.decodeList<IdRow>().map { it.id }
         }
     }
 
     override suspend fun getMembers(ids: List<String>): List<Member> {
         if (ids.isEmpty()) return emptyList()
         return remote {
-            members.select { filter { isIn("id", ids) } }.decodeList<MemberRow>().map { it.toDomain() }.sortedBy { it.name.lowercase() }
+            members.select { filter { isIn("id", ids) } }.decodeList<MemberRow>().map { it.toLocalDomain() }.sortedBy { it.name.lowercase() }
         }
     }
 
@@ -95,7 +105,8 @@ internal class SupabaseMemberRepository(
     }
 
     override suspend fun updateMember(member: Member) = write {
-        members.update(member.toRow(gymId = null)) { filter { eq("id", member.id) } }
+        val photo = photos.toStored(MEMBER_PHOTOS_BUCKET, member.photoPath, gyms.currentGymId(), owner = member.id)
+        members.update(member.toRow(gymId = null, photo = photo)) { filter { eq("id", member.id) } }
         Unit
     }
 
@@ -132,14 +143,17 @@ internal class SupabaseMemberRepository(
 
     private suspend fun <T> write(block: suspend () -> T): T = remote(block).also { refresher.changed() }
 
-    /** [gymId] only for a new member; an update leaves the gym as it is. Blank text is stored as nothing. */
-    private fun Member.toRow(gymId: String?): JsonObject = buildJsonObject {
+    /**
+     * [gymId] only for a new member; an update leaves the gym as it is. [photo] is where the photo is
+     * kept online. Blank text is stored as nothing.
+     */
+    private fun Member.toRow(gymId: String?, photo: String?): JsonObject = buildJsonObject {
         gymId?.let { put("gym_id", it) }
         put("name", name.trim())
         put("phone", phone?.trim()?.ifEmpty { null })
         put("gender", gender?.name)
         put("date_of_birth", dateOfBirth?.toString())
-        put("photo_path", photoPath)
+        put("photo_path", photo)
         put("notes", notes?.trim()?.ifEmpty { null })
         put("joined_on", joinedOn.toString())
         put("is_archived", isArchived)

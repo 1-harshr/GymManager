@@ -61,6 +61,7 @@ class BackupUseCasesTest {
     private class FakeFiles : StoredFiles {
         val files = mutableMapOf<String, ByteArray>()
         override suspend fun read(path: String) = files[path]
+        override suspend fun pathIfStored(folder: String, fileName: String) = "$folder/$fileName".takeIf { it in files }
         override suspend fun write(folder: String, fileName: String, bytes: ByteArray) = "$folder/$fileName".also { files[it] = bytes }
         override suspend fun deleteOthers(folder: String, keep: Set<String>) {
             files.keys.removeAll { it.startsWith("$folder/") && it !in keep }

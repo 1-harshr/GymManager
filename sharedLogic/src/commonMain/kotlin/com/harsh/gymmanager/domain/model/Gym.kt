@@ -10,6 +10,8 @@ data class GymMembership(
     val gymId: String,
     val gymName: String,
     val gymAddress: String?,
+    /** Where the gym's logo is kept online; null if it has none. */
+    val gymLogo: String?,
     val role: StaffRole,
     /** What they called themselves when they set up or joined the gym. */
     val yourName: String?,

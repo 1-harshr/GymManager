@@ -21,6 +21,10 @@ class IosStoredFiles : StoredFiles {
         NSData.dataWithContentsOfFile(resolveStoredPath(path))?.toByteArray()
     }
 
+    override suspend fun pathIfStored(folder: String, fileName: String): String? = withContext(Dispatchers.IO) {
+        "${documentsDirectory()}/$folder/$fileName".takeIf { NSFileManager.defaultManager.fileExistsAtPath(it) }
+    }
+
     override suspend fun write(folder: String, fileName: String, bytes: ByteArray): String = withContext(Dispatchers.IO) {
         val dir = "${documentsDirectory()}/$folder"
         NSFileManager.defaultManager.createDirectoryAtPath(dir, withIntermediateDirectories = true, attributes = null, error = null)

@@ -95,6 +95,7 @@ kotlin {
             implementation(libs.supabase.auth)
             implementation(libs.supabase.postgrest)
             implementation(libs.supabase.realtime)
+            implementation(libs.supabase.storage)
         }
         commonMain {
             kotlin.srcDir(generateSupabaseConfig)

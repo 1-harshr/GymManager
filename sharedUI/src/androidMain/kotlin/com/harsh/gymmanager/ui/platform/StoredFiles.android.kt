@@ -12,6 +12,10 @@ class AndroidStoredFiles(private val context: Context) : StoredFiles {
         File(path).takeIf { it.isFile }?.readBytes()
     }
 
+    override suspend fun pathIfStored(folder: String, fileName: String): String? = withContext(Dispatchers.IO) {
+        File(File(context.filesDir, folder), fileName).takeIf { it.isFile }?.absolutePath
+    }
+
     override suspend fun write(folder: String, fileName: String, bytes: ByteArray): String = withContext(Dispatchers.IO) {
         val dir = File(context.filesDir, folder).apply { mkdirs() }
         File(dir, fileName).apply { writeBytes(bytes) }.absolutePath
