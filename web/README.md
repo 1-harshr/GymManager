@@ -5,13 +5,14 @@ wide screens (sidebar, tables, side-by-side forms) and still usable on a phone.
 
 ```sh
 npm install
-npm run dev        # http://localhost:5173, against local Supabase (`supabase start`)
-npm test           # the rules: status, dates, money, CSV import
-npm run build      # type-checks, then builds to dist/ (a static site; host anywhere)
+npm run dev:local    # starts Docker and local Supabase, then http://localhost:5173 against it
+npm run dev:remote   # http://localhost:5173 against the staging project; no Docker needed
+npm test             # the rules: status, dates, money, CSV import
+npm run build:remote # type-checks, then builds to dist/ for staging (a static site; host anywhere)
 ```
 
-To use a hosted project, copy `.env.example` to `.env.local` and set its URL and publishable key. For
-Google sign-in, set `VITE_GOOGLE_SIGN_IN=true` and add the site's address to the project's redirect URLs
+Each target's address and publishable key go in `.env.docker` and `.env.staging` (copied from `.env.example`; not committed). For Google sign-in,
+set `VITE_GOOGLE_SIGN_IN=true` there and add the site's address to the project's redirect URLs
 (Authentication → URL Configuration).
 
 What's kept in the browser rather than in Supabase, as the phone keeps it on the phone: the theme, the

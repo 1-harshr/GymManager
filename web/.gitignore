@@ -1,3 +1,5 @@
 dist
 .env.local
 *.tsbuildinfo
+.env.docker
+.env.staging

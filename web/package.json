@@ -4,8 +4,10 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev:local": "./scripts/start-local.sh",
+    "dev:remote": "vite --mode staging",
     "build": "tsc --noEmit && vite build",
+    "build:remote": "tsc --noEmit && vite build --mode staging",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
