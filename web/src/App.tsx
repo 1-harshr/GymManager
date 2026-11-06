@@ -1,4 +1,4 @@
-import { lazy, Suspense, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { RefreshCw } from 'lucide-react'
@@ -82,7 +82,14 @@ function Live({ gymId, children }: { gymId: string; children: ReactNode }) {
   return children
 }
 
+/** The brand while the session and gym load; if the server hasn't answered in 10 seconds, says so. */
 function Loading() {
+  const [slow, setSlow] = useState(false)
+  useEffect(() => {
+    const timer = setTimeout(() => setSlow(true), 10_000)
+    return () => clearTimeout(timer)
+  }, [])
+  if (slow) return <Unreachable onRetry={() => window.location.reload()} />
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 animate-fade">
       <BrandMark />
@@ -105,8 +112,9 @@ function Unreachable({ onRetry }: { onRetry: () => void }) {
         <Button
           kind="secondary"
           onClick={async () => {
-            await supabase.auth.signOut()
+            await supabase.auth.signOut({ scope: 'local' })
             client.clear()
+            window.location.reload()
           }}
         >
           Sign out
