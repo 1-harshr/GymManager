@@ -16,6 +16,10 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 /**
  * Everything the app gets from Supabase, on one connection made once per app launch. The session is
@@ -44,6 +48,11 @@ class SupabaseBackend(scope: CoroutineScope, files: StoredFiles) {
     init {
         LiveChanges(client, gyms, refresher, scope)
     }
+
+    /** True while the gym's records can't be read, usually for want of a connection; screens show what was last read. */
+    val unreachable: StateFlow<Boolean> = refresher.problem
+        .map { it != null }
+        .stateIn(scope, SharingStarted.Eagerly, false)
 
     /** The phone's [local] settings with the gym's name, address and logo taken from the gym online. */
     fun gymSettings(local: SettingsRepository): SettingsRepository = CloudGymSettingsRepository(local, gyms, photos)

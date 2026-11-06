@@ -16,21 +16,31 @@ import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 
 internal class SupabaseAuthRepository(private val supabase: SupabaseClient, scope: CoroutineScope) : AuthRepository {
+    /**
+     * Once someone is signed in they stay signed in until they sign out or the session is gone: the
+     * library passes through "initialising" and "refresh failed" whenever the app returns to the front
+     * or the connection drops, and neither should send them back to the start.
+     */
     override val authState: StateFlow<AuthState> =
         supabase.auth.sessionStatus
-            .map { status ->
+            .runningFold<SessionStatus, AuthState>(AuthState.Loading) { previous, status ->
                 when (status) {
-                    is SessionStatus.Initializing -> AuthState.Loading
-                    is SessionStatus.Authenticated -> status.session.user?.toAuthState() ?: AuthState.Loading
-                    // A failed refresh is usually just no network; the saved session is kept and retried.
-                    is SessionStatus.RefreshFailure -> supabase.auth.currentUserOrNull()?.toAuthState() ?: AuthState.SignedOut
+                    is SessionStatus.Initializing -> previous.takeIf { it is AuthState.SignedIn } ?: AuthState.Loading
+                    is SessionStatus.Authenticated -> status.session.user?.toAuthState() ?: previous
+                    // Usually just no network; the saved session is kept and retried.
+                    is SessionStatus.RefreshFailure ->
+                        previous.takeIf { it is AuthState.SignedIn }
+                            ?: supabase.auth.currentUserOrNull()?.toAuthState()
+                            ?: AuthState.SignedOut
                     is SessionStatus.NotAuthenticated -> AuthState.SignedOut
                 }
             }
+            .distinctUntilChanged()
             .stateIn(scope, SharingStarted.Eagerly, AuthState.Loading)
 
     private fun UserInfo.toAuthState() = AuthState.SignedIn(userId = id, phone = phone, email = email)

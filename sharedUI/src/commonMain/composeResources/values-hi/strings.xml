@@ -691,4 +691,5 @@
     <string name="msg_invite_cancelled">इनवाइट रद्द हुआ</string>
     <string name="msg_staff_removed">जिम से हटा दिया</string>
     <string name="msg_role_changed">भूमिका बदल दी</string>
+    <string name="unreachable_banner">ऑनलाइन जिम तक नहीं पहुँच पा रहे। आख़िरी बार लोड हुई जानकारी दिख रही है।</string>
 </resources>

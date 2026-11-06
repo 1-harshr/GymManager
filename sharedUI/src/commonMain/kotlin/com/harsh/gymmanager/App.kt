@@ -114,6 +114,10 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import gymmanager.sharedui.generated.resources.unreachable_banner
+import gymmanager.sharedui.generated.resources.try_again
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 import org.jetbrains.compose.resources.PluralStringResource
@@ -136,6 +140,8 @@ fun GymManagerApp(
     onReady: () -> Unit = {},
     /** Reads the gym again when the app comes back to the front, since changes made meanwhile weren't heard. */
     onResume: suspend () -> Unit = {},
+    /** True while the gym online can't be read; a banner says so and offers to try again. */
+    unreachable: StateFlow<Boolean> = MutableStateFlow(false),
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(lifecycle) {
@@ -156,7 +162,14 @@ fun GymManagerApp(
             }
         }
         CompositionLocalProvider(LocalViewModelStoreOwner provides owner, LocalDemoMode provides demoMode) {
-            App(demo ?: real, auth.takeIf { demo == null }, gyms, onReady)
+            App(
+                demo ?: real,
+                auth.takeIf { demo == null },
+                gyms,
+                onReady,
+                unreachable = if (demo == null) unreachable.collectAsStateWithLifecycle().value else false,
+                onRetry = onResume,
+            )
         }
     }
 }
@@ -166,11 +179,16 @@ fun GymManagerApp(
  * someone has signed in to it; until they belong to one, [gyms] lets them set one up or join.
  */
 @Composable
-fun App(dependencies: AppDependencies, auth: AuthRepository? = null, gyms: GymRepository? = null, onReady: () -> Unit = {}) {
+fun App(
+    dependencies: AppDependencies,
+    auth: AuthRepository? = null,
+    gyms: GymRepository? = null,
+    onReady: () -> Unit = {},
+    unreachable: Boolean = false,
+    onRetry: suspend () -> Unit = {},
+) {
     val settingsVm = viewModel { SettingsViewModel(dependencies.settingsUseCases) }
     val settings = settingsVm.state.collectAsStateWithLifecycle().value
-    val authState = auth?.authState?.collectAsStateWithLifecycle()?.value
-    val membership = gyms?.membership?.collectAsStateWithLifecycle()?.value
     val scope = rememberCoroutineScope()
     val dark = when (settings?.theme ?: ThemeMode.SYSTEM) {
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
@@ -178,8 +196,11 @@ fun App(dependencies: AppDependencies, auth: AuthRepository? = null, gyms: GymRe
         ThemeMode.DARK -> true
     }
     val inDemo = LocalDemoMode.current?.active != null
-    // The demo banner is clay, so the status bar icons go light on it.
-    SystemBarsFor(dark || inDemo)
+    val authState = auth?.authState?.collectAsStateWithLifecycle()?.value
+    val membership = gyms?.membership?.collectAsStateWithLifecycle()?.value
+    val inGym = authState is AuthState.SignedIn && membership is MembershipState.Member
+    // The demo banner is clay and the can't-reach banner ink, so the status bar icons go light on them.
+    SystemBarsFor(dark || inDemo || (inGym && unreachable))
     // Hold the launch screen until both the settings and any saved sign-in are read, so neither screen flashes.
     val gymKnown = authState !is AuthState.SignedIn || membership !is MembershipState.Loading
     if (settings != null && authState !is AuthState.Loading && gymKnown) LaunchedEffect(Unit) { onReady() }
@@ -191,8 +212,11 @@ fun App(dependencies: AppDependencies, auth: AuthRepository? = null, gyms: GymRe
             MyGymTheme(darkTheme = dark) {
                 Column(Modifier.fillMaxSize().background(MyGymTheme.colors.bg)) {
                     if (inDemo) DemoBanner()
-                    // Below the banner, screens don't need their own room for the status bar.
-                    Box(Modifier.weight(1f).then(if (inDemo) Modifier.consumeWindowInsets(WindowInsets.statusBars) else Modifier)) {
+                    // Only once someone is in a gym; before that the sign-in screens say what's wrong themselves.
+                    if (inGym && unreachable) UnreachableBanner(onRetry = { scope.launch { onRetry() } })
+                    // Below a banner, screens don't need their own room for the status bar.
+                    val bannerShown = inDemo || (inGym && unreachable)
+                    Box(Modifier.weight(1f).then(if (bannerShown) Modifier.consumeWindowInsets(WindowInsets.statusBars) else Modifier)) {
                         // Wait for stored settings so first-run setup never flashes on later launches.
                         if (settings != null) {
                             if (auth == null) AppContent(dependencies, settings, settingsVm) else when (authState) {
@@ -449,6 +473,21 @@ private fun AppContent(
             }
             // Sits above the floating tab bar.
             MyGymSnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 88.dp))
+        }
+    }
+}
+
+/** While the gym online can't be read: what's shown may be out of date, and saving won't work until it's back. */
+@Composable
+private fun UnreachableBanner(onRetry: () -> Unit) {
+    val colors = MyGymTheme.colors
+    Row(
+        Modifier.fillMaxWidth().background(colors.ink).statusBarsPadding().padding(start = MyGymSpace.gutter, end = MyGymSpace.sm),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(stringResource(Res.string.unreachable_banner), Modifier.weight(1f), style = MyGymTheme.typography.caption, color = colors.onInk)
+        TextButton(onClick = onRetry) {
+            Text(stringResource(Res.string.try_again), style = MyGymTheme.typography.bodyStrong, color = colors.onInk)
         }
     }
 }

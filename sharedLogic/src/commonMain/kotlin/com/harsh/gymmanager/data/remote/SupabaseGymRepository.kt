@@ -23,6 +23,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -43,9 +46,12 @@ internal class SupabaseGymRepository(
 
     init {
         scope.launch {
-            auth.authState.collectLatest { state ->
-                if (state is AuthState.SignedIn) load(state.userId) else _membership.value = MembershipState.Loading
-            }
+            // Only a different person signing in, or signing out, changes whose gym this is.
+            auth.authState
+                .filter { it !is AuthState.Loading }
+                .map { (it as? AuthState.SignedIn)?.userId }
+                .distinctUntilChanged()
+                .collectLatest { userId -> if (userId != null) load(userId) else _membership.value = MembershipState.Loading }
         }
     }
 

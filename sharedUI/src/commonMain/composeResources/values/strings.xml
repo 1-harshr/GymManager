@@ -691,4 +691,5 @@
     <string name="msg_invite_cancelled">Invite cancelled</string>
     <string name="msg_staff_removed">Removed from the gym</string>
     <string name="msg_role_changed">Role changed</string>
+    <string name="unreachable_banner">Can’t reach the gym online. Showing what was last loaded.</string>
 </resources>
