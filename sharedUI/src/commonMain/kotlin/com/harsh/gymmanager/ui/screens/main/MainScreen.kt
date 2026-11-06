@@ -10,6 +10,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -21,6 +22,9 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -37,6 +41,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -70,6 +80,7 @@ import com.harsh.gymmanager.ui.screens.home.HomeScreen
 import com.harsh.gymmanager.ui.screens.members.MembersScreen
 import com.harsh.gymmanager.ui.screens.plans.PlansScreen
 import com.harsh.gymmanager.ui.theme.MyGymSpace
+import kotlin.math.roundToInt
 
 
 /** Matches the tab pill's spring so the bar and pill move together. */
@@ -141,7 +152,23 @@ fun MainScreen(
     // Back from another tab returns Home before it leaves the app.
     SystemBackHandler(enabled = !selecting && tab != HOME) { tab = HOME }
 
-    Box(Modifier.fillMaxSize()) {
+    // The tab bar slides off the bottom while the list scrolls down and comes back on any scroll up.
+    // Select mode keeps its bar in place.
+    val density = LocalDensity.current
+    val barScroll = remember(density) { HideOnScroll(with(density) { 24.dp.toPx() }) }
+    LaunchedEffect(tab, selecting) { barScroll.show() }
+    val barShift by animateFloatAsState(
+        if (barScroll.hidden && !selecting) 1f else 0f,
+        spring(dampingRatio = 0.85f, stiffness = Spring.StiffnessMediumLow),
+        label = "tab bar",
+    )
+    var barHeight by remember { mutableIntStateOf(0) }
+    val barGap = WindowInsets.navigationBars.getBottom(density) + with(density) { MyGymSpace.md.roundToPx() }
+    val slidesAway = Modifier
+        .onSizeChanged { barHeight = it.height }
+        .offset { IntOffset(0, (barShift * (barHeight + barGap)).roundToInt()) }
+
+    Box(Modifier.fillMaxSize().nestedScroll(barScroll)) {
         AnimatedContent(
             targetState = tab,
             transitionSpec = {
@@ -194,7 +221,7 @@ fun MainScreen(
         if (usesLiquidGlass && !selecting) {
             // iOS 26 centres the glass capsule in the bar's frame, so the add button takes the trailing end
             // and the capsule slides aside as it appears, like a tab bar with a trailing button.
-            Row(Modifier.align(Alignment.BottomCenter), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.align(Alignment.BottomCenter).then(slidesAway), verticalAlignment = Alignment.CenterVertically) {
                 SystemTabBar(tabs = mainTabs, selected = tab, onSelect = { tab = it }, modifier = Modifier.weight(1f))
                 AnimatedVisibility(
                     tab == MEMBERS,
@@ -237,7 +264,7 @@ fun MainScreen(
                     ),
                 )
             } else if (!usesLiquidGlass) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(slidesAway, verticalAlignment = Alignment.CenterVertically) {
                     FloatingTabBar(tabs = mainTabs, selected = tab, onSelect = { tab = it })
                     // The button's width (gap included) grows on the same spring as the tab pill, so the
                     // centred bar glides aside instead of jumping when the button appears.
@@ -262,6 +289,34 @@ fun MainScreen(
             onConfirm = { confirmDelete = false; membersVm.deleteSelected() },
             onDismiss = { confirmDelete = false },
         )
+    }
+}
+
+/**
+ * Says whether the tab bar should be out of the way: after scrolling down a little way, and not again
+ * until a scroll back up, or a pull at the top of a list that can't scroll.
+ */
+private class HideOnScroll(private val threshold: Float) : NestedScrollConnection {
+    var hidden by mutableStateOf(false)
+        private set
+
+    /** How far the list has moved in its current direction: below zero going down. */
+    private var travel = 0f
+
+    override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+        val dy = consumed.y
+        if (dy == 0f) {
+            if (available.y > 0f) show()
+            return Offset.Zero
+        }
+        travel = if ((dy < 0f) == (travel < 0f)) travel + dy else dy
+        if (travel < -threshold) hidden = true else if (travel > threshold / 3) hidden = false
+        return Offset.Zero
+    }
+
+    fun show() {
+        hidden = false
+        travel = 0f
     }
 }
 
