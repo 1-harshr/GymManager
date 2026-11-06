@@ -28,7 +28,7 @@ import kotlin.time.Clock
 
 /** The "record payment" sheet for one membership. */
 data class PaymentForm(
-    val membershipId: Long,
+    val membershipId: String,
     val amountDue: Long,
     val amountText: String,
     val mode: PaymentMode = PaymentMode.CASH,
@@ -51,11 +51,11 @@ sealed interface MemberDetailEvent {
     data object MemberDeleted : MemberDetailEvent
 
     /** Sent just before the payment's snackbar message, so the screen can offer a receipt. */
-    data class PaymentRecorded(val membershipId: Long, val paymentId: Long) : MemberDetailEvent
+    data class PaymentRecorded(val membershipId: String, val paymentId: String) : MemberDetailEvent
 }
 
 class MemberDetailViewModel(
-    private val memberId: Long,
+    private val memberId: String,
     observeMemberDetail: ObserveMemberDetailUseCase,
     private val memberUseCases: MemberUseCases,
     private val membershipUseCases: MembershipUseCases,
@@ -73,7 +73,7 @@ class MemberDetailViewModel(
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MemberDetailUiState())
 
     /** Opens the payment sheet pre-filled with what is still owed. */
-    fun openPaymentForm(membershipId: Long) {
+    fun openPaymentForm(membershipId: String) {
         val membership = state.value.detail?.memberships?.find { it.id == membershipId } ?: return
         paymentForm.value = PaymentForm(
             membershipId = membershipId,
@@ -115,9 +115,9 @@ class MemberDetailViewModel(
         }
     }
 
-    fun deletePayment(paymentId: Long) = run(UiMessage.PaymentDeleted) { paymentUseCases.deletePayment(paymentId) }
+    fun deletePayment(paymentId: String) = run(UiMessage.PaymentDeleted) { paymentUseCases.deletePayment(paymentId) }
 
-    fun deleteMembership(membershipId: Long) =
+    fun deleteMembership(membershipId: String) =
         run(UiMessage.MembershipDeleted) { membershipUseCases.deleteMembership(membershipId) }
 
     fun archiveMember() = run(UiMessage.MemberArchived) { memberUseCases.archiveMember(memberId) }

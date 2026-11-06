@@ -9,18 +9,18 @@ interface PlanRepository {
     /** Active plans first, then archived ones. */
     fun observeAllPlans(): Flow<List<Plan>>
 
-    suspend fun getPlan(id: Long): Plan?
+    suspend fun getPlan(id: String): Plan?
 
-    suspend fun addPlan(plan: Plan): Long
+    suspend fun addPlan(plan: Plan): String
 
     suspend fun updatePlan(plan: Plan)
 
-    suspend fun archivePlan(id: Long)
+    suspend fun archivePlan(id: String)
 
-    suspend fun restorePlan(id: Long)
+    suspend fun restorePlan(id: String)
 
     /** Returns how many plans changed. */
-    suspend fun archivePlans(ids: List<Long>): Int
+    suspend fun archivePlans(ids: List<String>): Int
 
-    suspend fun restorePlans(ids: List<Long>): Int
+    suspend fun restorePlans(ids: List<String>): Int
 }

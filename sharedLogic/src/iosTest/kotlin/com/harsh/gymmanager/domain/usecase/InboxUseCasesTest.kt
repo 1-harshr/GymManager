@@ -48,7 +48,7 @@ class InboxUseCasesTest {
         db.close()
     }
 
-    private suspend fun sell(name: String, start: LocalDate, end: LocalDate, paid: Long?): Long {
+    private suspend fun sell(name: String, start: LocalDate, end: LocalDate, paid: Long?): String {
         val planId = plans.addPlan("Monthly", 1, DurationUnit.MONTHS, defaultPrice = 1500).getOrThrow()
         val plan = plans.observePlans().first().single { it.id == planId }
         val id = members.addMember(name).getOrThrow()

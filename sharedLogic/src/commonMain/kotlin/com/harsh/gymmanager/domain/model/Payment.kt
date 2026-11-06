@@ -5,8 +5,8 @@ import com.harsh.gymmanager.domain.ensure
 import kotlinx.datetime.LocalDate
 
 data class Payment(
-    val id: Long = 0,
-    val membershipId: Long,
+    val id: String = "",
+    val membershipId: String,
     /** Whole rupees. */
     val amount: Long,
     val mode: PaymentMode = PaymentMode.CASH,

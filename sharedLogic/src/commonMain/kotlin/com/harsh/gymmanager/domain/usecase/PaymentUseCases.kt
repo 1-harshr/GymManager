@@ -18,12 +18,12 @@ class RecordPaymentUseCase(
 ) {
     /** [paidOn] defaults to today. */
     suspend operator fun invoke(
-        membershipId: Long,
+        membershipId: String,
         amount: Long,
         mode: PaymentMode = PaymentMode.CASH,
         paidOn: LocalDate? = null,
         note: String? = null,
-    ): Result<Long> = resultOf {
+    ): Result<String> = resultOf {
         repository.addPayment(
             Payment(
                 membershipId = membershipId,
@@ -37,7 +37,7 @@ class RecordPaymentUseCase(
 }
 
 class DeletePaymentUseCase(private val repository: PaymentRepository) {
-    suspend operator fun invoke(id: Long): Result<Unit> = resultOf { repository.deletePayment(id) }
+    suspend operator fun invoke(id: String): Result<Unit> = resultOf { repository.deletePayment(id) }
 }
 
 /** Payments as lists show them, newest first. */

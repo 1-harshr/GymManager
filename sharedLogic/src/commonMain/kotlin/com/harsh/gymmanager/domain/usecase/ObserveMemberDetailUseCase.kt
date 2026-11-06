@@ -31,7 +31,7 @@ class ObserveMemberDetailUseCase(
     private val timeZone: TimeZone,
 ) {
     /** Emits null if the member does not exist. */
-    operator fun invoke(memberId: Long): Flow<MemberDetail?> =
+    operator fun invoke(memberId: String): Flow<MemberDetail?> =
         combine(
             memberRepository.observeMember(memberId),
             membershipRepository.observeMemberships(memberId),

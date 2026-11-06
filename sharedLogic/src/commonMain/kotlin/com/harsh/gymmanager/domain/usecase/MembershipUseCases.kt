@@ -22,7 +22,7 @@ data class MembershipQuote(
 
 class ObserveMembershipsUseCase(private val repository: MembershipRepository) {
     /** Newest first, each with its payments. */
-    operator fun invoke(memberId: Long): Flow<List<Membership>> = repository.observeMemberships(memberId)
+    operator fun invoke(memberId: String): Flow<List<Membership>> = repository.observeMemberships(memberId)
 }
 
 /** Renewals continue from a running membership; otherwise the new one starts today. */
@@ -31,7 +31,7 @@ class QuoteMembershipUseCase(
     private val clock: Clock,
     private val timeZone: TimeZone,
 ) {
-    suspend operator fun invoke(memberId: Long, plan: Plan): MembershipQuote {
+    suspend operator fun invoke(memberId: String, plan: Plan): MembershipQuote {
         val start = renewalStartDate(repository.getLatestEndDate(memberId), clock.todayIn(timeZone))
         return MembershipQuote(startDate = start, endDate = plan.endDateFor(start), price = plan.defaultPrice)
     }
@@ -49,7 +49,7 @@ class SellMembershipUseCase(
     private val timeZone: TimeZone,
 ) {
     suspend operator fun invoke(
-        memberId: Long,
+        memberId: String,
         plan: Plan,
         startDate: LocalDate? = null,
         endDate: LocalDate? = null,
@@ -58,7 +58,7 @@ class SellMembershipUseCase(
         notes: String? = null,
         firstPaymentAmount: Long? = null,
         firstPaymentMode: PaymentMode = PaymentMode.CASH,
-    ): Result<Long> = resultOf {
+    ): Result<String> = resultOf {
         val quote = quoteMembership(memberId, plan)
         val start = startDate ?: quote.startDate
         val membership = Membership(
@@ -72,7 +72,7 @@ class SellMembershipUseCase(
             notes = notes,
         )
         val firstPayment = firstPaymentAmount?.takeIf { it > 0 }?.let { amount ->
-            Payment(membershipId = 0, amount = amount, mode = firstPaymentMode, paidOn = clock.todayIn(timeZone))
+            Payment(membershipId = "", amount = amount, mode = firstPaymentMode, paidOn = clock.todayIn(timeZone))
         }
         repository.addMembership(membership, firstPayment)
     }
@@ -86,7 +86,7 @@ class UpdateMembershipUseCase(private val repository: MembershipRepository) {
 
 /** Also removes the membership's payments. */
 class DeleteMembershipUseCase(private val repository: MembershipRepository) {
-    suspend operator fun invoke(id: Long): Result<Unit> = resultOf { repository.deleteMembership(id) }
+    suspend operator fun invoke(id: String): Result<Unit> = resultOf { repository.deleteMembership(id) }
 }
 
 class MembershipUseCases(repository: MembershipRepository, clock: Clock, timeZone: TimeZone) {

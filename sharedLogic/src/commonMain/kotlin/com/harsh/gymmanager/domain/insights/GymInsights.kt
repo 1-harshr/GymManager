@@ -46,7 +46,7 @@ data class MonthForecast(
     val total: Long get() = collected + outstandingDues + renewalsValue
 }
 
-data class EndingMember(val memberId: Long, val name: String, val endDate: LocalDate, val value: Long)
+data class EndingMember(val memberId: String, val name: String, val endDate: LocalDate, val value: Long)
 
 data class RenewalOutlook(
     /** Members whose membership ends within the "expiring soon" window, soonest first. */
@@ -61,11 +61,11 @@ data class RenewalOutlook(
 }
 
 /** A member who has owed money for at least [ATTENTION_DUE_DAYS], counted from their oldest unpaid membership's start. */
-data class DueAge(val memberId: Long, val name: String, val amount: Long, val owedSince: LocalDate, val days: Int)
+data class DueAge(val memberId: String, val name: String, val amount: Long, val owedSince: LocalDate, val days: Int)
 
 /** A member whose last membership ended recently and who hasn't renewed. */
 data class LapsedMember(
-    val memberId: Long,
+    val memberId: String,
     val name: String,
     val endedOn: LocalDate,
     val daysAgo: Int,

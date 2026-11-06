@@ -6,7 +6,9 @@ import com.harsh.gymmanager.domain.repository.InboxRepository
 import com.harsh.gymmanager.domain.repository.MemberRepository
 import com.harsh.gymmanager.domain.repository.MembershipRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
@@ -21,9 +23,17 @@ class InboxUseCases(
     private val clock: Clock,
     private val timeZone: TimeZone,
 ) {
-    fun observeItems(): Flow<List<InboxItem>> = inbox.observeItems()
+    /**
+     * Alerts for members still on the books, archived or not. A deleted member's alerts drop out here
+     * rather than by a link in the database, since members may live online while alerts stay on the phone.
+     */
+    fun observeItems(): Flow<List<InboxItem>> =
+        combine(inbox.observeItems(), members.observeMembers(), members.observeMembers(archived = true)) { items, active, archived ->
+            val known = (active + archived).mapTo(HashSet()) { it.memberId }
+            items.filter { it.memberId in known }
+        }
 
-    fun observeUnreadCount(): Flow<Int> = inbox.observeUnreadCount()
+    fun observeUnreadCount(): Flow<Int> = observeItems().map { items -> items.count { !it.isRead } }
 
     /** Adds today's new alerts and drops old ones; returns how many were added. */
     suspend fun refresh(): Result<Int> = resultOf {

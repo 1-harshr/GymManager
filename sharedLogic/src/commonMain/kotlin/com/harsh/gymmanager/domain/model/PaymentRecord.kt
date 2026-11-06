@@ -4,8 +4,8 @@ import kotlinx.datetime.LocalDate
 
 /** A payment as a list of payments shows it: who paid, for which plan, how and when. */
 data class PaymentRecord(
-    val paymentId: Long,
-    val memberId: Long,
+    val paymentId: String,
+    val memberId: String,
     val memberName: String,
     val planName: String,
     /** Whole rupees. */

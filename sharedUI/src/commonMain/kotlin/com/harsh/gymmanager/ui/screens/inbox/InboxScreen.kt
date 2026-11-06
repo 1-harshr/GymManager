@@ -46,7 +46,7 @@ import org.jetbrains.compose.resources.stringResource
 
 /** The bell's alerts, newest first, grouped by the day they came in; each opens its member. */
 @Composable
-fun InboxScreen(onBack: () -> Unit, onOpenMember: (Long) -> Unit) {
+fun InboxScreen(onBack: () -> Unit, onOpenMember: (String) -> Unit) {
     val deps = LocalAppDependencies.current
     val vm = viewModel { InboxViewModel(deps.inbox) }
     val state by vm.state.collectAsStateWithLifecycle()

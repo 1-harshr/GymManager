@@ -19,13 +19,13 @@ import kotlinx.coroutines.launch
 /** What to offer sending on WhatsApp. */
 sealed interface MessageRequest {
     /** Right after adding a member. */
-    data class Welcome(val memberId: Long) : MessageRequest
+    data class Welcome(val memberId: String) : MessageRequest
 
     /** Right after a sale ([paymentId] null) or a later payment. */
-    data class Receipt(val memberId: Long, val membershipId: Long, val paymentId: Long? = null) : MessageRequest
+    data class Receipt(val memberId: String, val membershipId: String, val paymentId: String? = null) : MessageRequest
 
     /** From the member's page: every message that makes sense for them now. */
-    data class AnyFor(val memberId: Long) : MessageRequest
+    data class AnyFor(val memberId: String) : MessageRequest
 }
 
 /** A welcome or receipt that went out on its own, for a short confirmation. */

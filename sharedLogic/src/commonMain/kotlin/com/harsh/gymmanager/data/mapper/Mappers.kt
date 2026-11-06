@@ -18,7 +18,7 @@ import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 
 fun MemberEntity.toDomain() = Member(
-    id = id,
+    id = id.toString(),
     name = name,
     phone = phone,
     gender = gender,
@@ -30,7 +30,7 @@ fun MemberEntity.toDomain() = Member(
 )
 
 fun Member.toEntity(createdAt: Instant, updatedAt: Instant) = MemberEntity(
-    id = id,
+    id = id.toRoomId(),
     name = name.trim(),
     phone = phone?.trim()?.ifEmpty { null },
     gender = gender,
@@ -44,7 +44,7 @@ fun Member.toEntity(createdAt: Instant, updatedAt: Instant) = MemberEntity(
 )
 
 fun MemberSummaryView.toDomain(today: LocalDate, expiringWithinDays: Int) = MemberSummary(
-    memberId = memberId,
+    memberId = memberId.toString(),
     name = name,
     phone = phone,
     photoPath = photoPath,
@@ -55,7 +55,7 @@ fun MemberSummaryView.toDomain(today: LocalDate, expiringWithinDays: Int) = Memb
 )
 
 fun PlanEntity.toDomain() = Plan(
-    id = id,
+    id = id.toString(),
     name = name,
     durationValue = durationValue,
     durationUnit = durationUnit,
@@ -64,7 +64,7 @@ fun PlanEntity.toDomain() = Plan(
 )
 
 fun Plan.toEntity(createdAt: Instant) = PlanEntity(
-    id = id,
+    id = id.toRoomId(),
     name = name.trim(),
     durationValue = durationValue,
     durationUnit = durationUnit,
@@ -74,8 +74,8 @@ fun Plan.toEntity(createdAt: Instant) = PlanEntity(
 )
 
 fun PaymentEntity.toDomain() = Payment(
-    id = id,
-    membershipId = membershipId,
+    id = id.toString(),
+    membershipId = membershipId.toString(),
     amount = amount,
     mode = mode,
     paidOn = paidOn,
@@ -83,8 +83,8 @@ fun PaymentEntity.toDomain() = Payment(
 )
 
 fun Payment.toEntity(createdAt: Instant) = PaymentEntity(
-    id = id,
-    membershipId = membershipId,
+    id = id.toRoomId(),
+    membershipId = membershipId.toRoomId(),
     amount = amount,
     mode = mode,
     paidOn = paidOn,
@@ -93,9 +93,9 @@ fun Payment.toEntity(createdAt: Instant) = PaymentEntity(
 )
 
 fun MembershipWithPayments.toDomain() = Membership(
-    id = membership.id,
-    memberId = membership.memberId,
-    planId = membership.planId,
+    id = membership.id.toString(),
+    memberId = membership.memberId.toString(),
+    planId = membership.planId?.toString(),
     planName = membership.planName,
     startDate = membership.startDate,
     endDate = membership.endDate,
@@ -106,9 +106,9 @@ fun MembershipWithPayments.toDomain() = Membership(
 )
 
 fun Membership.toEntity(createdAt: Instant) = MembershipEntity(
-    id = id,
-    memberId = memberId,
-    planId = planId,
+    id = id.toRoomId(),
+    memberId = memberId.toRoomId(),
+    planId = planId?.toLong(),
     planName = planName.trim(),
     startDate = startDate,
     endDate = endDate,
@@ -119,11 +119,14 @@ fun Membership.toEntity(createdAt: Instant) = MembershipEntity(
 )
 
 fun PaymentRecordRow.toDomain() = PaymentRecord(
-    paymentId = paymentId,
-    memberId = memberId,
+    paymentId = paymentId.toString(),
+    memberId = memberId.toString(),
     memberName = memberName,
     planName = planName,
     amount = amount,
     mode = mode,
     paidOn = paidOn,
 )
+
+/** Phone records are numbered by Room; the rest of the app sees the number as text. A new record has no id yet. */
+internal fun String.toRoomId(): Long = if (isEmpty()) 0 else toLong()

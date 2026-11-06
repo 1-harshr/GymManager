@@ -28,7 +28,7 @@ data class MembersUiState(
     val members: List<MemberSummary> = emptyList(),
     val isLoading: Boolean = true,
     /** Members ticked in select mode; empty means not selecting. */
-    val selectedIds: Set<Long> = emptySet(),
+    val selectedIds: Set<String> = emptySet(),
 ) {
     val isSelecting: Boolean get() = selectedIds.isNotEmpty()
 }
@@ -38,7 +38,7 @@ class MembersViewModel(private val memberUseCases: MemberUseCases) : ViewModel()
     private val query = MutableStateFlow("")
     private val filter = MutableStateFlow(MemberFilter.ALL)
     private val refreshes = MutableStateFlow(0)
-    private val selected = MutableStateFlow<Set<Long>>(emptySet())
+    private val selected = MutableStateFlow<Set<String>>(emptySet())
 
     private val messageChannel = Channel<UiMessage>(Channel.BUFFERED)
     /** Messages to show in a snackbar. */
@@ -68,7 +68,7 @@ class MembersViewModel(private val memberUseCases: MemberUseCases) : ViewModel()
     /** Call when the screen resumes so statuses are re-read after midnight. */
     fun refresh() = refreshes.update { it + 1 }
 
-    fun toggleSelection(memberId: Long) = selected.update { if (memberId in it) it - memberId else it + memberId }
+    fun toggleSelection(memberId: String) = selected.update { if (memberId in it) it - memberId else it + memberId }
 
     fun selectAll() = selected.update { state.value.members.mapTo(HashSet()) { it.memberId } }
 
@@ -80,7 +80,7 @@ class MembersViewModel(private val memberUseCases: MemberUseCases) : ViewModel()
 
     fun deleteSelected() = runBulk(UiMessage::MembersDeleted) { memberUseCases.bulk.deletePermanently(it) }
 
-    private fun runBulk(success: (Int) -> UiMessage, action: suspend (Set<Long>) -> Result<Int>) {
+    private fun runBulk(success: (Int) -> UiMessage, action: suspend (Set<String>) -> Result<Int>) {
         val ids = state.value.selectedIds
         if (ids.isEmpty()) return
         viewModelScope.launch {

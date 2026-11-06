@@ -55,7 +55,7 @@ import org.jetbrains.compose.resources.stringResource
  * in the last few days, one tap each; each row can also be sent on its own.
  */
 @Composable
-fun RemindersScreen(onBack: () -> Unit, onOpenMember: (Long) -> Unit) {
+fun RemindersScreen(onBack: () -> Unit, onOpenMember: (String) -> Unit) {
     val deps = LocalAppDependencies.current
     val vm = viewModel { RemindersViewModel(deps.messaging) }
     val state by vm.state.collectAsStateWithLifecycle()

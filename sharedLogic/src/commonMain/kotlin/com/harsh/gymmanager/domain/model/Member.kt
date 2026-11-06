@@ -5,7 +5,7 @@ import com.harsh.gymmanager.domain.ensure
 import kotlinx.datetime.LocalDate
 
 data class Member(
-    val id: Long = 0,
+    val id: String = "",
     val name: String,
     val phone: String? = null,
     val gender: Gender? = null,

@@ -107,11 +107,11 @@ class WhatsAppMessaging(
     suspend fun sendTest(number: String, gymName: String): WebhookResult {
         val webhook = webhook ?: return WebhookResult.Refused("Not available")
         val url = settings.observe().first().webhookUrl ?: return WebhookResult.Refused("No webhook")
-        val template = gymTemplate(MemberMessage.Welcome(0, "Test", number, gymName))
+        val template = gymTemplate(MemberMessage.Welcome("", "Test", number, gymName))
         val now = clock.now()
         val test = OutboxMessage(
             clientId = newClientId(),
-            memberId = 0,
+            memberId = "",
             memberName = "Test",
             kind = MessageKind.WELCOME,
             recipient = number,

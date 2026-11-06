@@ -16,12 +16,12 @@ class PaymentRepositoryImpl(
     private val clock: Clock = Clock.System,
 ) : PaymentRepository {
 
-    override suspend fun addPayment(payment: Payment): Long =
-        dao.addPayment(payment.copy(id = 0).toEntity(createdAt = clock.now()))
+    override suspend fun addPayment(payment: Payment): String =
+        dao.addPayment(payment.copy(id = "").toEntity(createdAt = clock.now())).toString()
 
-    override suspend fun deletePayment(id: Long) = dao.deleteById(id)
+    override suspend fun deletePayment(id: String) = dao.deleteById(id.toLong())
 
-    override suspend fun getAmountDue(membershipId: Long): Long? = dao.getAmountDue(membershipId)
+    override suspend fun getAmountDue(membershipId: String): Long? = dao.getAmountDue(membershipId.toLong())
 
     override fun observeRevenue(from: LocalDate, to: LocalDate): Flow<Long> = dao.observeRevenue(from, to)
 

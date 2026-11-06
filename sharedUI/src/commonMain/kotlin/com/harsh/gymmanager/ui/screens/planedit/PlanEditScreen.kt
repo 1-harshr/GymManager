@@ -43,7 +43,7 @@ import com.harsh.gymmanager.ui.theme.screenGutter
 
 /** Adds a plan when [planId] is null. */
 @Composable
-fun PlanEditScreen(planId: Long?, onBack: () -> Unit, onSaved: () -> Unit) {
+fun PlanEditScreen(planId: String?, onBack: () -> Unit, onSaved: () -> Unit) {
     val deps = LocalAppDependencies.current
     val vm = viewModel(key = "plan-edit-$planId") { PlanEditViewModel(planId, deps.planUseCases) }
     val state by vm.state.collectAsStateWithLifecycle()

@@ -85,11 +85,11 @@ private const val RECENT_PAYMENTS = 5
 /** The three tabs under the tab bar (the system one on iOS); select mode swaps the bar for bulk actions. */
 @Composable
 fun MainScreen(
-    onOpenMember: (Long) -> Unit,
+    onOpenMember: (String) -> Unit,
     onAddMember: () -> Unit,
-    onOpenPlan: (Long?) -> Unit,
+    onOpenPlan: (String?) -> Unit,
     onOpenSettings: () -> Unit,
-    onBulkRenew: (Set<Long>) -> Unit,
+    onBulkRenew: (Set<String>) -> Unit,
     onImportMembers: () -> Unit,
     onOpenReminders: () -> Unit,
     onOpenInbox: () -> Unit,

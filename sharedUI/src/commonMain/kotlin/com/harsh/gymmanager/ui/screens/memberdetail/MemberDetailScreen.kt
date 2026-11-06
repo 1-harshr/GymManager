@@ -90,7 +90,7 @@ private sealed interface Confirm {
 
 @Composable
 fun MemberDetailScreen(
-    memberId: Long,
+    memberId: String,
     onBack: () -> Unit,
     onEdit: () -> Unit,
     onSellMembership: () -> Unit,

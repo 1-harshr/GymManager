@@ -37,7 +37,10 @@ class BackupRepositoryImpl(private val dao: BackupDao) : BackupRepository {
             payments = t.payments.map {
                 PaymentBackup(it.id, it.membershipId, it.amount, it.mode, it.paidOn, it.note, it.createdAt.toEpochMilliseconds())
             },
-            messages = t.messages.map { MessageBackup(it.id, it.memberId, it.kind, it.sentAt.toEpochMilliseconds()) },
+            // Messages to members kept online have no number here; a backup only holds the phone's own members.
+            messages = t.messages.mapNotNull { m ->
+                m.memberId.toLongOrNull()?.let { MessageBackup(m.id, it, m.kind, m.sentAt.toEpochMilliseconds()) }
+            },
         )
         val photoPaths = t.members.mapNotNull { m -> m.photoPath?.let { m.id to it } }.toMap()
         return BackupRepository.Snapshot(backup, photoPaths)
@@ -62,7 +65,7 @@ class BackupRepositoryImpl(private val dao: BackupDao) : BackupRepository {
                 payments = backup.payments.map {
                     PaymentEntity(it.id, it.membershipId, it.amount, it.mode, it.paidOn, it.note, Instant.fromEpochMilliseconds(it.createdAt))
                 },
-                messages = backup.messages.map { MessageLogEntity(it.id, it.memberId, it.kind, Instant.fromEpochMilliseconds(it.sentAt)) },
+                messages = backup.messages.map { MessageLogEntity(it.id, it.memberId.toString(), it.kind, Instant.fromEpochMilliseconds(it.sentAt)) },
             )
         )
     }

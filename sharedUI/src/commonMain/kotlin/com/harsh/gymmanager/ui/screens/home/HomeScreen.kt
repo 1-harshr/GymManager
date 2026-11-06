@@ -53,7 +53,7 @@ import com.harsh.gymmanager.ui.theme.screenGutter
 @Composable
 fun HomeScreen(
     state: DashboardUiState,
-    onOpenMember: (Long) -> Unit,
+    onOpenMember: (String) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenReminders: () -> Unit,
     onOpenInbox: () -> Unit,

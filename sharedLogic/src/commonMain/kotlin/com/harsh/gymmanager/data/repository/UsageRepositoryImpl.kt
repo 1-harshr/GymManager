@@ -6,7 +6,7 @@ import com.harsh.gymmanager.domain.suggestions.UsageStats
 
 class UsageRepositoryImpl(private val dao: UsageDao) : UsageRepository {
     override suspend fun stats(): UsageStats = UsageStats(
-        planUses = dao.planUses().associate { it.value to it.uses },
+        planUses = dao.planUses().associate { it.value.toString() to it.uses },
         paymentAmounts = dao.paymentAmounts(LIMIT).map { it.value },
         discounts = dao.discounts(LIMIT).map { it.value },
     )

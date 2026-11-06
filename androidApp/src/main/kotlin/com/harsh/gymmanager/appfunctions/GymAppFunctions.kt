@@ -74,7 +74,7 @@ abstract class GymAppFunctions : AppFunctionService() {
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun recordPayment(
-        memberId: Long,
+        memberId: String,
         amountRupees: Long,
         @AppFunctionStringValueConstraint(enumValues = ["CASH", "UPI", "OTHER"])
         paymentMode: String,

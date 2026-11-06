@@ -5,7 +5,7 @@ import kotlinx.datetime.LocalDate
 
 /** What the member list shows for each member. */
 data class MemberSummary(
-    val memberId: Long,
+    val memberId: String,
     val name: String,
     val phone: String?,
     val photoPath: String?,

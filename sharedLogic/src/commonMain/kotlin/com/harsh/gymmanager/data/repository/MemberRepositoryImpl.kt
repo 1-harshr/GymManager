@@ -36,38 +36,38 @@ class MemberRepositoryImpl(
 
     override fun observeWithDues(): Flow<List<MemberSummary>> = dao.observeWithDues().toSummaries()
 
-    override fun observeMember(id: Long): Flow<Member?> = dao.observeById(id).map { it?.toDomain() }
+    override fun observeMember(id: String): Flow<Member?> = dao.observeById(id.toLong()).map { it?.toDomain() }
 
-    override suspend fun addMember(member: Member): Long {
+    override suspend fun addMember(member: Member): String {
         val now = clock.now()
-        return dao.insert(member.copy(id = 0).toEntity(createdAt = now, updatedAt = now))
+        return dao.insert(member.copy(id = "").toEntity(createdAt = now, updatedAt = now)).toString()
     }
 
-    override suspend fun addMembers(members: List<Member>): List<Long> {
+    override suspend fun addMembers(members: List<Member>): List<String> {
         val now = clock.now()
-        return dao.insertAll(members.map { it.copy(id = 0).toEntity(createdAt = now, updatedAt = now) })
+        return dao.insertAll(members.map { it.copy(id = "").toEntity(createdAt = now, updatedAt = now) }).map(Long::toString)
     }
 
-    override suspend fun getMembers(ids: List<Long>): List<Member> = dao.getByIds(ids).map { it.toDomain() }
+    override suspend fun getMembers(ids: List<String>): List<Member> = dao.getByIds(ids.map(String::toLong)).map { it.toDomain() }
 
     override suspend fun getPhones(): List<String> = dao.getPhones()
 
-    override suspend fun archiveMembers(ids: List<Long>): Int = dao.setArchived(ids, archived = true, updatedAt = clock.now())
+    override suspend fun archiveMembers(ids: List<String>): Int = dao.setArchived(ids.map(String::toLong), archived = true, updatedAt = clock.now())
 
-    override suspend fun restoreMembers(ids: List<Long>): Int = dao.setArchived(ids, archived = false, updatedAt = clock.now())
+    override suspend fun restoreMembers(ids: List<String>): Int = dao.setArchived(ids.map(String::toLong), archived = false, updatedAt = clock.now())
 
-    override suspend fun deleteMembersPermanently(ids: List<Long>): Int = dao.deleteByIds(ids)
+    override suspend fun deleteMembersPermanently(ids: List<String>): Int = dao.deleteByIds(ids.map(String::toLong))
 
     override suspend fun updateMember(member: Member) {
-        val existing = requireNotNull(dao.getById(member.id)) { "Member ${member.id} does not exist" }
+        val existing = requireNotNull(dao.getById(member.id.toLong())) { "Member ${member.id} does not exist" }
         dao.update(member.toEntity(createdAt = existing.createdAt, updatedAt = clock.now()))
     }
 
-    override suspend fun archiveMember(id: Long) = dao.setArchived(id, archived = true, updatedAt = clock.now())
+    override suspend fun archiveMember(id: String) = dao.setArchived(id.toLong(), archived = true, updatedAt = clock.now())
 
-    override suspend fun restoreMember(id: Long) = dao.setArchived(id, archived = false, updatedAt = clock.now())
+    override suspend fun restoreMember(id: String) = dao.setArchived(id.toLong(), archived = false, updatedAt = clock.now())
 
-    override suspend fun deleteMemberPermanently(id: Long) = dao.deleteById(id)
+    override suspend fun deleteMemberPermanently(id: String) = dao.deleteById(id.toLong())
 
     // Status depends on today's date, so it is computed when each list is emitted.
     private fun Flow<List<MemberSummaryView>>.toSummaries(): Flow<List<MemberSummary>> = map { rows ->

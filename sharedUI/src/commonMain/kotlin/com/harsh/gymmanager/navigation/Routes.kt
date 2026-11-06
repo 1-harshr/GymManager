@@ -6,18 +6,18 @@ import kotlinx.serialization.Serializable
 data object MainRoute
 
 @Serializable
-data class MemberDetailRoute(val memberId: Long)
+data class MemberDetailRoute(val memberId: String)
 
 /** Adds a member when [memberId] is null. */
 @Serializable
-data class MemberEditRoute(val memberId: Long? = null)
+data class MemberEditRoute(val memberId: String? = null)
 
 @Serializable
-data class SellMembershipRoute(val memberId: Long)
+data class SellMembershipRoute(val memberId: String)
 
 /** Adds a plan when [planId] is null. */
 @Serializable
-data class PlanEditRoute(val planId: Long? = null)
+data class PlanEditRoute(val planId: String? = null)
 
 @Serializable
 data object SettingsRoute
@@ -25,9 +25,9 @@ data object SettingsRoute
 /** [memberIds] is comma-separated so the route stays a plain string. */
 @Serializable
 data class BulkRenewRoute(val memberIds: String) {
-    constructor(ids: Set<Long>) : this(ids.sorted().joinToString(","))
+    constructor(ids: Set<String>) : this(ids.sorted().joinToString(","))
 
-    val ids: Set<Long> get() = memberIds.split(',').mapNotNull { it.toLongOrNull() }.toSet()
+    val ids: Set<String> get() = memberIds.split(',').filter { it.isNotEmpty() }.toSet()
 }
 
 @Serializable

@@ -117,7 +117,7 @@ class WhatsAppMessagingTest {
     private suspend fun welcome(name: String = "Ravi Kumar", phone: String = "98765 43210"): MemberMessage.Welcome =
         messaging.welcome(members.addMember(name, phone = phone).getOrThrow())!!
 
-    private suspend fun sell(memberId: Long, start: LocalDate, paid: Long = 1500) {
+    private suspend fun sell(memberId: String, start: LocalDate, paid: Long = 1500) {
         val planId = plans.observePlans().first().firstOrNull()?.id
             ?: plans.addPlan("Monthly", 1, DurationUnit.MONTHS, defaultPrice = 1500).getOrThrow()
         memberships.sellMembership(memberId, plans.observePlans().first().single { it.id == planId }, startDate = start, firstPaymentAmount = paid).getOrThrow()

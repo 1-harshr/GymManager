@@ -196,7 +196,7 @@ private fun AmountLine(label: String, amount: Long, key: androidx.compose.ui.gra
 
 /** Who's up for renewal this week and what it's worth, with how many recent endings renewed. */
 @Composable
-fun RenewalsCard(renewals: RenewalOutlook, today: LocalDate, onOpenMember: (Long) -> Unit) {
+fun RenewalsCard(renewals: RenewalOutlook, today: LocalDate, onOpenMember: (String) -> Unit) {
     val colors = MyGymTheme.colors
     MyGymCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -234,7 +234,7 @@ fun RenewalsCard(renewals: RenewalOutlook, today: LocalDate, onOpenMember: (Long
 
 /** Longest-unpaid dues and members worth winning back; Home only shows it when there's either. */
 @Composable
-fun AttentionCard(insights: GymInsights, onOpenMember: (Long) -> Unit) {
+fun AttentionCard(insights: GymInsights, onOpenMember: (String) -> Unit) {
     val colors = MyGymTheme.colors
     MyGymCard {
         Text(stringResource(Res.string.attention_title), style = MyGymTheme.typography.title)
@@ -268,7 +268,7 @@ fun AttentionCard(insights: GymInsights, onOpenMember: (Long) -> Unit) {
 
 /** The latest payments, newest first. */
 @Composable
-fun RecentPaymentsCard(payments: List<PaymentRecord>, today: LocalDate, onOpenMember: (Long) -> Unit) {
+fun RecentPaymentsCard(payments: List<PaymentRecord>, today: LocalDate, onOpenMember: (String) -> Unit) {
     val colors = MyGymTheme.colors
     MyGymCard {
         Text(stringResource(Res.string.section_recent_payments), style = MyGymTheme.typography.title)

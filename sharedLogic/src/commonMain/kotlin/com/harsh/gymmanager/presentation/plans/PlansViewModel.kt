@@ -24,7 +24,7 @@ data class PlansUiState(
     val plans: List<Plan> = emptyList(),
     val showArchived: Boolean = false,
     /** Plans ticked in select mode; empty means not selecting. */
-    val selectedIds: Set<Long> = emptySet(),
+    val selectedIds: Set<String> = emptySet(),
 ) {
     val isSelecting: Boolean get() = selectedIds.isNotEmpty()
     val selectedHasActive: Boolean get() = plans.any { it.id in selectedIds && !it.isArchived }
@@ -34,7 +34,7 @@ data class PlansUiState(
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlansViewModel(private val planUseCases: PlanUseCases) : ViewModel() {
     private val showArchived = MutableStateFlow(false)
-    private val selected = MutableStateFlow<Set<Long>>(emptySet())
+    private val selected = MutableStateFlow<Set<String>>(emptySet())
 
     private val eventChannel = Channel<UiMessage>(Channel.BUFFERED)
     /** Messages to show in a snackbar. */
@@ -49,11 +49,11 @@ class PlansViewModel(private val planUseCases: PlanUseCases) : ViewModel() {
 
     fun onShowArchivedChange(value: Boolean) = showArchived.update { value }
 
-    fun archive(id: Long) = run(UiMessage.PlanArchived) { planUseCases.archivePlan(id) }
+    fun archive(id: String) = run(UiMessage.PlanArchived) { planUseCases.archivePlan(id) }
 
-    fun restore(id: Long) = run(UiMessage.PlanRestored) { planUseCases.restorePlan(id) }
+    fun restore(id: String) = run(UiMessage.PlanRestored) { planUseCases.restorePlan(id) }
 
-    fun toggleSelection(planId: Long) = selected.update { if (planId in it) it - planId else it + planId }
+    fun toggleSelection(planId: String) = selected.update { if (planId in it) it - planId else it + planId }
 
     fun selectAll() = selected.update { state.value.plans.mapTo(HashSet()) { it.id } }
 
@@ -74,7 +74,7 @@ class PlansViewModel(private val planUseCases: PlanUseCases) : ViewModel() {
         }
     }
 
-    private fun runBulk(success: (Int) -> UiMessage, action: suspend (Set<Long>) -> Result<Int>) {
+    private fun runBulk(success: (Int) -> UiMessage, action: suspend (Set<String>) -> Result<Int>) {
         val ids = state.value.selectedIds
         if (ids.isEmpty()) return
         viewModelScope.launch {

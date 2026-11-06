@@ -7,11 +7,11 @@ import kotlinx.datetime.LocalDate
 
 interface PaymentRepository {
     /** @throws com.harsh.gymmanager.domain.OverpaymentException if [payment] is more than the amount due. */
-    suspend fun addPayment(payment: Payment): Long
+    suspend fun addPayment(payment: Payment): String
 
-    suspend fun deletePayment(id: Long)
+    suspend fun deletePayment(id: String)
 
-    suspend fun getAmountDue(membershipId: Long): Long?
+    suspend fun getAmountDue(membershipId: String): Long?
 
     /** Total collected between [from] and [to], both inclusive, in whole rupees. */
     fun observeRevenue(from: LocalDate, to: LocalDate): Flow<Long>

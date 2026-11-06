@@ -54,7 +54,7 @@ import com.harsh.gymmanager.ui.theme.screenGutter
 
 /** Adds a member when [memberId] is null; [onSaved] gets the member's id. */
 @Composable
-fun MemberEditScreen(memberId: Long?, onBack: () -> Unit, onSaved: (Long, Boolean) -> Unit) {
+fun MemberEditScreen(memberId: String?, onBack: () -> Unit, onSaved: (String, Boolean) -> Unit) {
     val deps = LocalAppDependencies.current
     val vm = viewModel(key = "member-edit-$memberId") { MemberEditViewModel(memberId, deps.memberUseCases) }
     val state by vm.state.collectAsStateWithLifecycle()

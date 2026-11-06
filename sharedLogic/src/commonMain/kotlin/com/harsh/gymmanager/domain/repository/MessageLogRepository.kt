@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlin.time.Instant
 
 interface MessageLogRepository {
-    suspend fun record(memberId: Long, kind: MessageKind)
+    suspend fun record(memberId: String, kind: MessageKind)
 
     /** When each member was last sent each kind of message. */
-    fun observeLastSent(): Flow<Map<Long, Map<MessageKind, Instant>>>
+    fun observeLastSent(): Flow<Map<String, Map<MessageKind, Instant>>>
 }

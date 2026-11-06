@@ -91,12 +91,12 @@ data class SellMembershipUiState(
 }
 
 sealed interface SellMembershipEvent {
-    data class Sold(val membershipId: Long) : SellMembershipEvent
+    data class Sold(val membershipId: String) : SellMembershipEvent
 }
 
 /** Sells a new membership or renews one; the form is pre-filled from the chosen plan, a renewal's from the last one. */
 class SellMembershipViewModel(
-    private val memberId: Long,
+    private val memberId: String,
     private val planUseCases: PlanUseCases,
     private val membershipUseCases: MembershipUseCases,
 ) : ViewModel() {
@@ -112,7 +112,7 @@ class SellMembershipViewModel(
             val history = membershipUseCases.observeMemberships(memberId).first()
             val currentPlanId = history.firstOrNull()?.planId
             _state.update { it.copy(isRenewal = history.isNotEmpty()) }
-            var known: Set<Long>? = null
+            var known: Set<String>? = null
             planUseCases.observePlans().collect { plans ->
                 _state.update { it.copy(isLoading = false, plans = plans) }
                 if (known == null) {

@@ -16,12 +16,12 @@ data class InboxUiState(
     /** Newest first. */
     val items: List<InboxItem> = emptyList(),
     /** Alerts that were unread when the inbox opened; they stay highlighted while it's open. */
-    val newIds: Set<Long> = emptySet(),
+    val newIds: Set<String> = emptySet(),
 )
 
 /** Opening the inbox marks everything read, but what was new keeps its highlight until the owner leaves. */
 class InboxViewModel(private val inbox: InboxUseCases) : ViewModel() {
-    private var newIds: Set<Long> = emptySet()
+    private var newIds: Set<String> = emptySet()
 
     val state: StateFlow<InboxUiState> = inbox.observeItems()
         .map { items -> InboxUiState(isLoading = false, items = items, newIds = newIds) }

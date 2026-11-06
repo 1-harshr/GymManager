@@ -42,7 +42,7 @@ class GymSummary(
  */
 @AppFunctionSerializable(isDescribedByKDoc = true)
 class MemberInfo(
-    val memberId: Long,
+    val memberId: String,
     val name: String,
     val phone: String?,
     @property:AppFunctionStringValueConstraint(enumValues = ["ACTIVE", "EXPIRING_SOON", "EXPIRED", "NONE"])

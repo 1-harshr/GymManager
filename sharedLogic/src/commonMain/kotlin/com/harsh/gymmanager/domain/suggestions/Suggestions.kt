@@ -6,7 +6,7 @@ import com.harsh.gymmanager.domain.model.Plan
 /** What the owner has done before, most used first. Empty for a new gym; the suggestions fill in. */
 data class UsageStats(
     /** Memberships sold per plan id. */
-    val planUses: Map<Long, Int> = emptyMap(),
+    val planUses: Map<String, Int> = emptyMap(),
     val paymentAmounts: List<Long> = emptyList(),
     val discounts: List<Long> = emptyList(),
 )

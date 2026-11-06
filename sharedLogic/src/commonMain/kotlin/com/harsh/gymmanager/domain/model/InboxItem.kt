@@ -15,9 +15,9 @@ enum class InboxKind {
 
 /** An alert in the bell's inbox. The screen words it from [kind], so it follows the app's language. */
 data class InboxItem(
-    val id: Long,
+    val id: String,
     val kind: InboxKind,
-    val memberId: Long,
+    val memberId: String,
     val memberName: String,
     val amount: Long,
     val date: LocalDate,

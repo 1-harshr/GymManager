@@ -13,7 +13,7 @@ import kotlinx.datetime.minus
 data class InboxAlert(
     val eventKey: String,
     val kind: InboxKind,
-    val memberId: Long,
+    val memberId: String,
     val memberName: String,
     val amount: Long,
     val date: LocalDate,

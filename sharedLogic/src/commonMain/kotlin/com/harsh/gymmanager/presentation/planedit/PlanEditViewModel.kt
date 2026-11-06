@@ -41,7 +41,7 @@ sealed interface PlanEditEvent {
 
 /** Adds a plan when [planId] is null, otherwise edits that plan. */
 class PlanEditViewModel(
-    private val planId: Long?,
+    private val planId: String?,
     private val planUseCases: PlanUseCases,
 ) : ViewModel() {
     private val _state = MutableStateFlow(PlanEditUiState(isEditing = planId != null))

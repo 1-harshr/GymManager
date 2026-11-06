@@ -14,11 +14,11 @@ class MessageLogRepositoryImpl(
     private val clock: Clock = Clock.System,
 ) : MessageLogRepository {
 
-    override suspend fun record(memberId: Long, kind: MessageKind) {
+    override suspend fun record(memberId: String, kind: MessageKind) {
         dao.insert(MessageLogEntity(memberId = memberId, kind = kind, sentAt = clock.now()))
     }
 
-    override fun observeLastSent(): Flow<Map<Long, Map<MessageKind, Instant>>> =
+    override fun observeLastSent(): Flow<Map<String, Map<MessageKind, Instant>>> =
         dao.observeLastSent().map { rows ->
             rows.groupBy { it.memberId }.mapValues { (_, sends) -> sends.associate { it.kind to it.sentAt } }
         }

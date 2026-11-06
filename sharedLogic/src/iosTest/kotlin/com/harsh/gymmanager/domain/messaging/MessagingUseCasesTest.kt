@@ -82,7 +82,7 @@ class MessagingUseCasesTest {
         db.close()
     }
 
-    private suspend fun sell(memberId: Long, start: LocalDate, paid: Long? = 1500) {
+    private suspend fun sell(memberId: String, start: LocalDate, paid: Long? = 1500) {
         val planId = plans.observePlans().first().firstOrNull()?.id
             ?: plans.addPlan("Monthly", 1, DurationUnit.MONTHS, defaultPrice = 1500).getOrThrow()
         val plan = plans.observePlans().first().single { it.id == planId }

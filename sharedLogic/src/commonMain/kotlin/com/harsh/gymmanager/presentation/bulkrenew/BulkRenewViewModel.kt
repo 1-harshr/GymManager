@@ -39,7 +39,7 @@ sealed interface BulkRenewEvent {
 
 /** Renews the members picked in select mode on one plan. */
 class BulkRenewViewModel(
-    private val memberIds: Set<Long>,
+    private val memberIds: Set<String>,
     private val planUseCases: PlanUseCases,
     private val bulkRenew: BulkRenewUseCase,
 ) : ViewModel() {

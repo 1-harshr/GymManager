@@ -9,9 +9,9 @@ import kotlinx.datetime.LocalDate
  * [payments] is filled when reading; it is ignored when saving a membership.
  */
 data class Membership(
-    val id: Long = 0,
-    val memberId: Long,
-    val planId: Long?,
+    val id: String = "",
+    val memberId: String,
+    val planId: String?,
     /** Copied from the plan at sale time so renaming a plan doesn't rewrite history. */
     val planName: String,
     val startDate: LocalDate,

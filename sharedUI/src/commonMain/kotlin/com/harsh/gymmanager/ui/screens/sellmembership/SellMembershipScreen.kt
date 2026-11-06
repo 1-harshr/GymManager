@@ -57,7 +57,7 @@ import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 
 @Composable
-fun SellMembershipScreen(memberId: Long, onBack: () -> Unit, onSold: (membershipId: Long) -> Unit, onAddPlan: () -> Unit) {
+fun SellMembershipScreen(memberId: String, onBack: () -> Unit, onSold: (membershipId: String) -> Unit, onAddPlan: () -> Unit) {
     val deps = LocalAppDependencies.current
     val vm = viewModel(key = "sell-$memberId") { SellMembershipViewModel(memberId, deps.planUseCases, deps.membershipUseCases) }
     val state by vm.state.collectAsStateWithLifecycle()

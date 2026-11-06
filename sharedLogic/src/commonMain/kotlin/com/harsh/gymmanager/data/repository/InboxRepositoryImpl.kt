@@ -11,7 +11,7 @@ import kotlinx.datetime.LocalDate
 
 class InboxRepositoryImpl(private val dao: InboxDao) : InboxRepository {
     override fun observeItems(): Flow<List<InboxItem>> = dao.observeAll().map { rows ->
-        rows.map { InboxItem(it.id, it.kind, it.memberId, it.memberName, it.amount, it.date, it.createdOn, it.isRead) }
+        rows.map { InboxItem(it.id.toString(), it.kind, it.memberId, it.memberName, it.amount, it.date, it.createdOn, it.isRead) }
     }
 
     override fun observeUnreadCount(): Flow<Int> = dao.observeUnreadCount()

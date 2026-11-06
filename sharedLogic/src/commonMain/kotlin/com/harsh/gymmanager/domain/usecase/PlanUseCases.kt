@@ -11,7 +11,7 @@ class ObservePlansUseCase(private val repository: PlanRepository) {
 }
 
 class GetPlanUseCase(private val repository: PlanRepository) {
-    suspend operator fun invoke(id: Long): Plan? = repository.getPlan(id)
+    suspend operator fun invoke(id: String): Plan? = repository.getPlan(id)
 }
 
 class AddPlanUseCase(private val repository: PlanRepository) {
@@ -20,7 +20,7 @@ class AddPlanUseCase(private val repository: PlanRepository) {
         durationValue: Int,
         durationUnit: DurationUnit,
         defaultPrice: Long,
-    ): Result<Long> = resultOf {
+    ): Result<String> = resultOf {
         repository.addPlan(
             Plan(name = name, durationValue = durationValue, durationUnit = durationUnit, defaultPrice = defaultPrice)
         )
@@ -33,18 +33,18 @@ class UpdatePlanUseCase(private val repository: PlanRepository) {
 }
 
 class ArchivePlanUseCase(private val repository: PlanRepository) {
-    suspend operator fun invoke(id: Long): Result<Unit> = resultOf { repository.archivePlan(id) }
+    suspend operator fun invoke(id: String): Result<Unit> = resultOf { repository.archivePlan(id) }
 }
 
 class RestorePlanUseCase(private val repository: PlanRepository) {
-    suspend operator fun invoke(id: Long): Result<Unit> = resultOf { repository.restorePlan(id) }
+    suspend operator fun invoke(id: String): Result<Unit> = resultOf { repository.restorePlan(id) }
 }
 
 /** Archives or restores many plans at once; each returns how many changed. */
 class BulkPlanActionsUseCase(private val repository: PlanRepository) {
-    suspend fun archive(ids: Collection<Long>): Result<Int> = resultOf { repository.archivePlans(ids.toList()) }
+    suspend fun archive(ids: Collection<String>): Result<Int> = resultOf { repository.archivePlans(ids.toList()) }
 
-    suspend fun restore(ids: Collection<Long>): Result<Int> = resultOf { repository.restorePlans(ids.toList()) }
+    suspend fun restore(ids: Collection<String>): Result<Int> = resultOf { repository.restorePlans(ids.toList()) }
 }
 
 class PlanUseCases(repository: PlanRepository) {

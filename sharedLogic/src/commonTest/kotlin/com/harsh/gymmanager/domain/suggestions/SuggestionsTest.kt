@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 
 class SuggestionsTest {
     private val stats = UsageStats(
-        planUses = mapOf(3L to 9, 1L to 2),
+        planUses = mapOf("3" to 9, "1" to 2),
         paymentAmounts = listOf(1000, 1500, 300),
         discounts = listOf(150, 100),
     )
@@ -40,7 +40,7 @@ class SuggestionsTest {
 
     @Test
     fun plansMostSoldFirst() {
-        val plans = listOf(1L, 2L, 3L).map { Plan(id = it, name = "Plan $it", durationValue = 1, durationUnit = DurationUnit.MONTHS, defaultPrice = 1000) }
-        assertEquals(listOf(3L, 1L, 2L), plans.mostUsedFirst(stats).map { it.id })
+        val plans = listOf("1", "2", "3").map { Plan(id = it, name = "Plan $it", durationValue = 1, durationUnit = DurationUnit.MONTHS, defaultPrice = 1000) }
+        assertEquals(listOf("3", "1", "2"), plans.mostUsedFirst(stats).map { it.id })
     }
 }

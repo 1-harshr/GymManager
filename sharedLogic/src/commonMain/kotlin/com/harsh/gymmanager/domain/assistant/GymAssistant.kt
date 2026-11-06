@@ -44,7 +44,7 @@ class GymAssistant(
         members.observeMembers(query.trim()).first().toMemberList(limit)
 
     @Throws(Exception::class)
-    suspend fun member(memberId: Long): MemberSummary? =
+    suspend fun member(memberId: String): MemberSummary? =
         members.observeMembers().first().firstOrNull { it.memberId == memberId }
 
     /** Most urgent first: soonest expiry, latest lapse, or largest due. */
@@ -61,7 +61,7 @@ class GymAssistant(
      * that covers more than one membership is saved as one payment per membership.
      */
     @Throws(Exception::class)
-    suspend fun recordPayment(memberId: Long, amount: Long, mode: PaymentMode = PaymentMode.CASH): PaymentOutcome {
+    suspend fun recordPayment(memberId: String, amount: Long, mode: PaymentMode = PaymentMode.CASH): PaymentOutcome {
         val member = members.observeMember(memberId).first() ?: return PaymentOutcome.MemberNotFound
         if (amount <= 0) return PaymentOutcome.InvalidAmount
         // Newest first from the repository; settle the oldest dues first.

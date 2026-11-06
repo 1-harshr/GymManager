@@ -38,9 +38,15 @@ const val DEMO_DATABASE_NAME = "gym-demo.db"
         InboxEntity::class, OutboxEntity::class,
     ],
     views = [MemberSummaryView::class],
-    version = 4,
+    version = 5,
     // 2: message_log, for WhatsApp messages. 3: inbox, for the bell's alerts. 4: whatsapp_outbox, for automatic sending.
-    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4)],
+    // 5: those three keep the member's id as text with no link to members, since members can live online.
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4),
+        AutoMigration(from = 4, to = 5),
+    ],
 )
 @TypeConverters(Converters::class)
 @ConstructedBy(GymDatabaseConstructor::class)

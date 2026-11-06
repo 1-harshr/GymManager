@@ -45,14 +45,14 @@ class MessagingUseCases(
     private val clock: Clock,
     private val timeZone: TimeZone,
 ) {
-    suspend fun welcome(memberId: Long): MemberMessage.Welcome? {
+    suspend fun welcome(memberId: String): MemberMessage.Welcome? {
         val member = memberRepository.observeMember(memberId).first() ?: return null
         val number = whatsAppNumber(member.phone) ?: return null
         return MemberMessage.Welcome(memberId, member.name, number, gymName())
     }
 
     /** A receipt for [membershipId]; pass [paymentId] for a payment recorded after the sale. */
-    suspend fun receipt(memberId: Long, membershipId: Long, paymentId: Long? = null): MemberMessage.Receipt? {
+    suspend fun receipt(memberId: String, membershipId: String, paymentId: String? = null): MemberMessage.Receipt? {
         val member = memberRepository.observeMember(memberId).first() ?: return null
         val number = whatsAppNumber(member.phone) ?: return null
         val membership = membershipRepository.observeMemberships(memberId).first().find { it.id == membershipId } ?: return null
@@ -75,12 +75,12 @@ class MessagingUseCases(
     }
 
     /** A receipt for the member's newest membership. */
-    suspend fun latestReceipt(memberId: Long): MemberMessage.Receipt? {
+    suspend fun latestReceipt(memberId: String): MemberMessage.Receipt? {
         val latest = membershipRepository.observeMemberships(memberId).first().firstOrNull() ?: return null
         return receipt(memberId, latest.id)
     }
 
-    suspend fun reminder(memberId: Long): MemberMessage.Reminder? =
+    suspend fun reminder(memberId: String): MemberMessage.Reminder? =
         observeReminders().first().find { it.member.memberId == memberId }?.message
 
     /**

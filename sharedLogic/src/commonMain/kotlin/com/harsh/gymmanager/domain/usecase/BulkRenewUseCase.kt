@@ -27,7 +27,7 @@ class BulkRenewUseCase(
     private val timeZone: TimeZone,
 ) {
     /** What [invoke] would save, for the confirmation screen. Archived members are left out. */
-    suspend fun preview(memberIds: Collection<Long>, plan: Plan): List<BulkRenewItem> {
+    suspend fun preview(memberIds: Collection<String>, plan: Plan): List<BulkRenewItem> {
         val today = clock.todayIn(timeZone)
         return memberRepository.getMembers(memberIds.toList())
             .filterNot { it.isArchived }
@@ -42,7 +42,7 @@ class BulkRenewUseCase(
      * With [markPaid], each also gets a payment of the full price, dated today.
      */
     suspend operator fun invoke(
-        memberIds: Collection<Long>,
+        memberIds: Collection<String>,
         plan: Plan,
         markPaid: Boolean = false,
         paymentMode: PaymentMode = PaymentMode.CASH,
@@ -58,7 +58,7 @@ class BulkRenewUseCase(
                 price = plan.defaultPrice,
             )
             val payment = if (markPaid && plan.defaultPrice > 0) {
-                Payment(membershipId = 0, amount = plan.defaultPrice, mode = paymentMode, paidOn = today)
+                Payment(membershipId = "", amount = plan.defaultPrice, mode = paymentMode, paidOn = today)
             } else {
                 null
             }

@@ -47,7 +47,7 @@ import com.harsh.gymmanager.ui.theme.MyGymTheme
 import com.harsh.gymmanager.ui.theme.screenGutter
 
 @Composable
-fun BulkRenewScreen(memberIds: Set<Long>, onBack: () -> Unit, onDone: (Int) -> Unit, onAddPlan: () -> Unit) {
+fun BulkRenewScreen(memberIds: Set<String>, onBack: () -> Unit, onDone: (Int) -> Unit, onAddPlan: () -> Unit) {
     val deps = LocalAppDependencies.current
     val colors = MyGymTheme.colors
     val vm = viewModel(key = "bulk-renew-${memberIds.sorted().joinToString(",")}") {

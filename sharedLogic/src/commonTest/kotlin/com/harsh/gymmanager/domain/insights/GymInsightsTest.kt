@@ -14,13 +14,13 @@ class GymInsightsTest {
     private val today = LocalDate(2026, 11, 15)
     private var nextId = 1L
 
-    private fun membership(memberId: Long, start: LocalDate, end: LocalDate, price: Long = 1500, paid: Long = price) =
+    private fun membership(memberId: String, start: LocalDate, end: LocalDate, price: Long = 1500, paid: Long = price) =
         Membership(
-            id = nextId++, memberId = memberId, planId = 1, planName = "Monthly", startDate = start, endDate = end, price = price,
-            payments = if (paid > 0) listOf(Payment(membershipId = 0, amount = paid, paidOn = start)) else emptyList(),
+            id = (nextId++).toString(), memberId = memberId, planId = "1", planName = "Monthly", startDate = start, endDate = end, price = price,
+            payments = if (paid > 0) listOf(Payment(membershipId = "0", amount = paid, paidOn = start)) else emptyList(),
         )
 
-    private fun summaries(names: Map<Long, String>, memberships: List<Membership>) = names.map { (id, name) ->
+    private fun summaries(names: Map<String, String>, memberships: List<Membership>) = names.map { (id, name) ->
         val end = memberships.filter { it.memberId == id }.maxOfOrNull { it.endDate }
         MemberSummary(
             memberId = id, name = name, phone = null, photoPath = null, isArchived = false, latestEndDate = end,
@@ -58,16 +58,16 @@ class GymInsightsTest {
     fun renewalsDuesAndWinBacks() {
         val memberships = listOf(
             // Ravi: ends in 3 days, 500 still owed since 19 Oct.
-            membership(1, LocalDate(2026, 10, 19), LocalDate(2026, 11, 18), paid = 1000),
+            membership("1", LocalDate(2026, 10, 19), LocalDate(2026, 11, 18), paid = 1000),
             // Priya: ended 5 days ago, renewed.
-            membership(2, LocalDate(2026, 10, 11), LocalDate(2026, 11, 10)),
-            membership(2, LocalDate(2026, 11, 11), LocalDate(2026, 12, 10), paid = 0),
+            membership("2", LocalDate(2026, 10, 11), LocalDate(2026, 11, 10)),
+            membership("2", LocalDate(2026, 11, 11), LocalDate(2026, 12, 10), paid = 0),
             // Amit: ended 2 days ago, hasn't renewed.
-            membership(3, LocalDate(2026, 10, 14), LocalDate(2026, 11, 13), price = 2000),
+            membership("3", LocalDate(2026, 10, 14), LocalDate(2026, 11, 13), price = 2000),
             // Neha: ended long ago; outside the window.
-            membership(4, LocalDate(2026, 8, 1), LocalDate(2026, 8, 31)),
+            membership("4", LocalDate(2026, 8, 1), LocalDate(2026, 8, 31)),
         )
-        val members = summaries(mapOf(1L to "Ravi", 2L to "Priya", 3L to "Amit", 4L to "Neha"), memberships)
+        val members = summaries(mapOf("1" to "Ravi", "2" to "Priya", "3" to "Amit", "4" to "Neha"), memberships)
 
         val insights = computeInsights(today, members, memberships, emptyMap())
 

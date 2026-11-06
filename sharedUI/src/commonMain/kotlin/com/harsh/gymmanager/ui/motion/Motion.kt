@@ -134,6 +134,6 @@ fun Modifier.sharedElement(key: String): Modifier {
 }
 
 object SharedKeys {
-    fun memberPhoto(id: Long) = "member-photo-$id"
-    fun memberName(id: Long) = "member-name-$id"
+    fun memberPhoto(id: String) = "member-photo-$id"
+    fun memberName(id: String) = "member-name-$id"
 }

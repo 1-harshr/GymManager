@@ -7,7 +7,7 @@ import kotlinx.datetime.LocalDate
 
 /** A template for new memberships. Changing a plan never alters memberships already sold. */
 data class Plan(
-    val id: Long = 0,
+    val id: String = "",
     val name: String,
     val durationValue: Int,
     val durationUnit: DurationUnit,

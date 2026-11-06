@@ -70,7 +70,7 @@ data class OutboxMessage(
     val id: Long = 0,
     /** Sent along so the Make scenario can spot a repeat. */
     val clientId: String,
-    val memberId: Long,
+    val memberId: String,
     val memberName: String,
     val kind: MessageKind,
     val recipient: String,

@@ -21,7 +21,7 @@ import kotlin.time.Instant
 class KtorMessageWebhookTest {
     private val message = OutboxMessage(
         clientId = "c1",
-        memberId = 5,
+        memberId = "5",
         memberName = "Ravi Kumar",
         kind = MessageKind.RECEIPT,
         recipient = "919876543210",

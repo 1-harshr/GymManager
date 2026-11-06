@@ -38,7 +38,7 @@ fun List<MemberSummary>.mostUrgentFirst(filter: MemberFilter): List<MemberSummar
 }
 
 class ObserveMemberUseCase(private val repository: MemberRepository) {
-    operator fun invoke(id: Long): Flow<Member?> = repository.observeMember(id)
+    operator fun invoke(id: String): Flow<Member?> = repository.observeMember(id)
 }
 
 class AddMemberUseCase(
@@ -55,7 +55,7 @@ class AddMemberUseCase(
         photoPath: String? = null,
         notes: String? = null,
         joinedOn: LocalDate? = null,
-    ): Result<Long> = resultOf {
+    ): Result<String> = resultOf {
         repository.addMember(
             Member(
                 name = name,
@@ -75,26 +75,26 @@ class UpdateMemberUseCase(private val repository: MemberRepository) {
 }
 
 class ArchiveMemberUseCase(private val repository: MemberRepository) {
-    suspend operator fun invoke(id: Long): Result<Unit> = resultOf { repository.archiveMember(id) }
+    suspend operator fun invoke(id: String): Result<Unit> = resultOf { repository.archiveMember(id) }
 }
 
 class RestoreMemberUseCase(private val repository: MemberRepository) {
-    suspend operator fun invoke(id: Long): Result<Unit> = resultOf { repository.restoreMember(id) }
+    suspend operator fun invoke(id: String): Result<Unit> = resultOf { repository.restoreMember(id) }
 }
 
 /** Also removes the member's memberships and payments. Prefer [ArchiveMemberUseCase]. */
 class DeleteMemberPermanentlyUseCase(private val repository: MemberRepository) {
-    suspend operator fun invoke(id: Long): Result<Unit> = resultOf { repository.deleteMemberPermanently(id) }
+    suspend operator fun invoke(id: String): Result<Unit> = resultOf { repository.deleteMemberPermanently(id) }
 }
 
 /** Archives, restores or deletes many members at once; each returns how many changed. */
 class BulkMemberActionsUseCase(private val repository: MemberRepository) {
-    suspend fun archive(ids: Collection<Long>): Result<Int> = resultOf { repository.archiveMembers(ids.toList()) }
+    suspend fun archive(ids: Collection<String>): Result<Int> = resultOf { repository.archiveMembers(ids.toList()) }
 
-    suspend fun restore(ids: Collection<Long>): Result<Int> = resultOf { repository.restoreMembers(ids.toList()) }
+    suspend fun restore(ids: Collection<String>): Result<Int> = resultOf { repository.restoreMembers(ids.toList()) }
 
     /** Also removes their memberships and payments. */
-    suspend fun deletePermanently(ids: Collection<Long>): Result<Int> = resultOf { repository.deleteMembersPermanently(ids.toList()) }
+    suspend fun deletePermanently(ids: Collection<String>): Result<Int> = resultOf { repository.deleteMembersPermanently(ids.toList()) }
 }
 
 class MemberUseCases(repository: MemberRepository, clock: Clock, timeZone: TimeZone) {

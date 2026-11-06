@@ -10,7 +10,7 @@ import kotlinx.datetime.LocalDate
  * language, so the wording lives with the other strings.
  */
 sealed interface MemberMessage {
-    val memberId: Long
+    val memberId: String
     val memberName: String
     /** Digits with the country code, as WhatsApp links expect: 919876543210. */
     val whatsAppNumber: String
@@ -18,7 +18,7 @@ sealed interface MemberMessage {
     val kind: MessageKind
 
     data class Welcome(
-        override val memberId: Long,
+        override val memberId: String,
         override val memberName: String,
         override val whatsAppNumber: String,
         override val gymName: String,
@@ -31,7 +31,7 @@ sealed interface MemberMessage {
      * otherwise it covers the sale itself. Amounts are whole rupees, after this payment.
      */
     data class Receipt(
-        override val memberId: Long,
+        override val memberId: String,
         override val memberName: String,
         override val whatsAppNumber: String,
         override val gymName: String,
@@ -50,7 +50,7 @@ sealed interface MemberMessage {
 
     /** A nudge to renew ([status] says whether it is ending or ended) and/or to clear [amountDue]. */
     data class Reminder(
-        override val memberId: Long,
+        override val memberId: String,
         override val memberName: String,
         override val whatsAppNumber: String,
         override val gymName: String,

@@ -28,7 +28,7 @@ data class RemindersUiState(
  * hasn't been reminded in the last few days, then moves on.
  */
 class RemindersViewModel(private val messaging: MessagingUseCases) : ViewModel() {
-    private val handled = MutableStateFlow<Set<Long>>(emptySet())
+    private val handled = MutableStateFlow<Set<String>>(emptySet())
 
     val state: StateFlow<RemindersUiState> =
         combine(messaging.observeReminders(), handled) { items, handled ->
@@ -49,5 +49,5 @@ class RemindersViewModel(private val messaging: MessagingUseCases) : ViewModel()
         viewModelScope.launch { messaging.markSent(message) }
     }
 
-    fun skip(memberId: Long) = handled.update { it + memberId }
+    fun skip(memberId: String) = handled.update { it + memberId }
 }

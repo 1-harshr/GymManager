@@ -37,7 +37,7 @@ struct MemberEntity: AppEntity {
     static let typeDisplayRepresentation: TypeDisplayRepresentation = "Member"
     static let defaultQuery = MemberQuery()
 
-    let id: Int
+    let id: String
     let name: String
     let phone: String?
 
@@ -48,17 +48,17 @@ struct MemberEntity: AppEntity {
 
 extension MemberEntity {
     init(_ member: MemberSummary) {
-        self.init(id: Int(member.memberId), name: member.name, phone: member.phone)
+        self.init(id: member.memberId, name: member.name, phone: member.phone)
     }
 }
 
 /// Lets Siri find a member by the name or phone number the owner says.
 struct MemberQuery: EntityStringQuery {
     @MainActor
-    func entities(for identifiers: [Int]) async throws -> [MemberEntity] {
+    func entities(for identifiers: [String]) async throws -> [MemberEntity] {
         var found: [MemberEntity] = []
         for id in identifiers {
-            if let member = try await assistant.member(memberId: Int64(id)) {
+            if let member = try await assistant.member(memberId: id) {
                 found.append(MemberEntity(member))
             }
         }
@@ -106,7 +106,7 @@ struct MemberStatusIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        guard let summary = try await assistant.member(memberId: Int64(member.id)) else {
+        guard let summary = try await assistant.member(memberId: member.id) else {
             return .result(dialog: say("\(member.name) isn't in the gym's members any more."))
         }
         return .result(dialog: say(standing(of: summary)))
@@ -231,7 +231,7 @@ struct RecordPaymentIntent: AppIntent {
         let modeName = mode == .upi ? "UPI" : mode.rawValue
         try await requestConfirmation(result: .result(dialog: say("Record \(rupees(amount)) from \(member.name) by \(modeName)?")))
 
-        let outcome = try await assistant.recordPayment(memberId: Int64(member.id), amount: amount, mode: mode.mode)
+        let outcome = try await assistant.recordPayment(memberId: member.id, amount: amount, mode: mode.mode)
         switch outcome {
         case let recorded as PaymentOutcomeRecorded:
             let left = recorded.remainingDue > 0 ? "\(rupees(recorded.remainingDue)) is still due." : "Nothing more is due."

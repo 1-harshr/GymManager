@@ -42,13 +42,13 @@ data class MemberEditUiState(
 )
 
 sealed interface MemberEditEvent {
-    data class Saved(val memberId: Long) : MemberEditEvent
+    data class Saved(val memberId: String) : MemberEditEvent
     data object NotFound : MemberEditEvent
 }
 
 /** Adds a member when [memberId] is null, otherwise edits that member. */
 class MemberEditViewModel(
-    private val memberId: Long?,
+    private val memberId: String?,
     private val memberUseCases: MemberUseCases,
 ) : ViewModel() {
     private val _state = MutableStateFlow(MemberEditUiState(isEditing = memberId != null))

@@ -17,41 +17,41 @@ class MembershipRepositoryImpl(
     private val clock: Clock = Clock.System,
 ) : MembershipRepository {
 
-    override fun observeMemberships(memberId: Long): Flow<List<Membership>> =
-        dao.observeForMember(memberId).map { rows -> rows.map { it.toDomain() } }
+    override fun observeMemberships(memberId: String): Flow<List<Membership>> =
+        dao.observeForMember(memberId.toLong()).map { rows -> rows.map { it.toDomain() } }
 
     override fun observeAllMemberships(): Flow<List<Membership>> =
         dao.observeAllActiveMembers().map { rows -> rows.map { it.toDomain() } }
 
-    override suspend fun getLatestEndDate(memberId: Long): LocalDate? = dao.getLatestEndDate(memberId)
+    override suspend fun getLatestEndDate(memberId: String): LocalDate? = dao.getLatestEndDate(memberId.toLong())
 
-    override suspend fun addMembership(membership: Membership, firstPayment: Payment?): Long {
+    override suspend fun addMembership(membership: Membership, firstPayment: Payment?): String {
         if (firstPayment != null && firstPayment.amount > membership.amountCharged) {
             throw OverpaymentException(membership.amountCharged)
         }
         val now = clock.now()
         return dao.insertWithFirstPayment(
-            membership = membership.copy(id = 0).toEntity(createdAt = now),
-            firstPayment = firstPayment?.copy(id = 0)?.toEntity(createdAt = now),
-        )
+            membership = membership.copy(id = "").toEntity(createdAt = now),
+            firstPayment = firstPayment?.copy(id = "")?.toEntity(createdAt = now),
+        ).toString()
     }
 
-    override suspend fun addMemberships(items: List<Pair<Membership, Payment?>>): List<Long> {
+    override suspend fun addMemberships(items: List<Pair<Membership, Payment?>>): List<String> {
         items.forEach { (membership, payment) ->
             if (payment != null && payment.amount > membership.amountCharged) throw OverpaymentException(membership.amountCharged)
         }
         val now = clock.now()
         return dao.insertAllWithFirstPayments(
             items.map { (membership, payment) ->
-                membership.copy(id = 0).toEntity(createdAt = now) to payment?.copy(id = 0)?.toEntity(createdAt = now)
+                membership.copy(id = "").toEntity(createdAt = now) to payment?.copy(id = "")?.toEntity(createdAt = now)
             },
-        )
+        ).map(Long::toString)
     }
 
     override suspend fun updateMembership(membership: Membership) {
-        val existing = requireNotNull(dao.getById(membership.id)) { "Membership ${membership.id} does not exist" }
+        val existing = requireNotNull(dao.getById(membership.id.toLong())) { "Membership ${membership.id} does not exist" }
         dao.update(membership.toEntity(createdAt = existing.createdAt))
     }
 
-    override suspend fun deleteMembership(id: Long) = dao.deleteById(id)
+    override suspend fun deleteMembership(id: String) = dao.deleteById(id.toLong())
 }

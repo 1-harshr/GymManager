@@ -54,7 +54,7 @@ class RepositoryTest {
     private suspend fun addMember(name: String, phone: String? = null) =
         members.addMember(Member(name = name, phone = phone, joinedOn = today))
 
-    private suspend fun addMembership(memberId: Long, start: LocalDate, end: LocalDate, price: Long, discount: Long = 0) =
+    private suspend fun addMembership(memberId: String, start: LocalDate, end: LocalDate, price: Long, discount: Long = 0) =
         memberships.addMembership(
             Membership(
                 memberId = memberId, planId = null, planName = "Monthly",
@@ -139,7 +139,7 @@ class RepositoryTest {
         members.updateMember(saved.copy(name = "Ravi Kumar", phone = "9876543210"))
         val updated = members.observeMember(id).first()!!
         assertEquals("Ravi Kumar", updated.name)
-        assertEquals(clock.now(), db.memberDao().getById(id)!!.createdAt)
+        assertEquals(clock.now(), db.memberDao().getById(id.toLong())!!.createdAt)
     }
 
     @Test

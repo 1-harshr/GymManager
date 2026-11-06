@@ -7,27 +7,27 @@ import kotlinx.datetime.LocalDate
 
 interface MembershipRepository {
     /** The member's memberships with their payments, newest first. */
-    fun observeMemberships(memberId: Long): Flow<List<Membership>>
+    fun observeMemberships(memberId: String): Flow<List<Membership>>
 
     /** Every membership of members who aren't archived, each with its payments, in no set order. */
     fun observeAllMemberships(): Flow<List<Membership>>
 
-    suspend fun getLatestEndDate(memberId: Long): LocalDate?
+    suspend fun getLatestEndDate(memberId: String): LocalDate?
 
     /**
      * Saves [membership] and, if given, [firstPayment] together. The payment's membershipId is ignored.
      * @throws com.harsh.gymmanager.domain.OverpaymentException if [firstPayment] is more than the amount charged.
      */
-    suspend fun addMembership(membership: Membership, firstPayment: Payment? = null): Long
+    suspend fun addMembership(membership: Membership, firstPayment: Payment? = null): String
 
     /**
      * Saves several memberships, each with an optional first payment, all or nothing.
      * @throws com.harsh.gymmanager.domain.OverpaymentException if a payment is more than its membership's charge.
      */
-    suspend fun addMemberships(items: List<Pair<Membership, Payment?>>): List<Long>
+    suspend fun addMemberships(items: List<Pair<Membership, Payment?>>): List<String>
 
     suspend fun updateMembership(membership: Membership)
 
     /** Also removes the membership's payments. */
-    suspend fun deleteMembership(id: Long)
+    suspend fun deleteMembership(id: String)
 }
