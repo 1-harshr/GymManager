@@ -11,6 +11,19 @@ sealed interface AuthState {
     data class SignedIn(val userId: String, val phone: String?, val email: String?) : AuthState
 }
 
+enum class SignInProblem {
+    /** The code is wrong, or too old. */
+    WRONG_CODE,
+    /** Too many codes or attempts in a short time. */
+    TOO_MANY_TRIES,
+    /** The text message couldn't be sent to that number. */
+    CODE_NOT_SENT,
+    NO_CONNECTION,
+}
+
+class SignInException(val problem: SignInProblem, cause: Throwable? = null) : Exception(problem.name, cause)
+
+/** Signing in and out. Failures are [SignInException]s where the reason is known. */
 interface AuthRepository {
     val authState: StateFlow<AuthState>
 

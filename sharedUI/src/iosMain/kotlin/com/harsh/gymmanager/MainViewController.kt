@@ -15,6 +15,7 @@ import androidx.compose.ui.window.ComposeUIViewController
 import com.harsh.gymmanager.ui.LaunchSplash
 import com.harsh.gymmanager.ui.components.splashShowing
 import com.harsh.gymmanager.data.local.buildGymDatabase
+import com.harsh.gymmanager.data.remote.SupabaseBackend
 import com.harsh.gymmanager.data.local.gymDatabaseBuilder
 import com.harsh.gymmanager.data.settings.SETTINGS_FILE_NAME
 import com.harsh.gymmanager.data.settings.createSettingsDataStore
@@ -40,6 +41,9 @@ internal val iosDependencies: AppDependencies by lazy {
         createWhatsAppScheduler = { messaging -> InAppWhatsAppScheduler(MainScope()) { messaging().flush() } },
     )
 }
+
+/** Sign-in and the gym's data online, for as long as the app runs. */
+private val backend by lazy { SupabaseBackend(MainScope()) }
 
 /** Sample data for showing the app, in its own database file next to the real one. */
 @OptIn(ExperimentalForeignApi::class)
@@ -69,7 +73,7 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
     var ready by remember { mutableStateOf(false) }
     // UIKit drops the launch screen at the first frame, so a Compose copy of it carries the hold and fade.
     Box(Modifier.fillMaxSize()) {
-        GymManagerApp(iosDependencies, demoMode, onReady = { ready = true })
+        GymManagerApp(iosDependencies, demoMode, backend.auth, onReady = { ready = true })
         LaunchSplash(appReady = ready, onGone = { splashShowing = false })
     }
 }

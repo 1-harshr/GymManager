@@ -7,6 +7,8 @@ import com.harsh.gymmanager.domain.backup.BackupException
 import com.harsh.gymmanager.domain.backup.BackupProblem
 import com.harsh.gymmanager.domain.importing.ImportFileException
 import com.harsh.gymmanager.domain.importing.ImportFileProblem
+import com.harsh.gymmanager.domain.repository.SignInException
+import com.harsh.gymmanager.domain.repository.SignInProblem
 
 /**
  * Something to tell the person: a field error, a failed save or a confirmation. ViewModels
@@ -50,6 +52,11 @@ sealed interface UiMessage {
     data object BackupSaved : UiMessage
     data object BackupRestored : UiMessage
     data class BadBackup(val problem: BackupProblem) : UiMessage
+
+    // Sign-in
+    data object EnterPhone : UiMessage
+    data object EnterCode : UiMessage
+    data class SignInFailed(val problem: SignInProblem) : UiMessage
 }
 
 /** Known failures become their own message; anything unexpected gets a generic one. */
@@ -58,5 +65,6 @@ fun Throwable.toUiMessage(): UiMessage = when (this) {
     is ValidationException -> UiMessage.Invalid(error)
     is ImportFileException -> UiMessage.BadImportFile(problem)
     is BackupException -> UiMessage.BadBackup(problem)
+    is SignInException -> UiMessage.SignInFailed(problem)
     else -> UiMessage.SomethingWentWrong
 }

@@ -45,6 +45,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.toRoute
 import com.harsh.gymmanager.domain.model.AppSettings
+import com.harsh.gymmanager.domain.repository.AuthRepository
+import com.harsh.gymmanager.domain.repository.AuthState
+import com.harsh.gymmanager.ui.screens.signin.SignInScreen
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.navigation.BulkRenewRoute
 import com.harsh.gymmanager.navigation.GymProfileRoute
@@ -112,10 +115,11 @@ import org.jetbrains.compose.resources.getString
 /**
  * The app on the gym's real data, or on sample data while [demoMode] runs a demo. Switching
  * rebuilds every screen with fresh view models, so nothing keeps hold of the other data; a demo is
- * closed and deleted once its screens are gone.
+ * closed and deleted once its screens are gone. The real data needs someone signed in with [auth];
+ * a demo doesn't.
  */
 @Composable
-fun GymManagerApp(real: AppDependencies, demoMode: DemoMode, onReady: () -> Unit = {}) {
+fun GymManagerApp(real: AppDependencies, demoMode: DemoMode, auth: AuthRepository, onReady: () -> Unit = {}) {
     val demo = demoMode.active
     key(demo) {
         val owner = remember { object : ViewModelStoreOwner { override val viewModelStore = ViewModelStore() } }
@@ -126,15 +130,18 @@ fun GymManagerApp(real: AppDependencies, demoMode: DemoMode, onReady: () -> Unit
             }
         }
         CompositionLocalProvider(LocalViewModelStoreOwner provides owner, LocalDemoMode provides demoMode) {
-            App(demo ?: real, onReady)
+            App(demo ?: real, auth.takeIf { demo == null }, onReady)
         }
     }
 }
 
+/** [auth] null shows the app without anyone signed in, as in demo mode. */
 @Composable
-fun App(dependencies: AppDependencies, onReady: () -> Unit = {}) {
+fun App(dependencies: AppDependencies, auth: AuthRepository? = null, onReady: () -> Unit = {}) {
     val settingsVm = viewModel { SettingsViewModel(dependencies.settingsUseCases) }
     val settings = settingsVm.state.collectAsStateWithLifecycle().value
+    val authState = auth?.authState?.collectAsStateWithLifecycle()?.value
+    val scope = rememberCoroutineScope()
     val dark = when (settings?.theme ?: ThemeMode.SYSTEM) {
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
         ThemeMode.LIGHT -> false
@@ -143,7 +150,8 @@ fun App(dependencies: AppDependencies, onReady: () -> Unit = {}) {
     val inDemo = LocalDemoMode.current?.active != null
     // The demo banner is clay, so the status bar icons go light on it.
     SystemBarsFor(dark || inDemo)
-    if (settings != null) LaunchedEffect(Unit) { onReady() }
+    // Hold the launch screen until both the settings and any saved sign-in are read, so neither screen flashes.
+    if (settings != null && authState !is AuthState.Loading) LaunchedEffect(Unit) { onReady() }
     // String resources follow the overridden configuration, so switching language keeps the current screen.
     val tag = settings?.language?.tag
     val language = tag ?: Locale.current.language
@@ -155,7 +163,16 @@ fun App(dependencies: AppDependencies, onReady: () -> Unit = {}) {
                     // Below the banner, screens don't need their own room for the status bar.
                     Box(Modifier.weight(1f).then(if (inDemo) Modifier.consumeWindowInsets(WindowInsets.statusBars) else Modifier)) {
                         // Wait for stored settings so first-run setup never flashes on later launches.
-                        if (settings != null) AppContent(dependencies, settings, settingsVm)
+                        if (settings != null) {
+                            if (auth == null) AppContent(dependencies, settings, settingsVm) else when (authState) {
+                                null, AuthState.Loading -> Unit
+                                AuthState.SignedOut -> SignInScreen(auth)
+                                // A different person signing in starts again from the first screen.
+                                is AuthState.SignedIn -> key(authState.userId) {
+                                    AppContent(dependencies, settings, settingsVm, authState, onSignOut = { scope.launch { auth.signOut() } })
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -169,7 +186,13 @@ private val MORNING_UPDATE_SYNC_DELAY = 500.milliseconds
 
 @OptIn(ExperimentalSharedTransitionApi::class, FlowPreview::class)
 @Composable
-private fun AppContent(dependencies: AppDependencies, settings: AppSettings, settingsVm: SettingsViewModel) {
+private fun AppContent(
+    dependencies: AppDependencies,
+    settings: AppSettings,
+    settingsVm: SettingsViewModel,
+    account: AuthState.SignedIn? = null,
+    onSignOut: () -> Unit = {},
+) {
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val nav = rememberNavController()
@@ -348,6 +371,8 @@ private fun AppContent(dependencies: AppDependencies, settings: AppSettings, set
                                     onMorningUpdateChange = settingsVm::onMorningUpdateChange,
                                     onHomeFeaturesChange = settingsVm::onHomeFeaturesChange,
                                     onOpenWhatsApp = { nav.navigate(WhatsAppRoute) },
+                                    account = account,
+                                    onSignOut = onSignOut,
                                 )
                             }
                         }

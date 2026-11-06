@@ -2,8 +2,10 @@ package com.harsh.gymmanager
 
 import android.app.Application
 import java.io.File
+import kotlinx.coroutines.MainScope
 import com.harsh.gymmanager.ai.GeminiNanoModel
 import com.harsh.gymmanager.data.local.DEMO_DATABASE_NAME
+import com.harsh.gymmanager.data.remote.SupabaseBackend
 import com.harsh.gymmanager.data.local.buildGymDatabase
 import com.harsh.gymmanager.data.local.gymDatabaseBuilder
 import com.harsh.gymmanager.data.settings.SETTINGS_FILE_NAME
@@ -20,10 +22,15 @@ class GymManagerApplication : Application() {
     lateinit var demoMode: DemoMode
         private set
 
+    /** Sign-in and the gym's data online. */
+    lateinit var backend: SupabaseBackend
+        private set
+
     private val settingsStore by lazy { createSettingsDataStore(filesDir.resolve(SETTINGS_FILE_NAME).absolutePath) }
 
     override fun onCreate() {
         super.onCreate()
+        backend = SupabaseBackend(MainScope())
         val model = GeminiNanoModel()
         container = AppContainer(this, { settingsStore }, model)
         demoMode = DemoMode(

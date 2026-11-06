@@ -599,4 +599,29 @@
     <string name="wa_status_failed">नहीं भेजा गया · %1$s</string>
     <string name="download_template">टेम्पलेट डाउनलोड करें</string>
     <string name="template_saved">टेम्पलेट सेव हो गया। इसे भरें, CSV के रूप में सेव करें, फिर यहाँ चुनें।</string>
+
+    <!-- Sign-in -->
+    <string name="signin_title">साइन इन करें</string>
+    <string name="signin_subtitle">अपना जिम खोलने के लिए अपने मोबाइल नंबर से साइन इन करें।</string>
+    <string name="signin_phone">मोबाइल नंबर</string>
+    <string name="signin_send_code">कोड भेजें</string>
+    <string name="signin_sending">भेजा जा रहा है…</string>
+    <string name="signin_code_title">कोड डालें</string>
+    <string name="signin_code_body">हमने %1$s पर 6 अंकों का कोड भेजा है।</string>
+    <string name="signin_code">कोड</string>
+    <string name="signin_verify">पुष्टि करें</string>
+    <string name="signin_verifying">जाँच हो रही है…</string>
+    <string name="signin_change_number">नंबर बदलें</string>
+    <string name="signin_resend">फिर से भेजें</string>
+    <string name="signin_resend_in">%1$d सेकंड में फिर से भेजें</string>
+    <string name="signin_try_demo">डेमो देखें</string>
+    <string name="err_enter_phone">10 अंकों का मोबाइल नंबर डालें</string>
+    <string name="err_enter_code">6 अंकों का कोड डालें</string>
+    <string name="err_signin_wrong_code">यह कोड काम नहीं किया। इसे जाँचें, या नया कोड भेजें।</string>
+    <string name="err_signin_too_many">बहुत ज़्यादा कोशिशें हो गईं। एक मिनट रुककर फिर कोशिश करें।</string>
+    <string name="err_signin_not_sent">इस नंबर पर कोड नहीं भेजा जा सका। नंबर जाँचकर फिर कोशिश करें।</string>
+    <string name="err_no_connection">इंटरनेट कनेक्शन नहीं है। जाँचकर फिर कोशिश करें।</string>
+    <string name="section_account">खाता</string>
+    <string name="account_signed_in_as">%1$s से साइन इन किया है</string>
+    <string name="sign_out">साइन आउट करें</string>
 </resources>

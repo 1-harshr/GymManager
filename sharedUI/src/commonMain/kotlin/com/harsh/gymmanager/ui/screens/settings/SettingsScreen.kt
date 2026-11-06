@@ -7,6 +7,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.harsh.gymmanager.LocalDemoMode
 import com.harsh.gymmanager.DemoMode
+import com.harsh.gymmanager.domain.repository.AuthState
 import gymmanager.sharedui.generated.resources.credits
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.Arrangement
@@ -80,6 +81,9 @@ fun SettingsScreen(
     onMorningUpdateChange: (MorningUpdate) -> Unit,
     onHomeFeaturesChange: (HomeFeatures) -> Unit,
     onOpenWhatsApp: () -> Unit,
+    /** Who's signed in; null in demo mode, where there's no account. */
+    account: AuthState.SignedIn? = null,
+    onSignOut: () -> Unit = {},
 ) {
     val colors = MyGymTheme.colors
     val typography = MyGymTheme.typography
@@ -146,6 +150,17 @@ fun SettingsScreen(
             LocalDemoMode.current?.let { demoMode ->
                 SectionHeader(stringResource(Res.string.section_demo), Modifier.padding(top = MyGymSpace.md))
                 DemoCard(demoMode)
+            }
+
+            if (account != null) {
+                SectionHeader(stringResource(Res.string.section_account), Modifier.padding(top = MyGymSpace.md))
+                MyGymCard {
+                    Text(
+                        stringResource(Res.string.account_signed_in_as, account.phone?.let { "+$it" } ?: account.email.orEmpty()),
+                        style = typography.body,
+                    )
+                    MyGymButton(stringResource(Res.string.sign_out), onSignOut, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+                }
             }
 
             SectionHeader(stringResource(Res.string.section_about), Modifier.padding(top = MyGymSpace.md))
@@ -284,9 +299,9 @@ private fun DemoCard(demoMode: DemoMode) {
     if (asking) DemoPasswordSheet(demoMode, onDismiss = { asking = false })
 }
 
-/** Asks for the demo password, then builds the demo; the app switches to it when ready. */
+/** Asks for the demo password, then builds the demo; the app switches to it when ready. Also on the sign-in screen. */
 @Composable
-private fun DemoPasswordSheet(demoMode: DemoMode, onDismiss: () -> Unit) {
+internal fun DemoPasswordSheet(demoMode: DemoMode, onDismiss: () -> Unit) {
     val scope = rememberCoroutineScope()
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<StringResource?>(null) }

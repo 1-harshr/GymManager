@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import com.harsh.gymmanager.domain.ValidationError
 import com.harsh.gymmanager.domain.backup.BackupProblem
 import com.harsh.gymmanager.domain.importing.ImportFileProblem
+import com.harsh.gymmanager.domain.repository.SignInProblem
 import com.harsh.gymmanager.presentation.UiMessage
 import com.harsh.gymmanager.presentation.formatRupees
 import gymmanager.sharedui.generated.resources.*
@@ -69,6 +70,16 @@ private fun UiMessage.text(): Text = when (this) {
         when (problem) {
             BackupProblem.NOT_A_BACKUP -> Res.string.err_not_backup
             BackupProblem.FROM_NEWER_APP -> Res.string.err_backup_newer
+        },
+    )
+    UiMessage.EnterPhone -> Text.Plain(Res.string.err_enter_phone)
+    UiMessage.EnterCode -> Text.Plain(Res.string.err_enter_code)
+    is UiMessage.SignInFailed -> Text.Plain(
+        when (problem) {
+            SignInProblem.WRONG_CODE -> Res.string.err_signin_wrong_code
+            SignInProblem.TOO_MANY_TRIES -> Res.string.err_signin_too_many
+            SignInProblem.CODE_NOT_SENT -> Res.string.err_signin_not_sent
+            SignInProblem.NO_CONNECTION -> Res.string.err_no_connection
         },
     )
 }
