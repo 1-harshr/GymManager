@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -53,6 +54,11 @@ import com.harsh.gymmanager.ui.components.BulkAction
 import com.harsh.gymmanager.ui.components.BulkActionBar
 import com.harsh.gymmanager.ui.components.ConfirmSheet
 import com.harsh.gymmanager.ui.components.FloatingTabBar
+import com.harsh.gymmanager.ui.components.SystemTabBar
+import com.harsh.gymmanager.ui.components.usesLiquidGlass
+import com.harsh.gymmanager.ui.components.GlassCapsuleHeight
+import com.harsh.gymmanager.ui.components.GlassCapsuleLift
+import com.harsh.gymmanager.ui.components.glassCapsuleBottom
 import com.harsh.gymmanager.ui.components.TabItem
 import com.harsh.gymmanager.ui.format.resolve
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
@@ -75,7 +81,7 @@ private const val PLANS = 2
 /** How many payments Home lists. */
 private const val RECENT_PAYMENTS = 5
 
-/** The three tabs under the floating tab bar; select mode swaps the bar for bulk actions. */
+/** The three tabs under the tab bar (the system one on iOS); select mode swaps the bar for bulk actions. */
 @Composable
 fun MainScreen(
     onOpenMember: (Long) -> Unit,
@@ -106,9 +112,9 @@ fun MainScreen(
     var tab by rememberSaveable { mutableIntStateOf(HOME) }
     var confirmDelete by remember { mutableStateOf(false) }
     val mainTabs = listOf(
-        TabItem(stringResource(Res.string.tab_home), AkhadaIcons.Home),
-        TabItem(stringResource(Res.string.tab_members), AkhadaIcons.Users),
-        TabItem(stringResource(Res.string.tab_plans), AkhadaIcons.Tag),
+        TabItem(stringResource(Res.string.tab_home), AkhadaIcons.Home, symbol = "house.fill"),
+        TabItem(stringResource(Res.string.tab_members), AkhadaIcons.Users, symbol = "person.2.fill"),
+        TabItem(stringResource(Res.string.tab_plans), AkhadaIcons.Tag, symbol = "tag.fill"),
     )
 
     val membersState by membersVm.state.collectAsStateWithLifecycle()
@@ -182,9 +188,32 @@ fun MainScreen(
                 )
             }
         }
+        if (usesLiquidGlass && !selecting) {
+            // iOS 26 centres the glass capsule in the bar's frame, so the add button takes the trailing end
+            // and the capsule slides aside as it appears, like a tab bar with a trailing button.
+            Row(Modifier.align(Alignment.BottomCenter), verticalAlignment = Alignment.CenterVertically) {
+                SystemTabBar(tabs = mainTabs, selected = tab, onSelect = { tab = it }, modifier = Modifier.weight(1f))
+                AnimatedVisibility(
+                    tab == MEMBERS,
+                    enter = expandHorizontally(BarSpring, expandFrom = Alignment.Start),
+                    exit = shrinkHorizontally(BarSpring, shrinkTowards = Alignment.Start),
+                ) {
+                    AddButton(
+                        onClick = onAddMember,
+                        contentDescription = stringResource(Res.string.add_member),
+                        // Centred on the capsule rather than on the bar's frame.
+                        modifier = Modifier.padding(end = AkhadaSpace.gutter, bottom = GlassCapsuleLift * 2),
+                        size = GlassCapsuleHeight,
+                    )
+                }
+            }
+        }
         AnimatedContent(
             targetState = selecting,
-            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = AkhadaSpace.md),
+            // On iOS 26 the select-mode bar takes the tab bar capsule's exact place.
+            modifier = Modifier.align(Alignment.BottomCenter).then(
+                if (usesLiquidGlass) Modifier.padding(bottom = glassCapsuleBottom) else Modifier.navigationBarsPadding().padding(bottom = AkhadaSpace.md),
+            ),
             transitionSpec = {
                 (fadeIn() + slideInVertically { it / 2 }) togetherWith (fadeOut() + slideOutVertically { it / 2 })
             },
@@ -203,7 +232,7 @@ fun MainScreen(
                         if (plansState.selectedHasArchived) BulkAction(stringResource(Res.string.restore), AkhadaIcons.Restore, onClick = plansVm::restoreSelected) else null,
                     ),
                 )
-            } else {
+            } else if (!usesLiquidGlass) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     FloatingTabBar(tabs = mainTabs, selected = tab, onSelect = { tab = it })
                     // The button's width (gap included) grows on the same spring as the tab pill, so the

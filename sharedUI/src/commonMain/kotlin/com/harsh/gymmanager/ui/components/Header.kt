@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,7 +78,7 @@ fun TabHeader(
     ) {
         GymLogo()
         HeaderText(title, subtitle, titleStyle, Modifier.weight(1f))
-        actions()
+        CompositionLocalProvider(LocalInHeader provides true) { actions() }
     }
 }
 
@@ -96,9 +97,11 @@ fun PushedHeader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
     ) {
-        AkhadaIconButton(AkhadaIcons.ChevronLeft, stringResource(Res.string.back), onBack)
-        HeaderText(title, subtitle, AkhadaTheme.typography.screenTitle, Modifier.weight(1f), titleModifier)
-        actions()
+        CompositionLocalProvider(LocalInHeader provides true) {
+            AkhadaIconButton(AkhadaIcons.ChevronLeft, stringResource(Res.string.back), onBack)
+            HeaderText(title, subtitle, AkhadaTheme.typography.screenTitle, Modifier.weight(1f), titleModifier)
+            actions()
+        }
     }
 }
 

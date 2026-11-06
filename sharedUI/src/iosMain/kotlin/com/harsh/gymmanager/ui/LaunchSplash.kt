@@ -28,9 +28,10 @@ import kotlinx.coroutines.delay
  * Draws the same picture as the native launch screen (LaunchBackground and LaunchIcon in the asset
  * catalog), holds it for [AkhadaMotion.SPLASH_HOLD_MS] and until the app is ready, then fades it away.
  * It follows the system appearance, as the launch screen does, rather than the app's theme setting.
+ * [onGone] runs once it has faded out.
  */
 @Composable
-fun LaunchSplash(appReady: Boolean) {
+fun LaunchSplash(appReady: Boolean, onGone: () -> Unit = {}) {
     var held by remember { mutableStateOf(false) }
     var gone by remember { mutableStateOf(false) }
     val exit = remember { Animatable(0f) }
@@ -42,6 +43,7 @@ fun LaunchSplash(appReady: Boolean) {
         if (held && appReady) {
             exit.animateTo(1f, tween(AkhadaMotion.SPLASH_EXIT_MS, easing = AkhadaMotion.Settle))
             gone = true
+            onGone()
         }
     }
     if (gone) return

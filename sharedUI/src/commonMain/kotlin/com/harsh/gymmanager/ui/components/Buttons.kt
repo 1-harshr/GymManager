@@ -1,10 +1,13 @@
 package com.harsh.gymmanager.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,6 +24,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -84,7 +88,10 @@ fun GhostButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier
     }
 }
 
-/** A round button holding one icon; every use needs a [contentDescription] naming the action. */
+/**
+ * A round button holding one icon; every use needs a [contentDescription] naming the action.
+ * [badge] puts a small count on its corner. In a header on iOS 26 it is a system glass button.
+ */
 @Composable
 fun AkhadaIconButton(
     icon: ImageVector,
@@ -95,17 +102,38 @@ fun AkhadaIconButton(
     iconSize: Dp = 22.dp,
     container: Color = AkhadaTheme.colors.surfaceSunken,
     content: Color = AkhadaTheme.colors.ink,
+    badge: String? = null,
 ) {
+    if (usesLiquidGlass && LocalInHeader.current) {
+        GlassIconButton(icon, contentDescription, onClick, size, modifier, badge = badge)
+        return
+    }
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
-    Surface(
-        onClick = onClick,
-        modifier = modifier.size(size).graphicsLayer { val s = if (pressed) 0.94f else 1f; scaleX = s; scaleY = s },
-        shape = CircleShape,
-        color = container,
-        contentColor = content,
-        interactionSource = interaction,
-    ) {
-        Box(contentAlignment = Alignment.Center) { Icon(icon, contentDescription, Modifier.size(iconSize)) }
+    Box(modifier) {
+        Surface(
+            onClick = onClick,
+            modifier = Modifier.size(size).graphicsLayer { val s = if (pressed) 0.94f else 1f; scaleX = s; scaleY = s },
+            shape = CircleShape,
+            color = container,
+            contentColor = content,
+            interactionSource = interaction,
+        ) {
+            Box(contentAlignment = Alignment.Center) { Icon(icon, contentDescription, Modifier.size(iconSize)) }
+        }
+        if (badge != null) {
+            Text(
+                badge,
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = 4.dp, y = (-2).dp)
+                    .defaultMinSize(minWidth = 18.dp)
+                    .background(AkhadaTheme.colors.accent, AkhadaRadius.pillShape)
+                    .padding(horizontal = 5.dp),
+                style = AkhadaTheme.typography.tab,
+                color = AkhadaTheme.colors.onAccent,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }

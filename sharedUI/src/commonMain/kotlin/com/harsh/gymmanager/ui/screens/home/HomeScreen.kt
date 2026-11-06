@@ -4,8 +4,6 @@ import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -16,7 +14,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.harsh.gymmanager.LocalAppDependencies
 import com.harsh.gymmanager.ui.LocalLanguage
@@ -118,28 +115,16 @@ fun HomeScreen(
 /** Opens the inbox; a badge counts unread alerts. */
 @Composable
 private fun BellButton(unread: Int, onClick: () -> Unit) {
-    val colors = AkhadaTheme.colors
-    Box {
-        AkhadaIconButton(
-            AkhadaIcons.Bell,
-            if (unread > 0) stringResource(Res.string.open_alerts_unread, unread) else stringResource(Res.string.open_alerts),
-            onClick,
-        )
-        if (unread > 0) {
-            Text(
-                if (unread > 9) "9+" else unread.toString(),
-                Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = 4.dp, y = (-2).dp)
-                    .defaultMinSize(minWidth = 18.dp)
-                    .background(colors.accent, AkhadaRadius.pillShape)
-                    .padding(horizontal = 5.dp),
-                style = AkhadaTheme.typography.tab,
-                color = colors.onAccent,
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
+    AkhadaIconButton(
+        AkhadaIcons.Bell,
+        if (unread > 0) stringResource(Res.string.open_alerts_unread, unread) else stringResource(Res.string.open_alerts),
+        onClick,
+        badge = when {
+            unread > 9 -> "9+"
+            unread > 0 -> unread.toString()
+            else -> null
+        },
+    )
 }
 
 /** Leads to the WhatsApp reminder run; shown only while someone is due one. */

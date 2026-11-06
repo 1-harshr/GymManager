@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -35,7 +36,9 @@ fun SelectionHeader(count: Int, onCancel: () -> Unit, onSelectAll: () -> Unit, m
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AkhadaSpace.md),
     ) {
-        AkhadaIconButton(AkhadaIcons.X, stringResource(Res.string.cancel_selection), onCancel)
+        CompositionLocalProvider(LocalInHeader provides true) {
+            AkhadaIconButton(AkhadaIcons.X, stringResource(Res.string.cancel_selection), onCancel)
+        }
         Column(Modifier.weight(1f)) {
             Text(pluralStringResource(Res.plurals.selected_count, count, count), style = AkhadaTheme.typography.screenTitle)
             Text(stringResource(Res.string.selection_hint), style = AkhadaTheme.typography.caption, color = AkhadaTheme.colors.inkMuted)
@@ -46,9 +49,13 @@ fun SelectionHeader(count: Int, onCancel: () -> Unit, onSelectAll: () -> Unit, m
 
 data class BulkAction(val label: String, val icon: ImageVector, val destructive: Boolean = false, val onClick: () -> Unit)
 
-/** Floats where the tab bar sits while selecting, with the actions for the ticked items. */
+/** Floats where the tab bar sits while selecting, with the actions for the ticked items; glass on iOS 26. */
 @Composable
 fun BulkActionBar(actions: List<BulkAction>, modifier: Modifier = Modifier) {
+    if (usesLiquidGlass) {
+        GlassActionBar(actions, modifier)
+        return
+    }
     val colors = AkhadaTheme.colors
     Surface(modifier = modifier, shape = AkhadaRadius.pillShape, color = colors.surface, shadowElevation = AkhadaElevation.float) {
         Row(Modifier.padding(AkhadaSize.tabBarPadding)) {

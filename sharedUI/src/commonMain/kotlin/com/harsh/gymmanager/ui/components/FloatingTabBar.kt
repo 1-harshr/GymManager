@@ -55,7 +55,8 @@ import com.harsh.gymmanager.ui.theme.AkhadaTheme
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-data class TabItem(val label: String, val icon: ImageVector)
+/** A main tab; [symbol] is the SF Symbol the iOS tab bar shows instead of [icon]. */
+data class TabItem(val label: String, val icon: ImageVector, val symbol: String)
 
 /**
  * The floating pill that switches between the main screens. The ink pill can be dragged

@@ -7,6 +7,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
 import com.harsh.gymmanager.ui.theme.AkhadaElevation
@@ -14,13 +15,17 @@ import com.harsh.gymmanager.ui.theme.AkhadaRadius
 import com.harsh.gymmanager.ui.theme.AkhadaSize
 import com.harsh.gymmanager.ui.theme.AkhadaTheme
 
-/** The round accent button that floats beside the tab bar on Members. */
+/** The round accent button that floats beside the tab bar on Members; accent glass on iOS 26. */
 @Composable
-fun AddButton(onClick: () -> Unit, contentDescription: String, modifier: Modifier = Modifier) {
+fun AddButton(onClick: () -> Unit, contentDescription: String, modifier: Modifier = Modifier, size: Dp = AkhadaSize.addButton) {
+    if (usesLiquidGlass) {
+        GlassIconButton(AkhadaIcons.Plus, contentDescription, onClick, size, modifier, prominent = true)
+        return
+    }
     val colors = AkhadaTheme.colors
     Surface(
         onClick = onClick,
-        modifier = modifier.size(AkhadaSize.addButton),
+        modifier = modifier.size(size),
         shape = AkhadaRadius.pillShape,
         color = colors.accent,
         contentColor = colors.onAccent,

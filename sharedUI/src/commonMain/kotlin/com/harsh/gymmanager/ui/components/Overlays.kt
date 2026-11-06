@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
+import com.harsh.gymmanager.ui.theme.AkhadaSize
 import com.harsh.gymmanager.ui.theme.AkhadaElevation
 import com.harsh.gymmanager.ui.theme.AkhadaRadius
 import com.harsh.gymmanager.ui.theme.AkhadaSpace
@@ -71,6 +72,10 @@ fun ConfirmSheet(
     onDismiss: () -> Unit,
     destructive: Boolean = true,
 ) {
+    if (usesLiquidGlass) {
+        SystemConfirmPrompt(title, body, confirmLabel, stringResource(Res.string.cancel), destructive, onConfirm, onDismiss)
+        return
+    }
     AkhadaBottomSheet(onDismiss) {
         Column(verticalArrangement = Arrangement.spacedBy(AkhadaSpace.xs)) {
             Text(title, style = AkhadaTheme.typography.title)
@@ -88,10 +93,14 @@ fun ConfirmSheet(
 
 data class MenuAction(val label: String, val destructive: Boolean = false, val onClick: () -> Unit)
 
-/** A round "more" button that opens a short menu of actions. */
+/** A round "more" button that opens a short menu of actions; in a header on iOS 26, a glass button with the system menu. */
 @Composable
 fun MoreMenu(actions: List<MenuAction>, contentDescription: String, modifier: Modifier = Modifier, container: androidx.compose.ui.graphics.Color = AkhadaTheme.colors.surfaceSunken) {
     val colors = AkhadaTheme.colors
+    if (usesLiquidGlass && LocalInHeader.current) {
+        GlassIconButton(AkhadaIcons.MoreVertical, contentDescription, onClick = {}, AkhadaSize.iconButton, modifier, menu = actions)
+        return
+    }
     var open by remember { mutableStateOf(false) }
     Box(modifier) {
         AkhadaIconButton(AkhadaIcons.MoreVertical, contentDescription, onClick = { open = true }, iconSize = 20.dp, container = container)
