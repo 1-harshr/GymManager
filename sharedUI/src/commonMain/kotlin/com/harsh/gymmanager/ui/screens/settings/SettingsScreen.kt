@@ -32,7 +32,7 @@ import com.harsh.gymmanager.ui.components.ConfirmSheet
 import com.harsh.gymmanager.ui.format.formatFull
 import com.harsh.gymmanager.ui.format.resolve
 import com.harsh.gymmanager.ui.platform.rememberBackupPicker
-import com.harsh.gymmanager.ui.platform.rememberBackupSaver
+import com.harsh.gymmanager.ui.platform.rememberFileSaver
 import com.harsh.gymmanager.ui.platform.rememberNotificationPermission
 import com.harsh.gymmanager.ui.components.AkhadaBottomSheet
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -338,7 +338,7 @@ private fun BackupCard(settings: AppSettings) {
     val snackbar = LocalSnackbar.current
     val vm = viewModel { BackupViewModel(deps.backup) }
     val state by vm.state.collectAsStateWithLifecycle()
-    val save = rememberBackupSaver(vm::onSaved)
+    val save = rememberFileSaver("application/json", vm::onSaved)
     val pick = rememberBackupPicker(vm::onPicked)
 
     LaunchedEffect(vm) {

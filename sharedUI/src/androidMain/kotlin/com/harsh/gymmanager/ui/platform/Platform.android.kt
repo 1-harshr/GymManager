@@ -70,12 +70,12 @@ actual fun rememberTextFilePicker(onPicked: (name: String, text: String?) -> Uni
 private const val MAX_BACKUP_BYTES = 200 * 1024 * 1024
 
 @Composable
-actual fun rememberBackupSaver(onDone: (saved: Boolean) -> Unit): (fileName: String, bytes: ByteArray) -> Unit {
+actual fun rememberFileSaver(mimeType: String, onDone: (saved: Boolean) -> Unit): (fileName: String, bytes: ByteArray) -> Unit {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val callback by rememberUpdatedState(onDone)
     var pending by remember { mutableStateOf<ByteArray?>(null) }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri: Uri? ->
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(mimeType)) { uri: Uri? ->
         val bytes = pending
         pending = null
         if (uri == null || bytes == null) {

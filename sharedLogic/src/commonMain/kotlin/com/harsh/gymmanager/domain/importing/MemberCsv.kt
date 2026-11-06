@@ -46,6 +46,14 @@ private val ColumnAliases = mapOf(
     Column.NOTES to setOf("notes", "note", "remarks", "remark", "comments"),
 )
 
+const val MEMBERS_TEMPLATE_FILE_NAME = "members-template.csv"
+
+/**
+ * An empty sheet for the owner to fill in: just the column names this importer understands. The
+ * byte-order mark makes Excel read Hindi names correctly.
+ */
+fun membersCsvTemplate(): String = "\uFEFFName,Phone,Gender,Date of birth,Joined on,Notes\r\n"
+
 /**
  * Reads members from CSV text, as saved by Excel or Google Sheets.
  *

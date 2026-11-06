@@ -81,7 +81,8 @@ private class DocumentDelegate(private val onPicked: (String, String?) -> Unit) 
 private const val MAX_BACKUP_BYTES = 209_715_200uL
 
 @Composable
-actual fun rememberBackupSaver(onDone: (saved: Boolean) -> Unit): (fileName: String, bytes: ByteArray) -> Unit {
+@Suppress("UNUSED_PARAMETER") // The export sheet takes the type from the file name.
+actual fun rememberFileSaver(mimeType: String, onDone: (saved: Boolean) -> Unit): (fileName: String, bytes: ByteArray) -> Unit {
     val host = LocalUIViewController.current
     val callback by rememberUpdatedState(onDone)
     val delegate = remember { ExportDelegate { saved -> callback(saved) } }

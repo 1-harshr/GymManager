@@ -74,4 +74,18 @@ class MemberCsvTest {
         assertFailsWith<ImportFileException> { parseMembersCsv("phone\n9876543210\n", today, emptyList()) }
         assertFailsWith<ImportFileException> { parseMembersCsv("", today, emptyList()) }
     }
+
+    @Test
+    fun templateHasEveryColumnAndNoRows() {
+        val preview = parseMembersCsv(membersCsvTemplate(), today, emptyList())
+        assertEquals(0, preview.rowCount)
+
+        // Filled in the way Excel saves it, the template imports every column.
+        val filled = membersCsvTemplate() + "Ravi Kumar,98765 43210,M,15/08/1998,05/11/2026,Knee injury\r\n"
+        val member = parseMembersCsv(filled, today, emptyList()).members.single()
+        assertEquals("Ravi Kumar", member.name)
+        assertEquals("9876543210", member.phone)
+        assertEquals(LocalDate(1998, 8, 15), member.dateOfBirth)
+        assertEquals("Knee injury", member.notes)
+    }
 }

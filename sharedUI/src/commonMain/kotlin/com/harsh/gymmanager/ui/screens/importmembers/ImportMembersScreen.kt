@@ -39,6 +39,13 @@ import com.harsh.gymmanager.ui.format.asString
 import com.harsh.gymmanager.ui.format.formatPhone
 import com.harsh.gymmanager.ui.icons.AkhadaIcons
 import com.harsh.gymmanager.ui.platform.rememberTextFilePicker
+import com.harsh.gymmanager.ui.platform.rememberFileSaver
+import com.harsh.gymmanager.ui.LocalSnackbar
+import com.harsh.gymmanager.domain.importing.MEMBERS_TEMPLATE_FILE_NAME
+import com.harsh.gymmanager.domain.importing.membersCsvTemplate
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 import com.harsh.gymmanager.ui.theme.AkhadaRadius
 import com.harsh.gymmanager.ui.theme.AkhadaSpace
 import com.harsh.gymmanager.ui.theme.AkhadaTheme
@@ -53,6 +60,11 @@ fun ImportMembersScreen(onBack: () -> Unit, onImported: (Int) -> Unit) {
     val vm = viewModel { ImportMembersViewModel(deps.importMembers) }
     val state by vm.state.collectAsStateWithLifecycle()
     val pickFile = rememberTextFilePicker(vm::onFilePicked)
+    val snackbar = LocalSnackbar.current
+    val scope = rememberCoroutineScope()
+    val saveFile = rememberFileSaver("text/csv") { saved ->
+        if (saved) scope.launch { snackbar.showSnackbar(getString(Res.string.template_saved)) }
+    }
     LaunchedEffect(vm) { vm.events.collect { if (it is ImportMembersEvent.Imported) onImported(it.count) } }
 
     val preview = state.preview
@@ -84,6 +96,12 @@ fun ImportMembersScreen(onBack: () -> Unit, onImported: (Int) -> Unit) {
                         stringResource(Res.string.import_intro_note),
                         style = AkhadaTheme.typography.caption,
                         color = colors.inkMuted,
+                    )
+                    AkhadaButton(
+                        stringResource(Res.string.download_template),
+                        { saveFile(MEMBERS_TEMPLATE_FILE_NAME, membersCsvTemplate().encodeToByteArray()) },
+                        Modifier.fillMaxWidth(),
+                        kind = ButtonKind.Secondary,
                     )
                 }
             } else {

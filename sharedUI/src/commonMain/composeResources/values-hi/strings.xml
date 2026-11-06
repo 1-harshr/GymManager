@@ -165,7 +165,7 @@
     <string name="import_members">सदस्य जोड़ें</string>
     <string name="from_csv">CSV फ़ाइल से</string>
     <string name="import_intro_title">स्प्रेडशीट से सदस्य लाएँ</string>
-    <string name="import_intro_body">Excel या Google Sheets में पहली पंक्ति में कॉलम के नाम लिखें, फिर शीट को CSV के रूप में सेव या डाउनलोड करें। सिर्फ़ नाम ज़रूरी है।</string>
+    <string name="import_intro_body">टेम्पलेट डाउनलोड करें, Excel या Google Sheets में हर पंक्ति में एक सदस्य भरें, फिर उसे CSV के रूप में सेव या डाउनलोड करके नीचे चुनें। सिर्फ़ नाम ज़रूरी है।</string>
     <string name="import_intro_note">तारीख में पहले दिन पढ़ा जाता है, यानी 05/11/2026 का मतलब 5 नवंबर। जिनका फ़ोन नंबर पहले से सेव है, उन्हें छोड़ दिया जाएगा।</string>
     <string name="no_members_to_add">जोड़ने के लिए कोई सदस्य नहीं</string>
     <string name="skipped_count">%1$d छोड़े गए</string>
@@ -597,4 +597,6 @@
     <string name="wa_status_pending">भेजने का इंतज़ार</string>
     <string name="wa_status_sent">Make को भेजा</string>
     <string name="wa_status_failed">नहीं भेजा गया · %1$s</string>
+    <string name="download_template">टेम्पलेट डाउनलोड करें</string>
+    <string name="template_saved">टेम्पलेट सेव हो गया। इसे भरें, CSV के रूप में सेव करें, फिर यहाँ चुनें।</string>
 </resources>

@@ -15,11 +15,12 @@ expect fun SystemBackHandler(enabled: Boolean, onBack: () -> Unit)
 expect fun rememberTextFilePicker(onPicked: (name: String, text: String?) -> Unit): () -> Unit
 
 /**
- * Returns a function that asks where to save a backup file called fileName holding bytes, then
- * writes it; [onDone] says whether it was saved (false if the person backed out).
+ * Returns a function that asks where to save a file called fileName holding bytes, then writes
+ * it; [mimeType] is its type, e.g. application/json; [onDone] says whether it was saved (false
+ * if the person backed out).
  */
 @Composable
-expect fun rememberBackupSaver(onDone: (saved: Boolean) -> Unit): (fileName: String, bytes: ByteArray) -> Unit
+expect fun rememberFileSaver(mimeType: String, onDone: (saved: Boolean) -> Unit): (fileName: String, bytes: ByteArray) -> Unit
 
 /** Returns a function that opens the file picker for a backup and calls [onPicked] with its bytes, or null if unreadable. */
 @Composable

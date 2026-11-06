@@ -165,7 +165,7 @@
     <string name="import_members">Import members</string>
     <string name="from_csv">From a CSV file</string>
     <string name="import_intro_title">Bring in members from a spreadsheet</string>
-    <string name="import_intro_body">In Excel or Google Sheets, put the column names in the first row, then save or download the sheet as CSV. Only Name is required.</string>
+    <string name="import_intro_body">Download the template, fill in one member per row in Excel or Google Sheets, then save or download it as CSV and choose it below. Only Name is required.</string>
     <string name="import_intro_note">Dates are read day first, so 05/11/2026 is 5 November. Members whose phone number is already saved are skipped.</string>
     <string name="no_members_to_add">No members to add</string>
     <string name="skipped_count">%1$d skipped</string>
@@ -597,4 +597,6 @@
     <string name="wa_status_pending">Waiting to send</string>
     <string name="wa_status_sent">Sent to Make</string>
     <string name="wa_status_failed">Not sent · %1$s</string>
+    <string name="download_template">Download template</string>
+    <string name="template_saved">Template saved. Fill it in, save it as CSV, then choose it here.</string>
 </resources>
