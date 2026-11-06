@@ -118,6 +118,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import gymmanager.sharedui.generated.resources.unreachable_banner
 import gymmanager.sharedui.generated.resources.try_again
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.size
+import com.harsh.gymmanager.ui.theme.MyGymRadius
+import gymmanager.sharedui.generated.resources.signing_out
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 import org.jetbrains.compose.resources.PluralStringResource
@@ -190,6 +198,19 @@ fun App(
     val settingsVm = viewModel { SettingsViewModel(dependencies.settingsUseCases) }
     val settings = settingsVm.state.collectAsStateWithLifecycle().value
     val scope = rememberCoroutineScope()
+    var signingOut by remember { mutableStateOf(false) }
+    val signOut: () -> Unit = {
+        if (!signingOut) {
+            signingOut = true
+            scope.launch {
+                try {
+                    auth?.signOut()
+                } finally {
+                    signingOut = false
+                }
+            }
+        }
+    }
     val dark = when (settings?.theme ?: ThemeMode.SYSTEM) {
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
         ThemeMode.LIGHT -> false
@@ -221,10 +242,9 @@ fun App(
                         if (settings != null) {
                             if (auth == null) AppContent(dependencies, settings, settingsVm) else when (authState) {
                                 null, AuthState.Loading -> Unit
-                                AuthState.SignedOut -> SignInScreen(auth)
-                                // A different person signing in starts again from the first screen.
-                                is AuthState.SignedIn -> key(authState.userId) {
-                                    val signOut: () -> Unit = { scope.launch { auth.signOut() } }
+                                // Each sign-in starts afresh, and what one person had open goes when they sign out.
+                                AuthState.SignedOut -> OwnViewModels { SignInScreen(auth) }
+                                is AuthState.SignedIn -> key(authState.userId) { OwnViewModels {
                                     val gymRepository = checkNotNull(gyms) { "Signing in needs a GymRepository" }
                                     when (membership) {
                                         null, MembershipState.Loading -> Unit
@@ -246,9 +266,10 @@ fun App(
                                             }
                                         }
                                     }
-                                }
+                                } }
                             }
                         }
+                        if (signingOut) SigningOut()
                     }
                 }
             }
@@ -504,6 +525,35 @@ private fun DemoBanner() {
         Text(stringResource(Res.string.demo_banner), Modifier.weight(1f), style = MyGymTheme.typography.bodyStrong, color = colors.onAccent)
         TextButton(onClick = demoMode::exit) {
             Text(stringResource(Res.string.demo_exit), style = MyGymTheme.typography.bodyStrong, color = colors.onAccent)
+        }
+    }
+}
+
+/** View models that last only as long as [content] is shown, then are cleared with it. */
+@Composable
+private fun OwnViewModels(content: @Composable () -> Unit) {
+    val owner = remember { object : ViewModelStoreOwner { override val viewModelStore = ViewModelStore() } }
+    DisposableEffect(owner) { onDispose { owner.viewModelStore.clear() } }
+    CompositionLocalProvider(LocalViewModelStoreOwner provides owner, content = content)
+}
+
+/** Covers the app while the session is ended, so nothing can be tapped half way through. */
+@Composable
+private fun SigningOut() {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(MyGymTheme.colors.scrim)
+            .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } },
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            Modifier.background(MyGymTheme.colors.surface, MyGymRadius.pillShape).padding(horizontal = MyGymSpace.xl, vertical = MyGymSpace.lg),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md),
+        ) {
+            CircularProgressIndicator(Modifier.size(22.dp), color = MyGymTheme.colors.ink, strokeWidth = 2.5.dp)
+            Text(stringResource(Res.string.signing_out), style = MyGymTheme.typography.bodyStrong, color = MyGymTheme.colors.ink)
         }
     }
 }

@@ -634,6 +634,7 @@
     <string name="section_account">खाता</string>
     <string name="account_signed_in_as">%1$s से साइन इन किया है</string>
     <string name="sign_out">साइन आउट करें</string>
+    <string name="signing_out">साइन आउट हो रहा है…</string>
 
     <!-- Gym onboarding and staff -->
     <string name="onboarding_title">आप My Gym का इस्तेमाल\nकैसे करेंगे?</string>
