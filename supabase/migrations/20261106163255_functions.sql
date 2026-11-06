@@ -90,7 +90,7 @@ select
   m.photo_path,
   m.is_archived,
   ms.latest_end_date,
-  coalesce(ms.billed, 0) - coalesce(paid.total, 0) as amount_due,
+  (coalesce(ms.billed, 0) - coalesce(paid.total, 0))::bigint as amount_due,
   case
     when ms.latest_end_date is null then 'NONE'
     when ms.latest_end_date < private.gym_today() then 'EXPIRED'
