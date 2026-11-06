@@ -49,7 +49,10 @@ import com.harsh.gymmanager.domain.repository.AuthRepository
 import com.harsh.gymmanager.domain.repository.AuthState
 import com.harsh.gymmanager.domain.repository.GymRepository
 import com.harsh.gymmanager.domain.repository.MembershipState
+import com.harsh.gymmanager.ui.LocalGymRepository
 import com.harsh.gymmanager.ui.LocalGymRole
+import com.harsh.gymmanager.navigation.StaffRoute
+import com.harsh.gymmanager.ui.screens.staff.StaffScreen
 import com.harsh.gymmanager.ui.format.formatSignInPhone
 import com.harsh.gymmanager.ui.screens.onboarding.GymUnavailableScreen
 import com.harsh.gymmanager.ui.screens.onboarding.OnboardingScreen
@@ -194,7 +197,10 @@ fun App(dependencies: AppDependencies, auth: AuthRepository? = null, gyms: GymRe
                                             onSignOut = signOut,
                                         )
                                         is MembershipState.Member -> key(membership.membership.gymId) {
-                                            CompositionLocalProvider(LocalGymRole provides membership.membership.role) {
+                                            CompositionLocalProvider(
+                                                LocalGymRole provides membership.membership.role,
+                                                LocalGymRepository provides gymRepository,
+                                            ) {
                                                 AppContent(dependencies, settings, settingsVm, authState, onSignOut = signOut, hasCloudGym = true)
                                             }
                                         }
@@ -404,7 +410,13 @@ private fun AppContent(
                                     onOpenWhatsApp = { nav.navigate(WhatsAppRoute) },
                                     account = account,
                                     onSignOut = onSignOut,
+                                    onOpenStaff = { nav.navigate(StaffRoute) },
                                 )
+                            }
+                        }
+                        composable<StaffRoute> {
+                            Destination {
+                                LocalGymRepository.current?.let { StaffScreen(it, onBack = { nav.popBackStack() }) }
                             }
                         }
                         composable<WhatsAppRoute> {

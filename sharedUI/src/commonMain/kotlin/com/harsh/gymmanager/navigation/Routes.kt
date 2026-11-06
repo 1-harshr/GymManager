@@ -48,3 +48,7 @@ data object InboxRoute
 /** Settings → WhatsApp: connecting the gym's number and automatic messages. */
 @Serializable
 data object WhatsAppRoute
+
+/** Settings → Staff: who works at the gym, and inviting more. */
+@Serializable
+data object StaffRoute

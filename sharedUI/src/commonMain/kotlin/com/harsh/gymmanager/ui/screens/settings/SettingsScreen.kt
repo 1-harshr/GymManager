@@ -8,6 +8,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.harsh.gymmanager.LocalDemoMode
 import com.harsh.gymmanager.DemoMode
 import com.harsh.gymmanager.domain.repository.AuthState
+import com.harsh.gymmanager.ui.LocalGymRepository
+import com.harsh.gymmanager.ui.isOwnerOrNoAccount
 import gymmanager.sharedui.generated.resources.credits
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.Arrangement
@@ -84,6 +86,7 @@ fun SettingsScreen(
     /** Who's signed in; null in demo mode, where there's no account. */
     account: AuthState.SignedIn? = null,
     onSignOut: () -> Unit = {},
+    onOpenStaff: () -> Unit = {},
 ) {
     val colors = MyGymTheme.colors
     val typography = MyGymTheme.typography
@@ -100,6 +103,19 @@ fun SettingsScreen(
                     }
                 }
                 MyGymButton(stringResource(Res.string.edit_gym), onEditGym, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+            }
+
+            // Only with a gym online; the phone-only app and the demo have no staff.
+            if (LocalGymRepository.current != null) {
+                SectionHeader(stringResource(Res.string.section_staff), Modifier.padding(top = MyGymSpace.md))
+                MyGymCard(onClick = onOpenStaff) {
+                    Text(
+                        stringResource(if (isOwnerOrNoAccount) Res.string.staff_card_owner else Res.string.staff_card_staff),
+                        style = typography.body,
+                        color = colors.inkMuted,
+                    )
+                    MyGymButton(stringResource(Res.string.staff_manage), onOpenStaff, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+                }
             }
 
             SectionHeader(stringResource(Res.string.section_appearance), Modifier.padding(top = MyGymSpace.md))

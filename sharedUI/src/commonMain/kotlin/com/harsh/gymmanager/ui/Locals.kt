@@ -6,6 +6,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.harsh.gymmanager.domain.model.GymProfile
 import com.harsh.gymmanager.domain.model.StaffRole
+import com.harsh.gymmanager.domain.repository.GymRepository
 import com.harsh.gymmanager.presentation.messaging.MessageRequest
 
 /** One snackbar host for the whole app, so messages survive navigating back. */
@@ -28,3 +29,6 @@ val isOwnerOrNoAccount: Boolean
     @Composable
     @ReadOnlyComposable
     get() = LocalGymRole.current != StaffRole.STAFF
+
+/** The gym online, for its staff and invites; null without an account (demo mode). */
+val LocalGymRepository = staticCompositionLocalOf<GymRepository?> { null }
