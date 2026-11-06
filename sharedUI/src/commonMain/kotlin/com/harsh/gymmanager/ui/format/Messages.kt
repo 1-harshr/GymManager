@@ -38,6 +38,7 @@ private fun UiMessage.text(): Text = when (this) {
     is UiMessage.Overpayment ->
         if (amountDue == 0L) Text.Plain(Res.string.err_nothing_due) else Text.Plain(Res.string.err_overpayment, listOf(formatRupees(amountDue)))
     UiMessage.SomethingWentWrong -> Text.Plain(Res.string.err_generic)
+    UiMessage.NoConnection -> Text.Plain(Res.string.err_no_connection)
     UiMessage.EnterAmount -> Text.Plain(Res.string.err_enter_amount)
     UiMessage.EnterDuration -> Text.Plain(Res.string.err_enter_duration)
     UiMessage.EnterPrice -> Text.Plain(Res.string.err_enter_price)

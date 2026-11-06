@@ -2,6 +2,11 @@ package com.harsh.gymmanager.data.remote
 
 import com.harsh.gymmanager.domain.repository.AuthRepository
 import com.harsh.gymmanager.domain.repository.GymRepository
+import com.harsh.gymmanager.domain.repository.MemberRepository
+import com.harsh.gymmanager.domain.repository.MembershipRepository
+import com.harsh.gymmanager.domain.repository.PaymentRepository
+import com.harsh.gymmanager.domain.repository.PlanRepository
+import com.harsh.gymmanager.domain.suggestions.UsageRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
@@ -18,7 +23,30 @@ class SupabaseBackend(scope: CoroutineScope) {
     val auth: AuthRepository = SupabaseAuthRepository(client, scope)
 
     val gyms: GymRepository = SupabaseGymRepository(client, auth, scope)
+
+    private val refresher = Refresher()
+
+    /** The gym's records online, for the real app once someone is signed in to a gym. */
+    val data = RemoteGymData(
+        members = SupabaseMemberRepository(client, refresher, gyms),
+        plans = SupabasePlanRepository(client, refresher, gyms),
+        memberships = SupabaseMembershipRepository(client, refresher),
+        payments = SupabasePaymentRepository(client, refresher, gyms),
+        usage = SupabaseUsageRepository(client),
+    )
+
+    /** Reads everything again, e.g. when the app comes back to the front and others may have changed things. */
+    fun refresh() = refresher.changed()
 }
+
+/** The repositories that live online; everything else (alerts, the WhatsApp outbox) stays on the phone. */
+class RemoteGymData(
+    val members: MemberRepository,
+    val plans: PlanRepository,
+    val memberships: MembershipRepository,
+    val payments: PaymentRepository,
+    val usage: UsageRepository,
+)
 
 private fun createGymSupabaseClient(): SupabaseClient =
     createSupabaseClient(

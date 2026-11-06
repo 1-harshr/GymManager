@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.presentation
 
+import com.harsh.gymmanager.domain.NoConnectionException
 import com.harsh.gymmanager.domain.OverpaymentException
 import com.harsh.gymmanager.domain.ValidationError
 import com.harsh.gymmanager.domain.ValidationException
@@ -21,6 +22,7 @@ sealed interface UiMessage {
     /** [amountDue] is whole rupees; zero means nothing is due. */
     data class Overpayment(val amountDue: Long) : UiMessage
     data object SomethingWentWrong : UiMessage
+    data object NoConnection : UiMessage
 
     // Form fields
     data object EnterAmount : UiMessage
@@ -72,6 +74,7 @@ sealed interface UiMessage {
 /** Known failures become their own message; anything unexpected gets a generic one. */
 fun Throwable.toUiMessage(): UiMessage = when (this) {
     is OverpaymentException -> UiMessage.Overpayment(amountDue)
+    is NoConnectionException -> UiMessage.NoConnection
     is ValidationException -> UiMessage.Invalid(error)
     is ImportFileException -> UiMessage.BadImportFile(problem)
     is BackupException -> UiMessage.BadBackup(problem)

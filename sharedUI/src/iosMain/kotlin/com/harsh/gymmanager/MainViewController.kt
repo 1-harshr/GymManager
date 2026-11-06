@@ -41,6 +41,7 @@ internal val iosDependencies: AppDependencies by lazy {
         // iOS can't send at a set time in the background; messages go out while the app is open.
         createWhatsAppScheduler = { messaging -> InAppWhatsAppScheduler(MainScope()) { messaging().flush() } },
         wrapSettings = { CloudGymSettingsRepository(it, backend.gyms) },
+        remote = backend.data,
     )
 }
 

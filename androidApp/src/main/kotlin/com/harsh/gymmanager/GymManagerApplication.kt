@@ -32,7 +32,7 @@ class GymManagerApplication : Application() {
         super.onCreate()
         backend = SupabaseBackend(MainScope())
         val model = GeminiNanoModel()
-        container = AppContainer(this, { settingsStore }, model, backend.gyms)
+        container = AppContainer(this, { settingsStore }, model, backend.gyms, backend.data)
         demoMode = DemoMode(
             createDemo = {
                 DefaultAppDependencies(

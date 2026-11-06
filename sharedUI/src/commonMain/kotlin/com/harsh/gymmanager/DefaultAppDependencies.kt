@@ -14,6 +14,11 @@ import com.harsh.gymmanager.data.repository.PaymentRepositoryImpl
 import com.harsh.gymmanager.data.repository.PlanRepositoryImpl
 import com.harsh.gymmanager.data.settings.DataStoreSettingsRepository
 import com.harsh.gymmanager.domain.repository.SettingsRepository
+import com.harsh.gymmanager.data.remote.RemoteGymData
+import com.harsh.gymmanager.domain.repository.MemberRepository
+import com.harsh.gymmanager.domain.repository.MembershipRepository
+import com.harsh.gymmanager.domain.repository.PaymentRepository
+import com.harsh.gymmanager.domain.repository.PlanRepository
 import com.harsh.gymmanager.domain.assistant.GymAssistant
 import com.harsh.gymmanager.domain.backup.BackupUseCases
 import com.harsh.gymmanager.domain.backup.StoredFiles
@@ -63,14 +68,16 @@ class DefaultAppDependencies(
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
     /** Lets the real data take some settings from elsewhere, such as the gym's details from the gym online. */
     private val wrapSettings: (SettingsRepository) -> SettingsRepository = { it },
+    /** The gym's records online; null keeps them in [openDatabase], as demo mode does. */
+    private val remote: RemoteGymData? = null,
 ) : AppDependencies {
     private var databaseOpened = false
     private val database by lazy { openDatabase().also { databaseOpened = true } }
 
-    private val memberRepository by lazy { MemberRepositoryImpl(database.memberDao(), clock, timeZone) }
-    private val planRepository by lazy { PlanRepositoryImpl(database.planDao(), clock) }
-    private val membershipRepository by lazy { MembershipRepositoryImpl(database.membershipDao(), clock) }
-    private val paymentRepository by lazy { PaymentRepositoryImpl(database.paymentDao(), clock) }
+    private val memberRepository: MemberRepository by lazy { remote?.members ?: MemberRepositoryImpl(database.memberDao(), clock, timeZone) }
+    private val planRepository: PlanRepository by lazy { remote?.plans ?: PlanRepositoryImpl(database.planDao(), clock) }
+    private val membershipRepository: MembershipRepository by lazy { remote?.memberships ?: MembershipRepositoryImpl(database.membershipDao(), clock) }
+    private val paymentRepository: PaymentRepository by lazy { remote?.payments ?: PaymentRepositoryImpl(database.paymentDao(), clock) }
     private val messageLogRepository by lazy { MessageLogRepositoryImpl(database.messageLogDao(), clock) }
     // DataStore allows one instance per file.
     private val settingsStore by lazy { openSettings() }
@@ -105,7 +112,7 @@ class DefaultAppDependencies(
     override val inbox by lazy {
         InboxUseCases(InboxRepositoryImpl(database.inboxDao()), memberRepository, membershipRepository, clock, timeZone)
     }
-    override val suggestions by lazy { SuggestionsUseCase(UsageRepositoryImpl(database.usageDao())) }
+    override val suggestions by lazy { SuggestionsUseCase(remote?.usage ?: UsageRepositoryImpl(database.usageDao())) }
     override val whatsAppScheduler: WhatsAppScheduler by lazy { createWhatsAppScheduler { whatsApp } }
     override val whatsApp: WhatsAppMessaging by lazy {
         WhatsAppMessaging(
