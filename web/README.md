@@ -15,6 +15,15 @@ Each target's address and publishable key go in `.env.docker` and `.env.staging`
 set `VITE_GOOGLE_SIGN_IN=true` there and add the site's address to the project's redirect URLs
 (Authentication → URL Configuration).
 
+## Live on GitHub Pages
+
+Every push to `main` that touches `web/` builds the site and publishes it to
+**https://1-harshr.github.io/GymManager/** (`.github/workflows/web-pages.yml`; it can also be run by hand from
+the Actions tab). It points at whichever project the repository's Actions variables `VITE_SUPABASE_URL` and
+`VITE_SUPABASE_PUBLISHABLE_KEY` name, currently staging. The site lives under `/GymManager/`, so links inside
+the app go through the router rather than to the domain's root. The page app stores link to for deleting an
+account is https://1-harshr.github.io/GymManager/delete-account.
+
 What's kept in the browser rather than in Supabase, as the phone keeps it on the phone: the theme, the
 dashboard switches, the alerts inbox, and when each member was last sent a reminder.
 

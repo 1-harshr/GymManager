@@ -5,6 +5,7 @@ import { formatPhone, localDigits } from '@/lib/format'
 import { Button, IconButton, LinkButton, cx } from '@/components/ui'
 import { BrandMark } from '@/components/Brand'
 import { GoogleG } from '@/components/GoogleG'
+import { appPath, appUrl } from '@/lib/location'
 
 const CODE_DIGITS = 6
 const RESEND_WAIT = 30
@@ -54,7 +55,7 @@ export function SignIn() {
     setError(null)
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin, queryParams: { prompt: 'select_account' } },
+      options: { redirectTo: appUrl(), queryParams: { prompt: 'select_account' } },
     })
     if (error) {
       setBusy(false)
@@ -74,7 +75,7 @@ export function SignIn() {
               </div>
               <h1 className="mt-14 whitespace-pre-line text-headline lg:mt-0">{'Your whole gym,\non every phone'}</h1>
               <p className="mt-2 text-body text-muted">Members, renewals and payments stay in step on every phone you and your staff use.</p>
-              {window.location.pathname === '/delete-account' ? (
+              {appPath() === '/delete-account' ? (
                 <p className="mt-4 rounded-field bg-sunken px-4 py-3 text-body">Sign in to delete your account. You’ll see what’s deleted before anything happens.</p>
               ) : null}
 

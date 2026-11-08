@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ArrowRight, ChevronLeft, Dumbbell, KeyRound } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { appPath } from '@/lib/location'
 import { formatPhone } from '@/lib/format'
 import { explain } from '@/data/errors'
 import { BrandMark } from '@/components/Brand'
@@ -13,7 +14,7 @@ type Step = 'choose' | 'create' | 'join' | 'delete'
 /** Signed in but not part of a gym yet: set one up as its owner, or join one with an invite code. */
 export function Onboarding({ account }: { account: string }) {
   // /delete-account opens straight on deleting, for someone following the link from an app store.
-  const [step, setStep] = useState<Step>(window.location.pathname === '/delete-account' ? 'delete' : 'choose')
+  const [step, setStep] = useState<Step>(appPath() === '/delete-account' ? 'delete' : 'choose')
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))] sm:px-6 lg:justify-center">
       {step === 'choose' ? (

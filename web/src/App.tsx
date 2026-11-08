@@ -10,6 +10,7 @@ import { Layout } from '@/components/Layout'
 import { BrandMark } from '@/components/Brand'
 import { Button, Spinner } from '@/components/ui'
 import { supabase } from '@/lib/supabase'
+import { BASE } from '@/lib/location'
 import { Home } from '@/screens/Home'
 import { Members } from '@/screens/Members'
 import { MemberDetail } from '@/screens/MemberDetail'
@@ -27,32 +28,36 @@ import { SellMembership } from '@/screens/SellMembership'
 
 const ImportMembers = lazy(() => import('@/screens/ImportMembers'))
 
-const router = createBrowserRouter([
-  {
-    element: <Layout />,
-    children: [
-      { path: '/', element: <Home /> },
-      { path: '/members', element: <Members /> },
-      { path: '/members/new', element: <MemberEdit /> },
-      { path: '/members/import', element: <Suspense fallback={<Loading />}><ImportMembers /></Suspense> },
-      { path: '/members/renew', element: <BulkRenew /> },
-      { path: '/members/:id', element: <MemberDetail /> },
-      { path: '/members/:id/edit', element: <MemberEdit /> },
-      { path: '/members/:id/sell', element: <SellMembership /> },
-      { path: '/plans', element: <Plans /> },
-      { path: '/inbox', element: <Inbox /> },
-      { path: '/reminders', element: <Reminders /> },
-      { path: '/attendance', element: <Attendance /> },
-      { path: '/settings', element: <Settings /> },
-      { path: '/settings/gym', element: <GymProfile /> },
-      { path: '/settings/staff', element: <Staff /> },
-      // Also the address app stores list for deleting an account.
-      { path: '/settings/delete-account', element: <DeleteAccountRoute /> },
-      { path: '/delete-account', element: <DeleteAccountRoute /> },
-      { path: '*', element: <Home /> },
-    ],
-  },
-])
+const router = createBrowserRouter(
+  [
+    {
+      element: <Layout />,
+      children: [
+        { path: '/', element: <Home /> },
+        { path: '/members', element: <Members /> },
+        { path: '/members/new', element: <MemberEdit /> },
+        { path: '/members/import', element: <Suspense fallback={<Loading />}><ImportMembers /></Suspense> },
+        { path: '/members/renew', element: <BulkRenew /> },
+        { path: '/members/:id', element: <MemberDetail /> },
+        { path: '/members/:id/edit', element: <MemberEdit /> },
+        { path: '/members/:id/sell', element: <SellMembership /> },
+        { path: '/plans', element: <Plans /> },
+        { path: '/inbox', element: <Inbox /> },
+        { path: '/reminders', element: <Reminders /> },
+        { path: '/attendance', element: <Attendance /> },
+        { path: '/settings', element: <Settings /> },
+        { path: '/settings/gym', element: <GymProfile /> },
+        { path: '/settings/staff', element: <Staff /> },
+        // Also the address app stores list for deleting an account.
+        { path: '/settings/delete-account', element: <DeleteAccountRoute /> },
+        { path: '/delete-account', element: <DeleteAccountRoute /> },
+        { path: '*', element: <Home /> },
+      ],
+    },
+  ],
+  // Served from a folder on GitHub Pages, so routes are relative to it.
+  { basename: BASE },
+)
 
 /** Signed out → sign in; signed in with no gym → set one up or join; otherwise the app. */
 export function App() {
