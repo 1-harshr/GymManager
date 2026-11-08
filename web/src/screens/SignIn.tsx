@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, ChevronLeft } from 'lucide-react'
-import { supabase, googleSignInEnabled } from '@/lib/supabase'
+import { supabase, googleSignInEnabled, phoneSignInEnabled } from '@/lib/supabase'
 import { formatPhone, localDigits } from '@/lib/format'
 import { Button, IconButton, LinkButton, cx } from '@/components/ui'
 import { BrandMark } from '@/components/Brand'
@@ -89,63 +89,69 @@ export function SignIn() {
                     <GoogleG className="size-5" />
                     {busy === 'google' ? 'Signing in…' : 'Continue with Google'}
                   </button>
-                  <div className="my-6 flex items-center gap-3 text-caption text-muted">
-                    <span className="h-px flex-1 bg-line" />
-                    or use your mobile number
-                    <span className="h-px flex-1 bg-line" />
-                  </div>
+                  {phoneSignInEnabled ? (
+                    <div className="my-6 flex items-center gap-3 text-caption text-muted">
+                      <span className="h-px flex-1 bg-line" />
+                      or use your mobile number
+                      <span className="h-px flex-1 bg-line" />
+                    </div>
+                  ) : error ? (
+                    <p className="mt-3 text-caption text-due">{error}</p>
+                  ) : null}
                 </>
               ) : (
                 <div className="mt-8" />
               )}
 
-              <form
-                className="flex flex-1 flex-col"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  sendCode()
-                }}
-              >
-                <label className="mb-2 text-body-strong" htmlFor="phone">
-                  Mobile number
-                </label>
-                <div
-                  className={cx(
-                    'flex h-16 items-center rounded-field bg-sunken ring-ink transition focus-within:ring-2',
-                    error && 'ring-2 ring-due',
-                  )}
+              {phoneSignInEnabled ? (
+                <form
+                  className="flex flex-1 flex-col"
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    sendCode()
+                  }}
                 >
-                  <span className="flex items-center gap-1.5 pl-5 pr-3">
-                    <span className="text-title" aria-hidden>
-                      🇮🇳
+                  <label className="mb-2 text-body-strong" htmlFor="phone">
+                    Mobile number
+                  </label>
+                  <div
+                    className={cx(
+                      'flex h-16 items-center rounded-field bg-sunken ring-ink transition focus-within:ring-2',
+                      error && 'ring-2 ring-due',
+                    )}
+                  >
+                    <span className="flex items-center gap-1.5 pl-5 pr-3">
+                      <span className="text-title" aria-hidden>
+                        🇮🇳
+                      </span>
+                      <span className="font-display text-[28px] font-bold text-muted">+91</span>
                     </span>
-                    <span className="font-display text-[28px] font-bold text-muted">+91</span>
-                  </span>
-                  <span className="h-7 w-px bg-line" />
-                  <input
-                    id="phone"
-                    inputMode="tel"
-                    autoComplete="tel-national"
-                    autoFocus
-                    placeholder="98765 43210"
-                    value={phone.length > 5 ? `${phone.slice(0, 5)} ${phone.slice(5)}` : phone}
-                    onChange={(e) => {
-                      setPhone(localDigits(e.target.value))
-                      setError(null)
-                    }}
-                    className="h-full min-w-0 flex-1 bg-transparent px-3 font-display text-[28px] font-bold tnum outline-none placeholder:text-muted/45"
-                  />
-                  <Check
-                    className={cx('mr-5 size-[22px] text-active transition', phone.length === 10 ? 'scale-100 opacity-100' : 'scale-50 opacity-0')}
-                  />
-                </div>
-                <p className={cx('mt-2 text-caption', error ? 'text-due' : 'text-muted')}>{error ?? 'We’ll text a 6-digit code to this number.'}</p>
-                <div className="mt-auto pt-8 lg:mt-8">
-                  <Button type="submit" className="w-full" disabled={phone.length !== 10} busy={busy === 'phone'}>
-                    {busy === 'phone' ? 'Sending…' : 'Get code'}
-                  </Button>
-                </div>
-              </form>
+                    <span className="h-7 w-px bg-line" />
+                    <input
+                      id="phone"
+                      inputMode="tel"
+                      autoComplete="tel-national"
+                      autoFocus
+                      placeholder="98765 43210"
+                      value={phone.length > 5 ? `${phone.slice(0, 5)} ${phone.slice(5)}` : phone}
+                      onChange={(e) => {
+                        setPhone(localDigits(e.target.value))
+                        setError(null)
+                      }}
+                      className="h-full min-w-0 flex-1 bg-transparent px-3 font-display text-[28px] font-bold tnum outline-none placeholder:text-muted/45"
+                    />
+                    <Check
+                      className={cx('mr-5 size-[22px] text-active transition', phone.length === 10 ? 'scale-100 opacity-100' : 'scale-50 opacity-0')}
+                    />
+                  </div>
+                  <p className={cx('mt-2 text-caption', error ? 'text-due' : 'text-muted')}>{error ?? 'We’ll text a 6-digit code to this number.'}</p>
+                  <div className="mt-auto pt-8 lg:mt-8">
+                    <Button type="submit" className="w-full" disabled={phone.length !== 10} busy={busy === 'phone'}>
+                      {busy === 'phone' ? 'Sending…' : 'Get code'}
+                    </Button>
+                  </div>
+                </form>
+              ) : null}
             </div>
           ) : (
             <CodeStep

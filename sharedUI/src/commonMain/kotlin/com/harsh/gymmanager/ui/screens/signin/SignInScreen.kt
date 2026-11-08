@@ -3,6 +3,7 @@ package com.harsh.gymmanager.ui.screens.signin
 import androidx.compose.ui.platform.LocalUriHandler
 import com.harsh.gymmanager.ui.WEB_APP_LABEL
 import com.harsh.gymmanager.ui.WEB_APP_URL
+import com.harsh.gymmanager.data.remote.SignInConfig
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -140,6 +141,9 @@ fun SignInScreen(auth: AuthRepository) {
 private fun PhoneStep(state: SignInUiState, vm: SignInViewModel, onTryDemo: (() -> Unit)?) {
     val colors = MyGymTheme.colors
     val typography = MyGymTheme.typography
+    val identity = rememberIdentitySignIn()
+    // Phone sign-in is off for this release, but a build with no other way in keeps it.
+    val offersPhone = SignInConfig.PHONE || identity.providers.isEmpty()
     Column(Modifier.fillMaxSize()) {
         Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).statusBarsPadding().screenGutter()
@@ -151,27 +155,11 @@ private fun PhoneStep(state: SignInUiState, vm: SignInViewModel, onTryDemo: (() 
             Spacer(Modifier.height(MyGymSpace.sm))
             Text(stringResource(Res.string.signin_subtitle), style = typography.body, color = colors.inkMuted)
             Spacer(Modifier.height(MyGymSpace.xxl))
-            val identity = rememberIdentitySignIn()
             if (identity.providers.isNotEmpty()) {
                 IdentityButtons(identity, state, vm)
-                OrPhone()
+                if (offersPhone) OrPhone()
             }
-            Text(stringResource(Res.string.signin_phone), style = typography.bodyStrong)
-            Spacer(Modifier.height(MyGymSpace.sm))
-            PhoneField(
-                phone = state.phone,
-                onPhoneChange = vm::onPhoneChange,
-                complete = state.isPhoneComplete,
-                error = state.phoneError != null,
-                onDone = vm::sendCode,
-            )
-            Spacer(Modifier.height(MyGymSpace.sm))
-            val error = state.phoneError?.asString()
-            Text(
-                error ?: stringResource(Res.string.signin_sms_note),
-                style = typography.caption,
-                color = if (error != null) colors.statusDue else colors.inkMuted,
-            )
+            if (offersPhone) PhoneEntry(state, vm)
             Spacer(Modifier.height(MyGymSpace.xl))
             // So people know the gym also opens on a laptop or the front-desk computer.
             val uriHandler = LocalUriHandler.current
@@ -184,12 +172,14 @@ private fun PhoneStep(state: SignInUiState, vm: SignInViewModel, onTryDemo: (() 
             Modifier.fillMaxWidth().screenGutter().navigationBarsPadding().padding(vertical = MyGymSpace.md),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            MyGymButton(
-                stringResource(if (state.isBusy) Res.string.signin_sending else Res.string.signin_send_code),
-                vm::sendCode,
-                Modifier.fillMaxWidth(),
-                enabled = state.isPhoneComplete && !state.isBusy,
-            )
+            if (offersPhone) {
+                MyGymButton(
+                    stringResource(if (state.isBusy) Res.string.signin_sending else Res.string.signin_send_code),
+                    vm::sendCode,
+                    Modifier.fillMaxWidth(),
+                    enabled = state.isPhoneComplete && !state.isBusy,
+                )
+            }
             // While typing, the keyboard needs the room more than the demo does.
             if (onTryDemo != null && WindowInsets.ime.getBottom(LocalDensity.current) == 0) {
                 Row(Modifier.padding(top = MyGymSpace.sm), verticalAlignment = Alignment.CenterVertically) {
@@ -199,6 +189,29 @@ private fun PhoneStep(state: SignInUiState, vm: SignInViewModel, onTryDemo: (() 
             }
         }
     }
+}
+
+/** The number field and what happens next, for builds that offer phone sign-in. */
+@Composable
+private fun PhoneEntry(state: SignInUiState, vm: SignInViewModel) {
+    val colors = MyGymTheme.colors
+    val typography = MyGymTheme.typography
+    Text(stringResource(Res.string.signin_phone), style = typography.bodyStrong)
+    Spacer(Modifier.height(MyGymSpace.sm))
+    PhoneField(
+        phone = state.phone,
+        onPhoneChange = vm::onPhoneChange,
+        complete = state.isPhoneComplete,
+        error = state.phoneError != null,
+        onDone = vm::sendCode,
+    )
+    Spacer(Modifier.height(MyGymSpace.sm))
+    val error = state.phoneError?.asString()
+    Text(
+        error ?: stringResource(Res.string.signin_sms_note),
+        style = typography.caption,
+        color = if (error != null) colors.statusDue else colors.inkMuted,
+    )
 }
 
 /** One button per provider, then a line that says what's happening or what went wrong. */

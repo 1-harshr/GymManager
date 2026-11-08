@@ -10,5 +10,11 @@ export const supabase = createClient(url, key, {
 
 export const googleSignInEnabled = import.meta.env.VITE_GOOGLE_SIGN_IN === 'true'
 
+/**
+ * Signing in with a mobile number and a texted code: off for now (real SMS in India needs a paid provider)
+ * unless VITE_PHONE_SIGN_IN=true, but kept wherever Google isn't set up, so there's always a way in.
+ */
+export const phoneSignInEnabled = import.meta.env.VITE_PHONE_SIGN_IN === 'true' || !googleSignInEnabled
+
 export const MEMBER_PHOTOS = 'member-photos'
 export const GYM_LOGOS = 'gym-logos'

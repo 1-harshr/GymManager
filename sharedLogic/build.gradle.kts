@@ -28,17 +28,25 @@ val supabasePublishableKey = localProperties.getProperty("supabase.publishableKe
 val googleWebClientId = localProperties.getProperty("google.webClientId").orEmpty()
 val googleIosClientId = localProperties.getProperty("google.iosClientId").orEmpty()
 
+/*
+ * Signing in with a phone number and a texted code. Off for now, since real SMS in India needs a paid
+ * provider; signin.phone=true in local.properties brings it back, e.g. to use the test numbers.
+ */
+val phoneSignIn = localProperties.getProperty("signin.phone")?.toBoolean() ?: false
+
 val generateSupabaseConfig by tasks.registering {
     // Locals rather than the script's own values, which the configuration cache can't store.
     val url = supabaseUrl
     val publishableKey = supabasePublishableKey
     val webClientId = googleWebClientId
     val iosClientId = googleIosClientId
+    val phone = phoneSignIn
     val outputDir = layout.buildDirectory.dir("generated/supabaseConfig/kotlin")
     inputs.property("url", url)
     inputs.property("publishableKey", publishableKey)
     inputs.property("webClientId", webClientId)
     inputs.property("iosClientId", iosClientId)
+    inputs.property("phoneSignIn", phone)
     outputs.dir(outputDir)
     doLast {
         val file = outputDir.get().file("com/harsh/gymmanager/data/remote/SupabaseBuildConfig.kt").asFile
@@ -57,6 +65,11 @@ val generateSupabaseConfig by tasks.registering {
             |object GoogleSignInConfig {
             |    const val WEB_CLIENT_ID = "$webClientId"
             |    const val IOS_CLIENT_ID = "$iosClientId"
+            |}
+            |
+            |/** Which ways of signing in this build offers besides Google and Apple. */
+            |object SignInConfig {
+            |    const val PHONE = $phone
             |}
             |""".trimMargin()
         )

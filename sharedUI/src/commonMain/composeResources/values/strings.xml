@@ -777,6 +777,6 @@
     </plurals>
     <string name="web_app_also">Also on the web:</string>
     <string name="web_app_title">My Gym on the web</string>
-    <string name="web_app_body">The same gym in a browser, for a laptop or the front-desk computer. Sign in with the same number.</string>
+    <string name="web_app_body">The same gym in a browser, for a laptop or the front-desk computer. Sign in with the same account.</string>
     <string name="open_web_app">Open on the web</string>
 </resources>

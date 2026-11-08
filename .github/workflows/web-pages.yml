@@ -41,6 +41,7 @@ jobs:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_GOOGLE_SIGN_IN: ${{ vars.VITE_GOOGLE_SIGN_IN || 'false' }}
+          VITE_PHONE_SIGN_IN: ${{ vars.VITE_PHONE_SIGN_IN || 'false' }}
       # Pages has no rewrites, so an address like /delete-account would 404. Its 404 page is the app
       # itself, which then shows the right screen.
       - run: cp dist/index.html dist/404.html
