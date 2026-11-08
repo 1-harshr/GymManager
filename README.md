@@ -122,6 +122,9 @@ Google sign-in appears once `google.webClientId` and `google.iosClientId` are se
 To apply new migrations to the linked hosted project, run `supabase db push --remote`. Without `--remote`, the
 CLI pushes to local.
 
+The hosted database is backed up every night by a GitHub Actions workflow, encrypted, and kept for 30 days;
+see [docs/backups.md](docs/backups.md) for setting it up and restoring.
+
 ### Build and run
 
 ```bash

@@ -1,0 +1,68 @@
+# Backs up the gym database every night, since Supabase's free plan keeps no backups of its own.
+# Each night's dump (roles, schema and data, made with the Supabase CLI) is encrypted with a passphrase,
+# because this repository is public and so are its workflow artifacts to anyone signed in to GitHub,
+# and kept for 30 days. How to restore one: docs/backups.md.
+#
+# Needs two repository secrets (Settings → Secrets and variables → Actions → Secrets):
+#   SUPABASE_DB_URL     the project's Session pooler connection string, with the database password in it
+#   BACKUP_PASSPHRASE   a long random passphrase, kept somewhere safe outside GitHub too
+# Until both are set, the job only says so.
+name: Nightly database backup
+
+on:
+  schedule:
+    - cron: '30 20 * * *' # 02:00 in India
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Check the secrets are set
+        id: setup
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::warning::Backups aren't set up: add the SUPABASE_DB_URL and BACKUP_PASSPHRASE secrets."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: supabase/setup-cli@v1
+        if: steps.setup.outputs.ready == 'true'
+        with:
+          version: latest
+
+      # The CLI runs a pg_dump matching the server's Postgres version, so versions can't drift apart.
+      - name: Dump roles, schema and data
+        if: steps.setup.outputs.ready == 'true'
+        run: |
+          mkdir backup
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/roles.sql --role-only
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/data.sql --use-copy --data-only
+          ls -l backup
+
+      - name: Encrypt
+        id: encrypt
+        if: steps.setup.outputs.ready == 'true'
+        run: |
+          name="gym-db-$(date -u +%Y-%m-%d)"
+          tar -czf - -C backup . \
+            | gpg --batch --yes --pinentry-mode loopback --passphrase-file <(printf '%s' "$BACKUP_PASSPHRASE") \
+                --symmetric --cipher-algo AES256 -o "$name.tar.gz.gpg"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.setup.outputs.ready == 'true'
+        with:
+          name: ${{ steps.encrypt.outputs.name }}
+          path: ${{ steps.encrypt.outputs.name }}.tar.gz.gpg
+          retention-days: 30
+          if-no-files-found: error
