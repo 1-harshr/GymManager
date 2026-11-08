@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
@@ -56,7 +57,8 @@ class DashboardViewModel(
                         unreadAlerts = unread,
                     )
                 },
-                checkedInToday(),
+                // Starts at 0 so the screen doesn't wait on attendance, or stay empty if it can't be read.
+                checkedInToday().onStart { emit(0) },
             ) { state, checkedIn -> state.copy(checkedInToday = checkedIn) }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
