@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.plans
 
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.MyGymSwitch
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
@@ -64,7 +65,9 @@ fun PlansScreen(
                 }
             }
         }
-        if (!state.isLoading && state.plans.isEmpty() && !state.showArchived) {
+        if (state.isLoading) {
+            item { LoadingMark(Modifier.fillParentMaxHeight(0.5f)) }
+        } else if (state.plans.isEmpty() && !state.showArchived) {
             item {
                 EmptyState(
                     MyGymIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_body),

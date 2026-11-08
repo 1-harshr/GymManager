@@ -28,6 +28,7 @@ import com.harsh.gymmanager.domain.model.InboxItem
 import com.harsh.gymmanager.domain.model.InboxKind
 import com.harsh.gymmanager.presentation.formatRupees
 import com.harsh.gymmanager.presentation.inbox.InboxViewModel
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.EmptyState
 import com.harsh.gymmanager.ui.components.PushedHeader
 import com.harsh.gymmanager.ui.components.SectionHeader
@@ -59,6 +60,7 @@ fun InboxScreen(onBack: () -> Unit, onOpenMember: (String) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
     ) {
         item { PushedHeader(stringResource(Res.string.inbox_title), onBack) }
+        if (state.isLoading) item { LoadingMark(Modifier.fillParentMaxHeight(0.5f)) }
         if (!state.isLoading && state.items.isEmpty()) {
             item { EmptyState(MyGymIcons.Bell, stringResource(Res.string.inbox_empty_title), stringResource(Res.string.inbox_empty_body)) }
         }

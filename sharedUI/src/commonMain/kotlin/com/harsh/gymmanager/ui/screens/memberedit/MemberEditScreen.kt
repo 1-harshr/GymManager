@@ -1,6 +1,7 @@
 package com.harsh.gymmanager.ui.screens.memberedit
 
 import androidx.compose.ui.text.input.ImeAction
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.rememberDiscardGuard
 import kotlinx.datetime.minus
 import kotlinx.datetime.DateTimeUnit
@@ -75,7 +76,7 @@ fun MemberEditScreen(memberId: String?, onBack: () -> Unit, onSaved: (String, Bo
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().imePadding()) {
             PushedHeader(if (state.isEditing) stringResource(Res.string.edit_member) else stringResource(Res.string.new_member), back)
-            Column(
+            if (state.isLoading) LoadingMark(Modifier.weight(1f)) else Column(
                 Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter().padding(bottom = MyGymSpace.xl),
                 verticalArrangement = Arrangement.spacedBy(MyGymSpace.lg),
             ) {

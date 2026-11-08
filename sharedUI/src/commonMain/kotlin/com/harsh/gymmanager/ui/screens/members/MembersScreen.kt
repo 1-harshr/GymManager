@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.members
 
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.MemberTile
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.height
@@ -106,6 +107,7 @@ fun MembersScreen(
         }
         item { SearchBar(state.query, onQueryChange, Modifier.screenGutter()) }
         item { FilterChips(FilterOrder, state.filter, onFilterChange, { it.label() }) }
+        if (state.isLoading) item { LoadingMark(Modifier.fillParentMaxHeight(0.5f)) }
         if (!state.isLoading && state.members.isEmpty()) {
             item {
                 val nothingYet = state.query.isBlank() && state.filter == MemberFilter.ALL

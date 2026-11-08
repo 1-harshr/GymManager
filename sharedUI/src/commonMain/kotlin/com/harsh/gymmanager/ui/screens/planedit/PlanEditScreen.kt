@@ -3,6 +3,7 @@ package com.harsh.gymmanager.ui.screens.planedit
 import androidx.compose.ui.text.input.ImeAction
 import com.harsh.gymmanager.ui.format.durationLabel
 import com.harsh.gymmanager.domain.suggestions.PLAN_LENGTHS
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.SuggestionChips
 import com.harsh.gymmanager.ui.components.rememberDiscardGuard
 import gymmanager.sharedui.generated.resources.*
@@ -60,7 +61,7 @@ fun PlanEditScreen(planId: String?, onBack: () -> Unit, onSaved: () -> Unit) {
 
     Column(Modifier.fillMaxSize().imePadding()) {
         PushedHeader(if (state.isEditing) stringResource(Res.string.edit_plan) else stringResource(Res.string.new_plan), back)
-        Column(
+        if (state.isLoading) LoadingMark(Modifier.weight(1f)) else Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter(),
             verticalArrangement = Arrangement.spacedBy(MyGymSpace.lg),
         ) {

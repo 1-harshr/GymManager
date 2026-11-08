@@ -3,6 +3,7 @@ package com.harsh.gymmanager.ui.screens.memberdetail
 import com.harsh.gymmanager.ui.isOwnerOrNoAccount
 import androidx.compose.ui.text.input.ImeAction
 import com.harsh.gymmanager.domain.suggestions.amountSuggestions
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.rememberUsageStats
 import com.harsh.gymmanager.ui.components.AmountChips
 import kotlinx.datetime.LocalDate
@@ -150,7 +151,10 @@ fun MemberDetailScreen(
         return
     }
     if (detail == null) {
-        PushedHeader("", onBack)
+        Column(Modifier.fillMaxSize()) {
+            PushedHeader("", onBack)
+            LoadingMark(Modifier.weight(1f))
+        }
         return
     }
     val member = detail.member

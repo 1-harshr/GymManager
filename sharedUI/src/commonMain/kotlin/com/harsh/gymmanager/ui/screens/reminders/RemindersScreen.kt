@@ -25,6 +25,7 @@ import com.harsh.gymmanager.LocalAppDependencies
 import com.harsh.gymmanager.domain.messaging.ReminderItem
 import com.harsh.gymmanager.presentation.formatRupees
 import com.harsh.gymmanager.presentation.messaging.RemindersViewModel
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.MyGymButton
 import com.harsh.gymmanager.ui.components.MyGymIconButton
 import com.harsh.gymmanager.ui.components.Avatar
@@ -68,6 +69,7 @@ fun RemindersScreen(onBack: () -> Unit, onOpenMember: (String) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
         ) {
             item { PushedHeader(stringResource(Res.string.reminders), onBack, subtitle = stringResource(Res.string.reminders_subtitle)) }
+            if (state.isLoading) item { LoadingMark(Modifier.fillParentMaxHeight(0.5f)) }
             if (!state.isLoading && state.items.isEmpty()) {
                 item {
                     EmptyState(MyGymIcons.MessageCircle, stringResource(Res.string.reminders_empty_title), stringResource(Res.string.reminders_empty_body))

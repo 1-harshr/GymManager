@@ -59,6 +59,9 @@ val MyGymLightColors = MyGymColors(
     isDark = false,
 )
 
+/** The launcher icon's clay, the same in light and dark: the brand mark, not a theme colour. */
+val BrandClay = Color(0xFFB0441B)
+
 val MyGymDarkColors = MyGymColors(
     bg = Color(0xFF0F0F10),
     surface = Color(0xFF19191B),

@@ -121,6 +121,8 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import gymmanager.sharedui.generated.resources.unreachable_banner
+import com.harsh.gymmanager.ui.components.LoadTrouble
+import com.harsh.gymmanager.ui.components.LocalLoadTrouble
 import gymmanager.sharedui.generated.resources.try_again
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -232,13 +234,16 @@ fun App(
     // String resources follow the overridden configuration, so switching language keeps the current screen.
     val tag = settings?.language?.tag
     val language = tag ?: Locale.current.language
-    CompositionLocalProvider(LocalAppLocale provides tag, LocalLanguage provides language) {
+    val retry: () -> Unit = { scope.launch { onRetry() } }
+    // Screens still waiting for their records say they can't load rather than waiting forever.
+    val trouble = LoadTrouble(inGym && unreachable, retry)
+    CompositionLocalProvider(LocalAppLocale provides tag, LocalLanguage provides language, LocalLoadTrouble provides trouble) {
         val content: @Composable () -> Unit = {
             MyGymTheme(darkTheme = dark) {
                 Column(Modifier.fillMaxSize().background(MyGymTheme.colors.bg)) {
                     if (inDemo) DemoBanner()
                     // Only once someone is in a gym; before that the sign-in screens say what's wrong themselves.
-                    if (inGym && unreachable) UnreachableBanner(onRetry = { scope.launch { onRetry() } })
+                    if (inGym && unreachable) UnreachableBanner(onRetry = retry)
                     // Below a banner, screens don't need their own room for the status bar.
                     val bannerShown = inDemo || (inGym && unreachable)
                     Box(Modifier.weight(1f).then(if (bannerShown) Modifier.consumeWindowInsets(WindowInsets.statusBars) else Modifier)) {

@@ -34,6 +34,7 @@ import com.harsh.gymmanager.domain.repository.GymRepository
 import com.harsh.gymmanager.presentation.staff.StaffViewModel
 import com.harsh.gymmanager.ui.LocalGym
 import com.harsh.gymmanager.ui.LocalSnackbar
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.Avatar
 import com.harsh.gymmanager.ui.components.Badge
 import com.harsh.gymmanager.ui.components.BadgeTone
@@ -90,6 +91,8 @@ fun StaffScreen(gyms: GymRepository, onBack: () -> Unit) {
                     icon = MyGymIcons.Plus,
                 )
             }
+
+            if (state.isLoading && state.loadError == null) LoadingMark(Modifier.padding(vertical = MyGymSpace.xxl))
 
             state.loadError?.let { error ->
                 MyGymCard {

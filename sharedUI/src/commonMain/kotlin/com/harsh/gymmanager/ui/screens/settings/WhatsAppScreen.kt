@@ -38,6 +38,7 @@ import com.harsh.gymmanager.presentation.settings.WhatsAppViewModel
 import com.harsh.gymmanager.templates.gymTemplates
 import com.harsh.gymmanager.ui.LocalGym
 import com.harsh.gymmanager.ui.LocalSnackbar
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.MyGymButton
 import com.harsh.gymmanager.ui.components.MyGymCard
 import com.harsh.gymmanager.ui.components.MyGymTextField
@@ -97,7 +98,7 @@ fun WhatsAppScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
         ) {
             when {
-                state.isLoading -> Unit
+                state.isLoading -> LoadingMark(Modifier.padding(vertical = MyGymSpace.xxl))
                 !state.available -> UnavailableCard()
                 state.webhookUrl == null || editing -> {
                     SetupCard(state.webhookUrl.orEmpty(), onSave = vm::saveWebhook, onCancel = if (editing) ({ editing = false }) else null)

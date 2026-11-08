@@ -754,4 +754,7 @@
         <item quantity="one">%1$d दिन पहले संदेश भेजा</item>
         <item quantity="other">%1$d दिन पहले संदेश भेजा</item>
     </plurals>
+    <string name="loading">लोड हो रहा है</string>
+    <string name="load_failed_title">यह लोड नहीं हो पाया</string>
+    <string name="load_failed_body">कनेक्शन देखें, फिर दोबारा कोशिश करें।</string>
 </resources>

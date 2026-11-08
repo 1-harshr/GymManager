@@ -23,6 +23,7 @@ import com.harsh.gymmanager.LocalAppDependencies
 import com.harsh.gymmanager.domain.usecase.QuietMember
 import com.harsh.gymmanager.presentation.attendance.GoneQuietViewModel
 import com.harsh.gymmanager.presentation.formatRupees
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.Avatar
 import com.harsh.gymmanager.ui.components.Badge
 import com.harsh.gymmanager.ui.components.BadgeTone
@@ -60,6 +61,7 @@ fun GoneQuietScreen(onBack: () -> Unit, onOpenMember: (String) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
     ) {
         item { PushedHeader(stringResource(Res.string.gone_quiet), onBack, subtitle = stringResource(Res.string.gone_quiet_subtitle)) }
+        if (state.isLoading) item { LoadingMark(Modifier.fillParentMaxHeight(0.5f)) }
         if (!state.isLoading && state.items.isEmpty()) {
             item { EmptyState(MyGymIcons.UserCheck, stringResource(Res.string.gone_quiet_empty_title), stringResource(Res.string.gone_quiet_empty_body)) }
         }

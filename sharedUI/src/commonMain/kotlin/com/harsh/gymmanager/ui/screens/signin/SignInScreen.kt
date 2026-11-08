@@ -45,6 +45,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
+import com.harsh.gymmanager.ui.theme.BrandClay
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -505,9 +506,6 @@ private val GoogleG: ImageVector by lazy {
         }
         .build()
 }
-
-/** The launch screen's tile colour, kept the same in dark mode as the launch screen does. */
-private val BrandClay = Color(0xFFB0441B)
 
 private const val CARET_BLINK_MS = 530
 private const val SHAKE_STEP_MS = 45

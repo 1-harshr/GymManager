@@ -754,4 +754,7 @@
         <item quantity="one">Messaged %1$d day ago</item>
         <item quantity="other">Messaged %1$d days ago</item>
     </plurals>
+    <string name="loading">Loading</string>
+    <string name="load_failed_title">Couldn’t load this</string>
+    <string name="load_failed_body">Check the connection, then try again.</string>
 </resources>

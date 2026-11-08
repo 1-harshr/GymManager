@@ -29,6 +29,7 @@ import com.harsh.gymmanager.domain.usecase.Visit
 import com.harsh.gymmanager.presentation.attendance.AttendanceViewModel
 import com.harsh.gymmanager.presentation.formatRupees
 import com.harsh.gymmanager.ui.LocalSnackbar
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.Avatar
 import com.harsh.gymmanager.ui.components.Badge
 import com.harsh.gymmanager.ui.components.BadgeTone
@@ -95,6 +96,7 @@ fun AttendanceScreen(onBack: () -> Unit, onOpenMember: (String) -> Unit, onOpenG
             return@LazyColumn
         }
         if (state.goneQuiet > 0) item { GoneQuietTile(state.goneQuiet, onOpenGoneQuiet, Modifier.screenGutter()) }
+        if (state.isLoading) item { LoadingMark(Modifier.fillParentMaxHeight(0.5f)) }
         if (!state.isLoading && state.visits.isEmpty()) {
             item { EmptyState(MyGymIcons.UserCheck, stringResource(Res.string.attendance_empty_title), stringResource(Res.string.attendance_empty_body)) }
         }

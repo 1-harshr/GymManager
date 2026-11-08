@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.ui.screens.settings
 
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.rememberDiscardGuard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -67,7 +68,7 @@ fun GymProfileScreen(onBack: () -> Unit, onSaved: (firstRun: Boolean) -> Unit) {
         } else {
             PushedHeader(stringResource(Res.string.gym_details), back)
         }
-        Column(
+        if (state.isLoading) LoadingMark(Modifier.weight(1f)) else Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter().padding(bottom = MyGymSpace.xl),
             verticalArrangement = Arrangement.spacedBy(MyGymSpace.lg),
         ) {

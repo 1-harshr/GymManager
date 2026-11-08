@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.harsh.gymmanager.LocalAppDependencies
 import com.harsh.gymmanager.ui.LocalLanguage
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.MyGymCard
 import com.harsh.gymmanager.ui.theme.MyGymRadius
 import org.jetbrains.compose.resources.pluralStringResource
@@ -89,7 +90,10 @@ fun HomeScreen(
                 MyGymIconButton(MyGymIcons.Settings, stringResource(Res.string.settings), onOpenSettings)
             }
         }
-        if (board == null || insights == null) return@LazyColumn
+        if (board == null || insights == null) {
+            item { LoadingMark(Modifier.fillParentMaxHeight(0.5f)) }
+            return@LazyColumn
+        }
         if (features.aiInsights && seesRevenue) item { Box(Modifier.screenGutter()) { BriefCard(insights, aiBrief) } }
         if (seesRevenue) item { Box(Modifier.screenGutter()) { CollectionsCard(insights.pace, insights.today, showChart = features.collectionsChart) } }
         item {

@@ -2,6 +2,7 @@ package com.harsh.gymmanager.ui.screens.bulkrenew
 
 import com.harsh.gymmanager.ui.isOwnerOrNoAccount
 import com.harsh.gymmanager.domain.suggestions.mostUsedFirst
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.rememberUsageStats
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
@@ -63,7 +64,11 @@ fun BulkRenewScreen(memberIds: Set<String>, onBack: () -> Unit, onDone: (Int) ->
             verticalArrangement = Arrangement.spacedBy(MyGymSpace.md),
         ) {
             SectionHeader(stringResource(Res.string.section_plan), Modifier.screenGutter())
-            if (!state.isLoading && state.plans.isEmpty()) {
+            if (state.isLoading) {
+                LoadingMark(Modifier.padding(vertical = MyGymSpace.xxl))
+                return@Column
+            }
+            if (state.plans.isEmpty()) {
                 EmptyState(MyGymIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_renew_body), actionLabel = if (isOwnerOrNoAccount) stringResource(Res.string.add_plan) else null, onAction = onAddPlan)
                 return@Column
             }

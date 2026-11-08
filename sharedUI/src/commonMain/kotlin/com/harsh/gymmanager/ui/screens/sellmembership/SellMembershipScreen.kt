@@ -6,6 +6,7 @@ import com.harsh.gymmanager.presentation.parseRupees
 import com.harsh.gymmanager.domain.suggestions.mostUsedFirst
 import com.harsh.gymmanager.domain.suggestions.discountSuggestions
 import com.harsh.gymmanager.domain.suggestions.amountSuggestions
+import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.rememberUsageStats
 import com.harsh.gymmanager.ui.components.SuggestionChips
 import com.harsh.gymmanager.ui.components.AmountChips
@@ -86,7 +87,11 @@ fun SellMembershipScreen(memberId: String, onBack: () -> Unit, onSold: (membersh
                 action = if (state.plans.isNotEmpty()) stringResource(Res.string.new_plan) else null,
                 onAction = onAddPlan,
             )
-            if (!state.isLoading && state.plans.isEmpty()) {
+            if (state.isLoading) {
+                LoadingMark(Modifier.padding(vertical = MyGymSpace.xxl))
+                return@Column
+            }
+            if (state.plans.isEmpty()) {
                 EmptyState(MyGymIcons.Tag, stringResource(Res.string.no_plans_title), stringResource(Res.string.no_plans_sell_body), actionLabel = if (isOwnerOrNoAccount) stringResource(Res.string.add_plan) else null, onAction = onAddPlan)
                 return@Column
             }
