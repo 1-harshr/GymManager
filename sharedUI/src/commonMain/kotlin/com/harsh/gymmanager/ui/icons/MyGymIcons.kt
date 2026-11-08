@@ -66,6 +66,14 @@ object MyGymIcons {
     val ChevronRight by lazy { lucide("ChevronRight", "m9 18 6-6-6-6") }
     val ChevronLeft by lazy { lucide("ChevronLeft", "m15 18-6-6 6-6") }
     val Check by lazy { lucide("Check", "M20 6 9 17l-5-5") }
+    val Pause by lazy {
+        lucide(
+            "Pause",
+            "M15 4h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z",
+            "M7 4h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z",
+        )
+    }
+    val Play by lazy { lucide("Play", "M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z") }
     val UserCheck by lazy { lucide("UserCheck", "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", circle(9f, 7f, 4f), "m16 11 2 2 4-4") }
     val LayoutGrid by lazy {
         lucide(

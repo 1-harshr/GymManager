@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.harsh.gymmanager.domain.model.MemberSummary
@@ -44,20 +45,24 @@ import com.harsh.gymmanager.ui.theme.MyGymSpace
 import com.harsh.gymmanager.ui.theme.MyGymTheme
 import kotlinx.datetime.LocalDate
 
-/** A plain `surface` card; contrast with `bg` does the separating, so no border or shadow. */
+/**
+ * A plain `surface` card; contrast with `bg` does the separating, so no border or shadow. [color]
+ * tints one that should stand out from its neighbours.
+ */
 @Composable
 fun MyGymCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    color: Color = MyGymTheme.colors.surface,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val inner: @Composable () -> Unit = {
         Column(Modifier.padding(MyGymSpace.lg), verticalArrangement = Arrangement.spacedBy(MyGymSpace.md), content = content)
     }
     if (onClick != null) {
-        Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = MyGymRadius.cardShape, color = MyGymTheme.colors.surface, content = inner)
+        Surface(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = MyGymRadius.cardShape, color = color, content = inner)
     } else {
-        Surface(modifier = modifier.fillMaxWidth(), shape = MyGymRadius.cardShape, color = MyGymTheme.colors.surface, content = inner)
+        Surface(modifier = modifier.fillMaxWidth(), shape = MyGymRadius.cardShape, color = color, content = inner)
     }
 }
 

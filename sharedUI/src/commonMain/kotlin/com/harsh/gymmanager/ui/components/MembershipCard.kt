@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.harsh.gymmanager.domain.membershipStatus
 import com.harsh.gymmanager.domain.EXPIRING_SOON_DAYS
@@ -49,6 +50,8 @@ fun MembershipCard(
     onPause: (() -> Unit)? = null,
     /** Ends the running pause, or cancels one still to come. */
     onResume: (() -> Unit)? = null,
+    /** The membership running today stays white; past and queued ones are greyed so it stands out. */
+    current: Boolean = false,
 ) {
     val colors = MyGymTheme.colors
     val typography = MyGymTheme.typography
@@ -64,7 +67,8 @@ fun MembershipCard(
         },
         onDelete?.let { MenuAction(stringResource(Res.string.delete_membership), destructive = true, onClick = it) },
     )
-    MyGymCard(modifier) {
+    val cardColor = if (current) colors.surface else colors.surfaceSunken
+    MyGymCard(modifier, color = cardColor) {
         Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
             Column(Modifier.weight(1f)) {
                 Text(membership.planName, style = typography.title)
@@ -80,7 +84,7 @@ fun MembershipCard(
                 MoreMenu(
                     actions = actions,
                     contentDescription = stringResource(Res.string.more_for, membership.planName),
-                    container = colors.surface,
+                    container = cardColor,
                 )
             }
         }
@@ -94,7 +98,8 @@ fun MembershipCard(
                 MoneyFigure(stringResource(Res.string.due), stringResource(Res.string.paid_in_full), Modifier.weight(1f), colors.statusActive)
             }
         }
-        PaidProgress(membership)
+        // On a greyed card the usual track would vanish into the card itself.
+        PaidProgress(membership, track = if (current) colors.surfaceSunken else colors.line)
         if (membership.payments.isNotEmpty()) {
             HorizontalDivider(color = colors.line)
             Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
@@ -133,10 +138,10 @@ private fun MoneyFigure(label: String, value: String, modifier: Modifier, color:
 }
 
 @Composable
-private fun PaidProgress(membership: Membership) {
+private fun PaidProgress(membership: Membership, track: Color) {
     val colors = MyGymTheme.colors
     val fraction = if (membership.amountCharged == 0L) 1f else (membership.amountPaid.toFloat() / membership.amountCharged).coerceIn(0f, 1f)
-    Box(Modifier.fillMaxWidth().height(6.dp).background(colors.surfaceSunken, MyGymRadius.pillShape)) {
+    Box(Modifier.fillMaxWidth().height(6.dp).background(track, MyGymRadius.pillShape)) {
         Box(Modifier.fillMaxWidth(fraction).fillMaxHeight().background(colors.ink, MyGymRadius.pillShape))
     }
 }

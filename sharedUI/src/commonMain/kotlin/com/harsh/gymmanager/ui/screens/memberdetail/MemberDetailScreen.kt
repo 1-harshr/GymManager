@@ -168,6 +168,7 @@ fun MemberDetailScreen(
     val owingMemberships = detail.memberships.filter { it.amountDue > 0 }
     val oldestOwing = owingMemberships.lastOrNull()
     val renewalDue = detail.status == MembershipStatus.EXPIRING_SOON || detail.status == MembershipStatus.EXPIRED
+    val currentMembership = detail.memberships.firstOrNull { it.startDate <= today && it.endDate >= today }
 
     LazyColumn(
         Modifier.fillMaxSize(),
@@ -214,15 +215,25 @@ fun MemberDetailScreen(
                         } else {
                             Badge(statusLabel(detail.status, detail.latestEndDate, today), detail.status.tone())
                         }
+                        // The membership running today, so the profile says which plan they're on.
+                        currentMembership?.let { current ->
+                            Text(
+                                current.planName + " · " + formatDateRange(current.startDate, current.endDate),
+                                style = MyGymTheme.typography.bodyStrong,
+                            )
+                        }
                         val endDate = detail.latestEndDate
-                        Text(
-                            when {
-                                endDate == null -> stringResource(Res.string.no_membership_yet)
-                                detail.status == MembershipStatus.EXPIRED -> stringResource(Res.string.ended_on_full, endDate.formatFull())
-                                else -> stringResource(Res.string.ends_on_full, endDate.formatFull())
-                            },
-                            style = MyGymTheme.typography.body,
-                        )
+                        // With a renewal queued, when they're covered until; otherwise the plan line already says.
+                        if (currentMembership?.endDate != endDate) {
+                            Text(
+                                when {
+                                    endDate == null -> stringResource(Res.string.no_membership_yet)
+                                    detail.status == MembershipStatus.EXPIRED -> stringResource(Res.string.ended_on_full, endDate.formatFull())
+                                    else -> stringResource(Res.string.ends_on_full, endDate.formatFull())
+                                },
+                                style = MyGymTheme.typography.body,
+                            )
+                        }
                         if (detail.memberships.isNotEmpty()) {
                             Text(
                                 if (detail.totalDue > 0) stringResource(Res.string.amount_due, formatRupees(detail.totalDue)) else stringResource(Res.string.nothing_due),
@@ -255,6 +266,22 @@ fun MemberDetailScreen(
                     detail.memberships.isEmpty() || renewalDue -> MyGymButton(sellLabel, onSellMembership, Modifier.fillMaxWidth())
                     else -> MyGymButton(sellLabel, onSellMembership, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
                 }
+                // Pausing the membership running today, or ending its pause, right where staff look first.
+                val current = currentMembership
+                if (canPause && current != null && !member.isArchived) {
+                    val pause = current.pauseOn(today)
+                    if (pause == null) {
+                        MyGymButton(stringResource(Res.string.pause_membership), { pausing = current }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary, icon = MyGymIcons.Pause)
+                    } else {
+                        MyGymButton(
+                            stringResource(if (pause.isRunning(today)) Res.string.end_pause else Res.string.cancel_pause),
+                            { vm.resumeMembership(current.id) },
+                            Modifier.fillMaxWidth(),
+                            kind = ButtonKind.Secondary,
+                            icon = MyGymIcons.Play,
+                        )
+                    }
+                }
             }
         }
         val attendance = state.attendance
@@ -275,6 +302,7 @@ fun MemberDetailScreen(
                     // Only a membership that hasn't ended yet, running or still to start.
                     onPause = if (canPause && membership.endDate >= today) ({ pausing = membership }) else null,
                     onResume = if (canPause) ({ vm.resumeMembership(membership.id) }) else null,
+                    current = membership.id == currentMembership?.id,
                 )
             }
         }

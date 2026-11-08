@@ -45,6 +45,9 @@ export function MemberDetail() {
   const owing = list.filter((m) => due(m) > 0)
   const oldestOwing = owing[owing.length - 1] ?? null
   const runningPause = list.map((ms) => pauseOn(ms, today)).find((p) => p && pauseRunning(p, today)) ?? null
+  // The membership running today, so the profile says which plan they're on and can pause it.
+  const current = list.find((ms) => ms.start_date <= today && ms.end_date >= today) ?? null
+  const currentPause = current ? pauseOn(current, today) : null
 
   const write = useWrite(async (action: () => PromiseLike<{ error: unknown }>) => {
     const { error } = await action()
@@ -128,7 +131,15 @@ export function MemberDetail() {
                 ) : (
                   <Badge tone={statusTone(status)}>{statusLabel(status, latestEnd, today)}</Badge>
                 )}
-                <p className="mt-2 text-caption text-muted">{!latestEnd ? 'No membership yet' : `${status === 'EXPIRED' ? 'Ended' : 'Ends'} ${fullDate(latestEnd)}`}</p>
+                {current ? (
+                  <p className="mt-2 text-body-strong">
+                    {current.plan_name} · {dateRange(current.start_date, current.end_date)}
+                  </p>
+                ) : null}
+                {/* With a renewal queued, when they're covered until; otherwise the plan line already says. */}
+                {current?.end_date === latestEnd ? null : (
+                  <p className={cx('text-caption text-muted', !current && 'mt-2')}>{!latestEnd ? 'No membership yet' : `${status === 'EXPIRED' ? 'Ended' : 'Ends'} ${fullDate(latestEnd)}`}</p>
+                )}
               </div>
             </div>
             {list.length > 0 ? (
@@ -159,6 +170,23 @@ export function MemberDetail() {
                 {sellLabel}
               </Button>
             )}
+            {current && !m.is_archived ? (
+              currentPause ? (
+                <Button
+                  kind="secondary"
+                  icon={Play}
+                  className="w-full"
+                  busy={write.isPending}
+                  onClick={() => run(() => supabase.rpc('resume_membership', { membership_id: current.id }), 'Pause ended')}
+                >
+                  {pauseRunning(currentPause, today) ? 'End pause' : 'Cancel pause'}
+                </Button>
+              ) : (
+                <Button kind="secondary" icon={Pause} className="w-full" onClick={() => setPausing(current)}>
+                  Pause membership
+                </Button>
+              )
+            ) : null}
           </div>
 
           {!m.is_archived && visits.data ? (
@@ -196,6 +224,7 @@ export function MemberDetail() {
                     onResume={() =>
                       run(() => supabase.rpc('resume_membership', { membership_id: ms.id }), 'Pause ended')
                     }
+                    current={ms.id === current?.id}
                   />
                 ))}
               </div>
@@ -299,6 +328,7 @@ function MembershipCard({
   onDeletePayment,
   onPause,
   onResume,
+  current,
 }: {
   membership: MembershipRecord
   today: string
@@ -311,6 +341,8 @@ function MembershipCard({
   onPause?: () => void
   /** Ends the running pause, or cancels one still to come. */
   onResume: () => void
+  /** The membership running today stays white; past and queued ones are greyed so it stands out. */
+  current: boolean
 }) {
   const total = charged(ms)
   const pause = pauseOn(ms, today)
@@ -323,7 +355,7 @@ function MembershipCard({
   const left = due(ms)
   const status = memberStatus(ms.end_date, today)
   return (
-    <Card className="p-5">
+    <Card className={cx('p-5', !current && 'bg-sunken!')}>
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-title">{ms.plan_name}</p>
@@ -353,7 +385,8 @@ function MembershipCard({
         <Figure label="Paid" value={formatRupees(got)} />
         <Figure label="Due" value={left > 0 ? formatRupees(left) : 'Paid'} tone={left > 0 ? 'due' : 'active'} />
       </div>
-      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-sunken">
+      {/* On a greyed card the usual track would vanish into the card itself. */}
+      <div className={cx('mt-3 h-1.5 overflow-hidden rounded-full', current ? 'bg-sunken' : 'bg-line')}>
         <div className={cx('h-full rounded-full transition-all duration-700', left > 0 ? 'bg-accent' : 'bg-active')} style={{ width: `${total === 0 ? 100 : Math.min(100, (got / total) * 100)}%` }} />
       </div>
       {ms.payments.length > 0 ? (
