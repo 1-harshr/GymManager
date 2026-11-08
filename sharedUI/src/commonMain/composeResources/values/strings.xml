@@ -740,4 +740,17 @@
     <string name="loading">Loading</string>
     <string name="load_failed_title">Couldn’t load this</string>
     <string name="load_failed_body">Check the connection, then try again.</string>
+    <string name="delete_account">Delete account</string>
+    <string name="delete_account_title">Delete your account</string>
+    <string name="delete_account_body">You’ll be signed out and won’t be able to open %1$s again unless you’re invited back. The members, payments and check-ins you recorded stay with the gym.</string>
+    <string name="delete_account_body_no_gym">You’ll be signed out, and your account and sign-in details are deleted.</string>
+    <string name="delete_gym_body">You’re the only one at %1$s, so the gym is deleted too: every member, plan, membership, payment, check-in and photo. This can’t be undone.</string>
+    <string name="delete_gym_type_name">Type %1$s to confirm</string>
+    <string name="delete_hand_over_body">You’re the only owner of %1$s and others work there. Make one of them an owner from Staff, then come back to delete your account.</string>
+    <string name="delete_open_staff">Open Staff</string>
+    <string name="delete_account_confirm">Delete my account</string>
+    <string name="delete_account_and_gym_confirm">Delete my account and gym</string>
+    <string name="deleting_account">Deleting…</string>
+    <string name="delete_account_check_failed">Couldn’t check your account</string>
+    <string name="err_hand_over_first">Make someone else an owner first.</string>
 </resources>

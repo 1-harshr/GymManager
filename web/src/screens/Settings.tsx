@@ -93,6 +93,9 @@ export function Settings() {
               Sign out
             </Button>
           </Card>
+          <button onClick={() => navigate('/settings/delete-account')} className="mt-3 px-1 text-caption text-due underline underline-offset-2">
+            Delete account
+          </button>
         </Section>
 
         <Section title="About">

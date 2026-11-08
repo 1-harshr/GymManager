@@ -92,6 +92,7 @@ private fun UiMessage.text(): Text = when (this) {
             GymProblem.ALREADY_IN_GYM -> Res.string.err_already_in_gym
             GymProblem.INVALID_INVITE -> Res.string.err_invalid_invite
             GymProblem.NOT_OWNER -> Res.string.err_not_owner
+            GymProblem.HAND_OVER_FIRST -> Res.string.err_hand_over_first
             GymProblem.NO_CONNECTION -> Res.string.err_no_connection
         },
     )

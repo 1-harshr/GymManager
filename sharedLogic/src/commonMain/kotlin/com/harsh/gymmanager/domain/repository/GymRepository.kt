@@ -26,7 +26,19 @@ enum class GymProblem {
     INVALID_INVITE,
     /** Only the owner can do that. */
     NOT_OWNER,
+    /** The gym's only owner can't delete their account while others work there; someone else must be made owner first. */
+    HAND_OVER_FIRST,
     NO_CONNECTION,
+}
+
+/** What deleting the signed-in person's account would do. */
+enum class AccountDeletion {
+    /** Only the account goes; the gym and everything recorded in it stay. */
+    ACCOUNT,
+    /** The gym goes too, with every record and photo: they're its only owner and nobody else works there. */
+    ACCOUNT_AND_GYM,
+    /** They're the only owner and others work there, so someone else must be made owner first. */
+    HAND_OVER_FIRST,
 }
 
 class GymException(val problem: GymProblem, cause: Throwable? = null) : Exception(problem.name, cause)
@@ -70,4 +82,12 @@ interface GymRepository {
 
     /** Staff only; an owner can't leave their own gym. */
     suspend fun leaveGym()
+
+    suspend fun accountDeletion(): AccountDeletion
+
+    /**
+     * Deletes the signed-in person's account for good, and the gym with its photos when
+     * [accountDeletion] says [AccountDeletion.ACCOUNT_AND_GYM], then signs out.
+     */
+    suspend fun deleteAccount()
 }

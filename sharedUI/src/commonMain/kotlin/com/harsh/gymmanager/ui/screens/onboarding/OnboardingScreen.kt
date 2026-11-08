@@ -26,6 +26,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.harsh.gymmanager.ui.platform.SystemBackHandler
+import com.harsh.gymmanager.ui.screens.account.DeleteAccountScreen
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,12 +66,20 @@ import org.jetbrains.compose.resources.stringResource
 
 /**
  * Right after signing in to no gym: the owner sets one up, staff join with their owner's code.
- * [signedInAs] is the number they signed in with, so someone on the wrong account can sign out.
+ * [signedInAs] is the number they signed in with, so someone on the wrong account can sign out,
+ * and anyone can delete the account they made.
  */
 @Composable
 fun OnboardingScreen(gyms: GymRepository, signedInAs: String, onSignOut: () -> Unit) {
     val vm = viewModel { OnboardingViewModel(gyms) }
     val state by vm.state.collectAsStateWithLifecycle()
+    var deletingAccount by remember { mutableStateOf(false) }
+    if (deletingAccount) {
+        SystemBackHandler(enabled = true) { deletingAccount = false }
+        // Without a gym there's no one to hand over to, so this never needs Staff.
+        DeleteAccountScreen(gyms, onBack = { deletingAccount = false }, onOpenStaff = {})
+        return
+    }
 
     AnimatedContent(
         targetState = state.step,
@@ -78,7 +91,7 @@ fun OnboardingScreen(gyms: GymRepository, signedInAs: String, onSignOut: () -> U
         },
     ) { step ->
         when (step) {
-            OnboardingStep.CHOOSE -> ChooseStep(vm, signedInAs, onSignOut)
+            OnboardingStep.CHOOSE -> ChooseStep(vm, signedInAs, onSignOut, onDeleteAccount = { deletingAccount = true })
             OnboardingStep.CREATE -> CreateStep(state, vm)
             OnboardingStep.JOIN -> JoinStep(state, vm)
         }
@@ -86,7 +99,7 @@ fun OnboardingScreen(gyms: GymRepository, signedInAs: String, onSignOut: () -> U
 }
 
 @Composable
-private fun ChooseStep(vm: OnboardingViewModel, signedInAs: String, onSignOut: () -> Unit) {
+private fun ChooseStep(vm: OnboardingViewModel, signedInAs: String, onSignOut: () -> Unit, onDeleteAccount: () -> Unit) {
     val colors = MyGymTheme.colors
     val typography = MyGymTheme.typography
     Column(Modifier.fillMaxSize()) {
@@ -122,6 +135,7 @@ private fun ChooseStep(vm: OnboardingViewModel, signedInAs: String, onSignOut: (
                 Text(stringResource(Res.string.onboarding_not_you), style = typography.body, color = colors.inkMuted)
                 GhostButton(stringResource(Res.string.sign_out), onSignOut)
             }
+            GhostButton(stringResource(Res.string.delete_account), onDeleteAccount, color = colors.inkMuted)
         }
     }
 }

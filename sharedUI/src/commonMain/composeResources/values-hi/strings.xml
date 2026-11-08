@@ -740,4 +740,17 @@
     <string name="loading">लोड हो रहा है</string>
     <string name="load_failed_title">यह लोड नहीं हो पाया</string>
     <string name="load_failed_body">कनेक्शन देखें, फिर दोबारा कोशिश करें।</string>
+    <string name="delete_account">खाता मिटाएँ</string>
+    <string name="delete_account_title">अपना खाता मिटाएँ</string>
+    <string name="delete_account_body">आप साइन आउट हो जाएँगे और दोबारा बुलाए बिना %1$s नहीं खोल पाएँगे। आपके दर्ज किए सदस्य, भुगतान और हाज़िरी जिम के पास रहेंगे।</string>
+    <string name="delete_account_body_no_gym">आप साइन आउट हो जाएँगे, और आपका खाता व साइन-इन की जानकारी मिट जाएगी।</string>
+    <string name="delete_gym_body">%1$s में सिर्फ़ आप हैं, इसलिए जिम भी मिट जाएगा: हर सदस्य, प्लान, मेंबरशिप, भुगतान, हाज़िरी और फ़ोटो। यह वापस नहीं होगा।</string>
+    <string name="delete_gym_type_name">पक्का करने के लिए %1$s लिखें</string>
+    <string name="delete_hand_over_body">आप %1$s के अकेले मालिक हैं और वहाँ दूसरे लोग भी काम करते हैं। स्टाफ़ में जाकर उनमें से किसी को मालिक बनाएँ, फिर अपना खाता मिटाने के लिए वापस आएँ।</string>
+    <string name="delete_open_staff">स्टाफ़ खोलें</string>
+    <string name="delete_account_confirm">मेरा खाता मिटाएँ</string>
+    <string name="delete_account_and_gym_confirm">मेरा खाता और जिम मिटाएँ</string>
+    <string name="deleting_account">मिटा रहे हैं…</string>
+    <string name="delete_account_check_failed">आपका खाता जाँच नहीं पाए</string>
+    <string name="err_hand_over_first">पहले किसी और को मालिक बनाएँ।</string>
 </resources>

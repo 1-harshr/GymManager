@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { RefreshCw } from 'lucide-react'
-import { useMembership, useSession, GymProvider } from '@/data/session'
+import { useGym, useMembership, useSession, GymProvider } from '@/data/session'
 import { useLiveChanges } from '@/data/live'
 import { SignIn } from '@/screens/SignIn'
 import { Onboarding } from '@/screens/Onboarding'
@@ -18,6 +18,7 @@ import { Plans } from '@/screens/Plans'
 import { Settings } from '@/screens/Settings'
 import { GymProfile } from '@/screens/GymProfile'
 import { Staff } from '@/screens/Staff'
+import { DeleteAccount } from '@/screens/DeleteAccount'
 import { Inbox } from '@/screens/Inbox'
 import { Reminders } from '@/screens/Reminders'
 import { Attendance } from '@/screens/Attendance'
@@ -45,6 +46,9 @@ const router = createBrowserRouter([
       { path: '/settings', element: <Settings /> },
       { path: '/settings/gym', element: <GymProfile /> },
       { path: '/settings/staff', element: <Staff /> },
+      // Also the address app stores list for deleting an account.
+      { path: '/settings/delete-account', element: <DeleteAccountRoute /> },
+      { path: '/delete-account', element: <DeleteAccountRoute /> },
       { path: '*', element: <Home /> },
     ],
   },
@@ -77,6 +81,11 @@ export function App() {
       </Live>
     </GymProvider>
   )
+}
+
+function DeleteAccountRoute() {
+  const { membership } = useGym()
+  return <DeleteAccount gym={membership.gym} />
 }
 
 function Live({ gymId, children }: { gymId: string; children: ReactNode }) {

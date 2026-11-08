@@ -27,6 +27,8 @@ export function explain(error: unknown): string {
       return 'That member isn’t here any more.'
     case 'plan_not_found':
       return 'That plan isn’t here any more.'
+    case 'hand_over_first':
+      return 'Make someone else an owner first.'
   }
   if (e?.code === '42501') return 'Only the gym’s owner can do that.'
   if (e?.code === '23503') return 'Something it depends on was removed. Refresh and try again.'

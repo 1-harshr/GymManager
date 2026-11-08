@@ -50,6 +50,7 @@ import com.harsh.gymmanager.ui.components.MyGymSwitch
 import com.harsh.gymmanager.ui.components.ButtonKind
 import com.harsh.gymmanager.ui.components.GymLogo
 import com.harsh.gymmanager.ui.components.PushedHeader
+import com.harsh.gymmanager.ui.components.GhostButton
 import com.harsh.gymmanager.ui.components.SectionHeader
 import com.harsh.gymmanager.ui.components.SegmentedControl
 import com.harsh.gymmanager.ui.theme.MyGymSize
@@ -73,6 +74,7 @@ fun SettingsScreen(
     account: AuthState.SignedIn? = null,
     onSignOut: () -> Unit = {},
     onOpenStaff: () -> Unit = {},
+    onDeleteAccount: () -> Unit = {},
 ) {
     val colors = MyGymTheme.colors
     val typography = MyGymTheme.typography
@@ -166,6 +168,7 @@ fun SettingsScreen(
                         style = typography.body,
                     )
                     MyGymButton(stringResource(Res.string.sign_out), onSignOut, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
+                    GhostButton(stringResource(Res.string.delete_account), onDeleteAccount, Modifier.align(Alignment.CenterHorizontally), color = colors.statusDue)
                 }
             }
 

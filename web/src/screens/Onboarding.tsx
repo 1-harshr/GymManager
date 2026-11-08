@@ -5,13 +5,15 @@ import { supabase } from '@/lib/supabase'
 import { formatPhone } from '@/lib/format'
 import { explain } from '@/data/errors'
 import { BrandMark } from '@/components/Brand'
+import { DeleteAccountPanel } from '@/screens/DeleteAccount'
 import { Button, Field, IconButton, LinkButton, TextInput, cx } from '@/components/ui'
 
-type Step = 'choose' | 'create' | 'join'
+type Step = 'choose' | 'create' | 'join' | 'delete'
 
 /** Signed in but not part of a gym yet: set one up as its owner, or join one with an invite code. */
 export function Onboarding({ account }: { account: string }) {
-  const [step, setStep] = useState<Step>('choose')
+  // /delete-account opens straight on deleting, for someone following the link from an app store.
+  const [step, setStep] = useState<Step>(window.location.pathname === '/delete-account' ? 'delete' : 'choose')
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))] sm:px-6 lg:justify-center">
       {step === 'choose' ? (
@@ -27,6 +29,17 @@ export function Onboarding({ account }: { account: string }) {
             Signed in as {formatPhone(account) || account}. Not you?
             <LinkButton onClick={() => supabase.auth.signOut()}>Sign out</LinkButton>
           </p>
+          <LinkButton className="mt-2" onClick={() => setStep('delete')}>
+            Delete account
+          </LinkButton>
+        </div>
+      ) : step === 'delete' ? (
+        <div className="animate-rise">
+          <IconButton icon={ChevronLeft} label="Back" onClick={() => setStep('choose')} />
+          <h1 className="mt-6 text-headline">Delete your account</h1>
+          <div className="mt-6">
+            <DeleteAccountPanel gym={null} />
+          </div>
         </div>
       ) : step === 'create' ? (
         <CreateGym onBack={() => setStep('choose')} />

@@ -57,6 +57,10 @@ data object InboxRoute
 @Serializable
 data object WhatsAppRoute
 
+/** Settings → Account: deleting your account for good. */
+@Serializable
+data object DeleteAccountRoute
+
 /** Settings → Staff: who works at the gym, and inviting more. */
 @Serializable
 data object StaffRoute

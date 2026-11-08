@@ -52,6 +52,8 @@ import com.harsh.gymmanager.domain.repository.MembershipState
 import com.harsh.gymmanager.ui.LocalGymRepository
 import com.harsh.gymmanager.ui.LocalGymRole
 import com.harsh.gymmanager.navigation.StaffRoute
+import com.harsh.gymmanager.navigation.DeleteAccountRoute
+import com.harsh.gymmanager.ui.screens.account.DeleteAccountScreen
 import com.harsh.gymmanager.ui.screens.staff.StaffScreen
 import com.harsh.gymmanager.ui.format.formatSignInPhone
 import com.harsh.gymmanager.ui.screens.onboarding.GymUnavailableScreen
@@ -497,12 +499,20 @@ private fun AppContent(
                                     account = account,
                                     onSignOut = onSignOut,
                                     onOpenStaff = { nav.navigate(StaffRoute) },
+                                    onDeleteAccount = { nav.navigate(DeleteAccountRoute) },
                                 )
                             }
                         }
                         composable<StaffRoute> {
                             Destination {
                                 LocalGymRepository.current?.let { StaffScreen(it, onBack = { nav.popBackStack() }) }
+                            }
+                        }
+                        composable<DeleteAccountRoute> {
+                            Destination {
+                                LocalGymRepository.current?.let {
+                                    DeleteAccountScreen(it, onBack = { nav.popBackStack() }, onOpenStaff = { nav.navigate(StaffRoute) })
+                                }
                             }
                         }
                         composable<WhatsAppRoute> {

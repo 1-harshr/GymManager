@@ -4,6 +4,7 @@ import com.harsh.gymmanager.domain.model.GymMembership
 import com.harsh.gymmanager.domain.model.StaffInvite
 import com.harsh.gymmanager.domain.model.StaffMember
 import com.harsh.gymmanager.domain.model.StaffRole
+import com.harsh.gymmanager.domain.repository.AccountDeletion
 import com.harsh.gymmanager.domain.repository.AuthRepository
 import com.harsh.gymmanager.domain.repository.AuthState
 import com.harsh.gymmanager.domain.repository.GymException
@@ -14,6 +15,7 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.exceptions.HttpRequestException
 import io.github.jan.supabase.postgrest.exception.PostgrestRestException
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.storage.storage
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -195,6 +197,36 @@ internal class SupabaseGymRepository(
         refresh()
     }
 
+    override suspend fun accountDeletion(): AccountDeletion = explained {
+        when (val plan = supabase.postgrest.rpc("account_deletion_plan").decodeAs<String>()) {
+            "account" -> AccountDeletion.ACCOUNT
+            "gym" -> AccountDeletion.ACCOUNT_AND_GYM
+            "hand_over" -> AccountDeletion.HAND_OVER_FIRST
+            else -> error("Unknown account deletion plan: $plan")
+        }
+    }
+
+    override suspend fun deleteAccount() = explained {
+        // Storage can't be emptied from the database, so the gym's photos go first, while its records still
+        // say whose they are.
+        if (accountDeletion() == AccountDeletion.ACCOUNT_AND_GYM) removeGymFiles(currentMembership().gymId)
+        supabase.postgrest.rpc("delete_account")
+        auth.signOut()
+    }
+
+    /** Everything under the gym's folder in each bucket, a page at a time. */
+    private suspend fun removeGymFiles(gymId: String) {
+        for (bucket in listOf(MEMBER_PHOTOS_BUCKET, GYM_LOGOS_BUCKET)) {
+            val files = supabase.storage.from(bucket)
+            // Bounded, so a file that won't delete can't keep this going forever.
+            for (round in 1..MAX_FILE_PAGES) {
+                val page = files.list(gymId) { limit = FILE_PAGE_SIZE }.map { "$gymId/${it.name}" }
+                if (page.isEmpty()) break
+                files.delete(page)
+            }
+        }
+    }
+
     private fun currentMembership(): GymMembership =
         (membership.value as? MembershipState.Member)?.membership ?: throw IllegalStateException("Not part of a gym")
 
@@ -207,6 +239,7 @@ internal class SupabaseGymRepository(
                 "already_in_gym" -> GymProblem.ALREADY_IN_GYM
                 "invalid_invite" -> GymProblem.INVALID_INVITE
                 "not_owner" -> GymProblem.NOT_OWNER
+                "hand_over_first" -> GymProblem.HAND_OVER_FIRST
                 else -> throw e
             }
             throw GymException(problem, e)
@@ -249,3 +282,8 @@ private fun StaffRole.toColumn(): String = when (this) {
     StaffRole.OWNER -> "owner"
     StaffRole.STAFF -> "staff"
 }
+
+private const val FILE_PAGE_SIZE = 100
+
+/** Room for 10,000 files per bucket, far beyond one photo per member. */
+private const val MAX_FILE_PAGES = 100

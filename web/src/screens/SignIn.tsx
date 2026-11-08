@@ -74,6 +74,9 @@ export function SignIn() {
               </div>
               <h1 className="mt-14 whitespace-pre-line text-headline lg:mt-0">{'Your whole gym,\non every phone'}</h1>
               <p className="mt-2 text-body text-muted">Members, renewals and payments stay in step on every phone you and your staff use.</p>
+              {window.location.pathname === '/delete-account' ? (
+                <p className="mt-4 rounded-field bg-sunken px-4 py-3 text-body">Sign in to delete your account. You’ll see what’s deleted before anything happens.</p>
+              ) : null}
 
               {googleSignInEnabled ? (
                 <>
