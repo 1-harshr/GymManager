@@ -294,7 +294,7 @@
     <string name="demo_active_body">You’re looking at sample data. Your gym’s records are safe and come back when you exit.</string>
     <string name="demo_start">Start demo</string>
     <string name="demo_starting">Setting up demo…</string>
-    <string name="demo_sheet_body">Sample data opens in its own space. Exit the demo any time to return to your records, unchanged.</string>
+    <string name="demo_sheet_body">Sample data opens in its own space. Exit the demo any time to return to your records, unchanged. The password is %1$s.</string>
     <string name="demo_password">Password</string>
     <string name="demo_wrong_password">Wrong password</string>
     <string name="demo_failed">Couldn’t start the demo. Try again.</string>
@@ -779,4 +779,5 @@
     <string name="web_app_title">My Gym on the web</string>
     <string name="web_app_body">The same gym in a browser, for a laptop or the front-desk computer. Sign in with the same account.</string>
     <string name="open_web_app">Open on the web</string>
+    <string name="privacy_policy">Privacy policy and terms</string>
 </resources>

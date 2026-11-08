@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router'
 import { ChevronRight, LogOut } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { PRIVACY_URL } from '@/lib/location'
 import { formatPhone } from '@/lib/format'
 import { applyTheme, usePref, type Theme } from '@/lib/prefs'
 import { useGym } from '@/data/session'
@@ -100,6 +101,9 @@ export function Settings() {
 
         <Section title="About">
           <p className="pt-1 text-caption text-muted">My Gym for the web · Created by musa_fir ❤️ · No rights reserved</p>
+          <a href={PRIVACY_URL} className="mt-2 inline-block px-1 text-caption underline underline-offset-2">
+            Privacy policy and terms
+          </a>
         </Section>
       </div>
     </div>

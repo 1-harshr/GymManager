@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.uikit.LocalUIViewController
+import platform.Foundation.NSBundle
 import platform.Foundation.NSLocale
 import platform.Foundation.NSString
 import platform.Foundation.NSURL
@@ -151,6 +152,10 @@ actual object LocalAppLocale {
 }
 
 actual val sendsRemindersInBackground: Boolean = false
+
+@Composable
+actual fun appVersion(): String =
+    NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: ""
 
 actual val rebuildUiOnLanguageChange: Boolean = true
 

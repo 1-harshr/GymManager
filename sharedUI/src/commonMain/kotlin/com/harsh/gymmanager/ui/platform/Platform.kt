@@ -41,6 +41,10 @@ expect object LocalAppLocale {
  */
 expect val rebuildUiOnLanguageChange: Boolean
 
+/** The version people see, e.g. "1.0.0": versionName on Android, CFBundleShortVersionString on iOS. */
+@Composable
+expect fun appVersion(): String
+
 /** Whether the daily WhatsApp reminders can go out at their time with the app closed (Android), or only once it's opened (iOS). */
 expect val sendsRemindersInBackground: Boolean
 

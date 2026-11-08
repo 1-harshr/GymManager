@@ -1,0 +1,116 @@
+<!doctype html>
+<!--
+  My Gym's privacy policy and terms, linked from the apps, the web app and the Play Store listing.
+  A plain page outside the React app so it opens without signing in. Change "Last updated" with any edit.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Gym privacy policy</title>
+  <link rel="icon" href="favicon.svg">
+  <style>
+    @font-face { font-family: "Barlow"; src: url("fonts/barlow_regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Barlow"; src: url("fonts/barlow_semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+    @font-face { font-family: "Barlow Condensed"; src: url("fonts/barlow_condensed_bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+    :root { color-scheme: light; --bg: #f3f3f0; --surface: #ffffff; --line: #dcdcd6; --ink: #121213; --ink-muted: #5c5c61; --accent: #b0441b; }
+    @media (prefers-color-scheme: dark) {
+      :root { color-scheme: dark; --bg: #0f0f10; --surface: #19191b; --line: #2f2f33; --ink: #f2f2ef; --ink-muted: #a4a4aa; --accent: #ee8a60; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.6 "Barlow", system-ui, sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 48px 16px 80px; }
+    h1, h2 { font-family: "Barlow Condensed", system-ui, sans-serif; font-weight: 700; line-height: 1.1; }
+    h1 { font-size: 44px; margin: 24px 0 4px; }
+    h2 { font-size: 26px; margin: 40px 0 8px; }
+    p, li { margin: 0 0 12px; }
+    ul { padding-left: 22px; }
+    a { color: var(--accent); }
+    .muted { color: var(--ink-muted); }
+    .brand { display: flex; align-items: center; gap: 12px; font: 700 26px "Barlow Condensed", system-ui, sans-serif; color: inherit; text-decoration: none; }
+    .brand img { width: 40px; height: 40px; border-radius: 10px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; margin: 24px 0; }
+    .card p:last-child { margin: 0; }
+  </style>
+</head>
+<body>
+<main>
+  <a class="brand" href="./"><img src="favicon.svg" alt="">My Gym</a>
+  <h1>Privacy policy</h1>
+  <p class="muted">Last updated 8 November 2026</p>
+
+  <div class="card">
+    <p><strong>In short:</strong> My Gym keeps a gym's records (members, plans, payments and check-ins) so its owner and staff
+      can run the front desk. That data belongs to the gym. We don't sell it, show ads or track you, and the app contains
+      no analytics or advertising code.</p>
+  </div>
+
+  <p>My Gym is an app for Android, iOS and the web that gym owners and their staff use to manage their gym. This policy
+    explains what it stores, why, who can see it and how to delete it. "We" means the developer of My Gym; "the gym"
+    means the business using the app.</p>
+
+  <h2>What we store</h2>
+  <ul>
+    <li><strong>Your account:</strong> your name and email address from Google when you sign in with Google, or your phone
+      number if you sign in with one, and which gym you belong to and your role there (owner or staff).</li>
+    <li><strong>The gym's details:</strong> its name, address, logo, plans and prices, and settings such as reminder messages.</li>
+    <li><strong>Members' records, entered by the gym:</strong> names, phone numbers, photos, notes, memberships, pauses,
+      payments and check-ins.</li>
+  </ul>
+  <p>The camera is used only when you take a member's photo or a gym logo. Notifications are used for reminders such as
+    memberships ending today.</p>
+
+  <h2>Why</h2>
+  <p>Only to run the app: showing the gym its records on every phone and browser its staff use, working out who has
+    expired or still owes money, and preparing messages to members. We don't use the data for anything else.</p>
+
+  <h2>Who can see it</h2>
+  <ul>
+    <li><strong>The gym's owner and staff.</strong> Each gym's data is kept apart from every other gym's, and only people the
+      owner has invited can open it.</li>
+    <li><strong>Supabase</strong>, the service that hosts the database, sign-in and photo storage, which processes the data
+      on our behalf.</li>
+    <li><strong>Google</strong>, when you choose to sign in with Google.</li>
+    <li><strong>WhatsApp (Meta)</strong>, for messages to members. By default the app opens WhatsApp on your phone with the
+      message filled in, and you send it yourself. If the gym connects its WhatsApp Business number (directly or through
+      Make.com), those messages, with the member's name and phone number, go out through that service.</li>
+  </ul>
+  <p>The AI insights on the Home screen are worked out on your phone, and nothing from them is sent anywhere.</p>
+
+  <h2>How it's kept</h2>
+  <p>Data travels encrypted (HTTPS) and is protected by access rules in the database. An encrypted copy of the database is
+    made every night and kept for 30 days, so a gym's records can be recovered after a mistake or failure.</p>
+
+  <h2>Deleting data</h2>
+  <ul>
+    <li><strong>Your account:</strong> in the app, open Settings → Delete account, or use
+      <a href="delete-account">the web app's delete account page</a>. Deletion is immediate. If you're the gym's only
+      owner and alone there, the whole gym is deleted with it; if others work there, you first make one of them an owner.</li>
+    <li><strong>A member's records:</strong> the gym can delete a member at any time. If you're a member and want your
+      records removed or corrected, ask your gym, which controls them, or write to us and we'll pass it on.</li>
+  </ul>
+  <p>Deleted data disappears from nightly backups within 30 days.</p>
+
+  <h2>Children</h2>
+  <p>My Gym is for gym owners and staff, and isn't meant for anyone under 18 to sign in to.</p>
+
+  <h2>Changes</h2>
+  <p>If this policy changes, the new version will be posted here with a new date.</p>
+
+  <h1 id="terms">Terms of use</h1>
+  <p>By using My Gym you agree to these terms.</p>
+  <ul>
+    <li>The gym is responsible for the records it enters, including having its members' permission to store their details
+      and to message them.</li>
+    <li>Don't use My Gym to send spam or anything unlawful, or try to reach another gym's data.</li>
+    <li>My Gym is provided as it is. We work to keep it running and the data safe, but we can't promise it will always be
+      available or free of mistakes, and we aren't liable for losses from using it. Keep your own copy of anything you
+      can't afford to lose.</li>
+    <li>We may change or stop the service. If we stop it, we'll give gyms notice and a way to get their records out first.</li>
+  </ul>
+
+  <h2>Contact</h2>
+  <p>Questions or requests: <a href="mailto:theharsh68@gmail.com">theharsh68@gmail.com</a></p>
+</main>
+</body>
+</html>

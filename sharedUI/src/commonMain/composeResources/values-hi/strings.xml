@@ -294,7 +294,7 @@
     <string name="demo_active_body">आप नमूना डेटा देख रहे हैं। आपके जिम का रिकॉर्ड सुरक्षित है और डेमो बंद करते ही वापस आ जाएगा।</string>
     <string name="demo_start">डेमो शुरू करें</string>
     <string name="demo_starting">डेमो तैयार हो रहा है…</string>
-    <string name="demo_sheet_body">नमूना डेटा अपनी अलग जगह में खुलता है। कभी भी डेमो बंद करें, आपका रिकॉर्ड बिना बदले वापस मिलेगा।</string>
+    <string name="demo_sheet_body">नमूना डेटा अपनी अलग जगह में खुलता है। कभी भी डेमो बंद करें, आपका रिकॉर्ड बिना बदले वापस मिलेगा। पासवर्ड %1$s है।</string>
     <string name="demo_password">पासवर्ड</string>
     <string name="demo_wrong_password">गलत पासवर्ड</string>
     <string name="demo_failed">डेमो शुरू नहीं हो सका। फिर से कोशिश करें।</string>
@@ -779,4 +779,5 @@
     <string name="web_app_title">वेब पर My Gym</string>
     <string name="web_app_body">ब्राउज़र में वही जिम, लैपटॉप या रिसेप्शन के कंप्यूटर के लिए। उसी खाते से साइन इन करें।</string>
     <string name="open_web_app">वेब पर खोलें</string>
+    <string name="privacy_policy">निजता नीति और शर्तें</string>
 </resources>

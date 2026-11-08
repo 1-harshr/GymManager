@@ -1,6 +1,7 @@
 package com.harsh.gymmanager.ui.screens.signin
 
 import androidx.compose.ui.platform.LocalUriHandler
+import com.harsh.gymmanager.ui.PRIVACY_URL
 import com.harsh.gymmanager.ui.WEB_APP_LABEL
 import com.harsh.gymmanager.ui.WEB_APP_URL
 import com.harsh.gymmanager.data.remote.SignInConfig
@@ -187,6 +188,8 @@ private fun PhoneStep(state: SignInUiState, vm: SignInViewModel, onTryDemo: (() 
                     GhostButton(stringResource(Res.string.signin_try_demo), onTryDemo)
                 }
             }
+            val uriHandler = LocalUriHandler.current
+            GhostButton(stringResource(Res.string.privacy_policy), { uriHandler.openUri(PRIVACY_URL) }, color = colors.inkMuted)
         }
     }
 }

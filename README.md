@@ -134,6 +134,28 @@ see [docs/backups.md](docs/backups.md) for setting it up and restoring.
 For iOS, open `iosApp` in Xcode, pick a simulator or device, and run. For the web, see
 [web/README.md](web/README.md).
 
+### Release builds (Android)
+
+The version lives in `androidApp/build.gradle.kts` as `appVersion` (major.minor.patch); Play's versionCode is
+worked out from it (1.2.3 → 10203), so bump `appVersion` before each upload. Release builds are shrunk with R8,
+so try one on a device before uploading.
+
+To sign, point `local.properties` at the upload key (keystore files are gitignored; keep a backup elsewhere):
+
+```properties
+release.storeFile=keys/upload.jks
+release.storePassword=…
+release.keyAlias=upload
+release.keyPassword=…
+```
+
+```bash
+./gradlew :androidApp:bundleRelease   # androidApp/build/outputs/bundle/release/androidApp-release.aab
+```
+
+The privacy policy and terms are `web/public/privacy.html`, published with the web app at
+https://1-harshr.github.io/GymManager/privacy.html.
+
 ### Tests
 
 ```bash

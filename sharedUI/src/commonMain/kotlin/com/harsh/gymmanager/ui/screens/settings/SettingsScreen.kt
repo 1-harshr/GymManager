@@ -1,6 +1,7 @@
 package com.harsh.gymmanager.ui.screens.settings
 
 import androidx.compose.ui.platform.LocalUriHandler
+import com.harsh.gymmanager.ui.PRIVACY_URL
 import com.harsh.gymmanager.ui.WEB_APP_URL
 import org.jetbrains.compose.resources.StringResource
 import com.harsh.gymmanager.ui.components.MyGymTextField
@@ -9,6 +10,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.harsh.gymmanager.LocalDemoMode
 import com.harsh.gymmanager.DemoMode
+import com.harsh.gymmanager.domain.demo.DEMO_PASSWORD
 import com.harsh.gymmanager.domain.repository.AuthState
 import com.harsh.gymmanager.ui.LocalGymRepository
 import com.harsh.gymmanager.ui.isOwnerOrNoAccount
@@ -28,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import com.harsh.gymmanager.ui.LocalSnackbar
+import com.harsh.gymmanager.ui.platform.appVersion
 import com.harsh.gymmanager.ui.platform.rememberNotificationPermission
 import com.harsh.gymmanager.ui.components.MyGymBottomSheet
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -176,7 +179,7 @@ fun SettingsScreen(
 
             SectionHeader(stringResource(Res.string.section_about), Modifier.padding(top = MyGymSpace.md))
             MyGymCard {
-                Text(stringResource(Res.string.version, "1.0"), style = typography.body)
+                Text(stringResource(Res.string.version, appVersion()), style = typography.body)
             }
             val uriHandler = LocalUriHandler.current
             MyGymCard(onClick = { uriHandler.openUri(WEB_APP_URL) }) {
@@ -186,6 +189,7 @@ fun SettingsScreen(
                 }
                 MyGymButton(stringResource(Res.string.open_web_app), { uriHandler.openUri(WEB_APP_URL) }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
             }
+            GhostButton(stringResource(Res.string.privacy_policy), { uriHandler.openUri(PRIVACY_URL) }, Modifier.align(Alignment.CenterHorizontally))
             Text(
                 stringResource(Res.string.credits),
                 style = typography.caption,
@@ -342,7 +346,7 @@ internal fun DemoPasswordSheet(demoMode: DemoMode, onDismiss: () -> Unit) {
     MyGymBottomSheet(onDismiss = { if (!starting) onDismiss() }) {
         Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
             Text(stringResource(Res.string.demo_start), style = MyGymTheme.typography.title)
-            Text(stringResource(Res.string.demo_sheet_body), style = MyGymTheme.typography.body, color = MyGymTheme.colors.inkMuted)
+            Text(stringResource(Res.string.demo_sheet_body, DEMO_PASSWORD), style = MyGymTheme.typography.body, color = MyGymTheme.colors.inkMuted)
         }
         MyGymTextField(
             password,

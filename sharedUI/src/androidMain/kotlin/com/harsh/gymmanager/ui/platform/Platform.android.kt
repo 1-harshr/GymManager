@@ -167,6 +167,12 @@ actual object LocalAppLocale {
 
 actual val sendsRemindersInBackground: Boolean = true
 
+@Composable
+actual fun appVersion(): String {
+    val context = LocalContext.current
+    return remember { context.packageManager.getPackageInfo(context.packageName, 0).versionName.orEmpty() }
+}
+
 actual val rebuildUiOnLanguageChange: Boolean = false
 
 @Composable

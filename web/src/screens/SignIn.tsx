@@ -5,7 +5,7 @@ import { formatPhone, localDigits } from '@/lib/format'
 import { Button, IconButton, LinkButton, cx } from '@/components/ui'
 import { BrandMark } from '@/components/Brand'
 import { GoogleG } from '@/components/GoogleG'
-import { appPath, appUrl } from '@/lib/location'
+import { appPath, appUrl, PRIVACY_URL } from '@/lib/location'
 
 const CODE_DIGITS = 6
 const RESEND_WAIT = 30
@@ -170,6 +170,9 @@ export function SignIn() {
             />
           )}
         </div>
+        <a href={PRIVACY_URL} className="mx-auto mt-6 text-caption text-muted underline underline-offset-2">
+          Privacy policy and terms
+        </a>
       </main>
     </div>
   )
