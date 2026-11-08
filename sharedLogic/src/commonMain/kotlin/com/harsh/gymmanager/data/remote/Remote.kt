@@ -12,12 +12,12 @@ import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.longOrNull
@@ -26,31 +26,46 @@ import kotlin.coroutines.cancellation.CancellationException
 /**
  * Keeps the screens' reads fresh. Every write calls [changed], and each [observe]d read runs again;
  * so do they all when the app comes back to the front. A read that fails keeps showing its last good
- * value, and [problem] says why until a read succeeds again.
+ * value, and [problem] says why for as long as any read being watched is failing.
  */
 internal class Refresher(
     /** Waits until reads can be made, i.e. it's known whether someone is signed in to a gym. */
     private val ready: suspend () -> Unit = {},
 ) {
     private val ticks = MutableStateFlow(0)
-    private val _problem = MutableStateFlow<Throwable?>(null)
-    val problem: StateFlow<Throwable?> = _problem.asStateFlow()
+
+    /**
+     * Each watched read's latest failure. Kept per read so one that keeps failing isn't hidden by
+     * others that succeed, and dropped once nobody is watching it.
+     */
+    private val failing = MutableStateFlow<Map<Any, Throwable>>(emptyMap())
+    val problem: Flow<Throwable?> = failing.map { it.values.firstOrNull() }
 
     fun changed() = ticks.update { it + 1 }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun <T> observe(read: suspend () -> T): Flow<T> = ticks.flatMapLatest {
-        flow {
-            try {
-                ready()
-                val value = remote { read() }
-                _problem.value = null
-                emit(value)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _problem.value = e
-            }
+    fun <T> observe(read: suspend () -> T): Flow<T> = flow {
+        val key = Any()
+        try {
+            emitAll(
+                ticks.flatMapLatest {
+                    flow {
+                        val value = try {
+                            ready()
+                            remote { read() }
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            failing.update { it + (key to e) }
+                            return@flow
+                        }
+                        failing.update { it - key }
+                        emit(value)
+                    }
+                },
+            )
+        } finally {
+            failing.update { it - key }
         }
     }
 }
