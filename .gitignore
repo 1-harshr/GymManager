@@ -21,3 +21,5 @@ node_modules/
 # Upload keys for release builds; back them up outside the repository.
 *.jks
 *.keystore
+# Bundles that Android Studio's Generate Signed Bundle saves.
+androidApp/release/
