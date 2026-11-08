@@ -22,10 +22,6 @@ expect fun rememberTextFilePicker(onPicked: (name: String, text: String?) -> Uni
 @Composable
 expect fun rememberFileSaver(mimeType: String, onDone: (saved: Boolean) -> Unit): (fileName: String, bytes: ByteArray) -> Unit
 
-/** Returns a function that opens the file picker for a backup and calls [onPicked] with its bytes, or null if unreadable. */
-@Composable
-expect fun rememberBackupPicker(onPicked: (name: String, bytes: ByteArray?) -> Unit): () -> Unit
-
 /**
  * Returns a function that opens the photo picker and saves the chosen image as a square logo
  * in app storage, calling [onPicked] with its path, or null if it couldn't be used.

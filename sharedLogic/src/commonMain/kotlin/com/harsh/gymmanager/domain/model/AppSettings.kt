@@ -2,7 +2,6 @@ package com.harsh.gymmanager.domain.model
 
 import com.harsh.gymmanager.domain.ValidationError
 import com.harsh.gymmanager.domain.ensure
-import kotlin.time.Instant
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
@@ -49,8 +48,6 @@ data class AppSettings(
     val gym: GymProfile? = null,
     val theme: ThemeMode = ThemeMode.SYSTEM,
     val language: AppLanguage = AppLanguage.SYSTEM,
-    /** When a backup file was last saved from this phone; null if never. */
-    val lastBackupAt: Instant? = null,
     val morningUpdate: MorningUpdate = MorningUpdate(),
     val homeFeatures: HomeFeatures = HomeFeatures(),
     /** Members shown as a grid of tiles rather than a list. */

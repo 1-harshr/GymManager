@@ -7,7 +7,6 @@ import com.harsh.gymmanager.domain.model.HomeFeatures
 import com.harsh.gymmanager.domain.model.MorningUpdate
 import com.harsh.gymmanager.domain.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
-import kotlin.time.Instant
 
 interface SettingsRepository {
     fun observe(): Flow<AppSettings>
@@ -18,7 +17,6 @@ interface SettingsRepository {
 
     suspend fun setLanguage(language: AppLanguage)
 
-    suspend fun setLastBackupAt(at: Instant)
 
     suspend fun setMorningUpdate(update: MorningUpdate)
 

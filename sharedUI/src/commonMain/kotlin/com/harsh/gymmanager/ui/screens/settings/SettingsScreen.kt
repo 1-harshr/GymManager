@@ -24,19 +24,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.harsh.gymmanager.LocalAppDependencies
-import com.harsh.gymmanager.presentation.backup.BackupEvent
-import com.harsh.gymmanager.presentation.backup.BackupViewModel
 import com.harsh.gymmanager.ui.LocalSnackbar
-import com.harsh.gymmanager.ui.components.ConfirmSheet
-import com.harsh.gymmanager.ui.format.formatFull
-import com.harsh.gymmanager.ui.format.resolve
-import com.harsh.gymmanager.ui.platform.rememberBackupPicker
-import com.harsh.gymmanager.ui.platform.rememberFileSaver
 import com.harsh.gymmanager.ui.platform.rememberNotificationPermission
 import com.harsh.gymmanager.ui.components.MyGymBottomSheet
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,10 +37,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Instant
-import org.jetbrains.compose.resources.pluralStringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.harsh.gymmanager.domain.model.AppLanguage
@@ -91,7 +76,7 @@ fun SettingsScreen(
 ) {
     val colors = MyGymTheme.colors
     val typography = MyGymTheme.typography
-    // Staff get their own preferences; the gym's setup, messaging and backups are the owner's.
+    // Staff get their own preferences; the gym's setup and messaging are the owner's.
     val isOwner = isOwnerOrNoAccount
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         PushedHeader(stringResource(Res.string.settings), onBack)
@@ -166,12 +151,6 @@ fun SettingsScreen(
             if (isOwner) {
                 SectionHeader(stringResource(Res.string.section_notifications), Modifier.padding(top = MyGymSpace.md))
                 MorningUpdateCard(settings.morningUpdate, onMorningUpdateChange)
-            }
-
-            // A backup file holds the phone's own records; a gym kept online has nothing on the phone to save.
-            if (isOwner && LocalGymRepository.current == null) {
-                SectionHeader(stringResource(Res.string.section_data), Modifier.padding(top = MyGymSpace.md))
-                BackupCard(settings)
             }
 
             LocalDemoMode.current?.let { demoMode ->
@@ -367,74 +346,6 @@ internal fun DemoPasswordSheet(demoMode: DemoMode, onDismiss: () -> Unit) {
             ::start,
             Modifier.fillMaxWidth(),
             enabled = !starting && password.isNotEmpty(),
-        )
-    }
-}
-
-/** Saving a backup file and restoring one; restoring asks first, since it replaces everything. */
-@Composable
-private fun BackupCard(settings: AppSettings) {
-    val colors = MyGymTheme.colors
-    val typography = MyGymTheme.typography
-    val deps = LocalAppDependencies.current
-    val snackbar = LocalSnackbar.current
-    val vm = viewModel { BackupViewModel(deps.backup) }
-    val state by vm.state.collectAsStateWithLifecycle()
-    val save = rememberFileSaver("application/json", vm::onSaved)
-    val pick = rememberBackupPicker(vm::onPicked)
-
-    LaunchedEffect(vm) {
-        vm.events.collect { event ->
-            when (event) {
-                is BackupEvent.SaveFile -> save(event.fileName, event.bytes)
-                is BackupEvent.ShowMessage -> snackbar.showSnackbar(event.message.resolve())
-            }
-        }
-    }
-
-    // Sample data must never become a backup, or be restored over.
-    if (LocalDemoMode.current?.active != null) {
-        MyGymCard {
-            Text(stringResource(Res.string.data_title), style = typography.bodyStrong)
-            Text(stringResource(Res.string.backups_off_in_demo), style = typography.body, color = colors.inkMuted)
-        }
-        return
-    }
-    MyGymCard {
-        Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
-            Text(stringResource(Res.string.data_title), style = typography.bodyStrong)
-            Text(stringResource(Res.string.data_body), style = typography.body, color = colors.inkMuted)
-        }
-        val last = settings.lastBackupAt?.toLocalDateTime(TimeZone.currentSystemDefault())?.date
-        Text(
-            if (last != null) stringResource(Res.string.last_backup, last.formatFull()) else stringResource(Res.string.never_backed_up),
-            style = typography.caption,
-            color = if (last != null) colors.statusActive else colors.statusExpiring,
-        )
-        MyGymButton(
-            if (state.isWorking && state.pendingRestore == null) stringResource(Res.string.backing_up) else stringResource(Res.string.back_up_now),
-            vm::backUp,
-            Modifier.fillMaxWidth(),
-            enabled = !state.isWorking,
-        )
-        MyGymButton(stringResource(Res.string.restore_backup), pick, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary, enabled = !state.isWorking)
-    }
-
-    state.pendingRestore?.let { backup ->
-        val savedOn = Instant.fromEpochMilliseconds(backup.createdAt).toLocalDateTime(TimeZone.currentSystemDefault()).date
-        ConfirmSheet(
-            title = stringResource(Res.string.restore_title),
-            body = stringResource(
-                Res.string.restore_body,
-                savedOn.formatFull(),
-                backup.gym?.name.orEmpty(),
-                pluralStringResource(Res.plurals.members_count, backup.members.size, backup.members.size),
-                pluralStringResource(Res.plurals.plans_count, backup.plans.size, backup.plans.size),
-                pluralStringResource(Res.plurals.payments_count, backup.payments.size, backup.payments.size),
-            ),
-            confirmLabel = if (state.isWorking) stringResource(Res.string.restoring) else stringResource(Res.string.restore_confirm),
-            onConfirm = vm::confirmRestore,
-            onDismiss = { if (!state.isWorking) vm.cancelRestore() },
         )
     }
 }

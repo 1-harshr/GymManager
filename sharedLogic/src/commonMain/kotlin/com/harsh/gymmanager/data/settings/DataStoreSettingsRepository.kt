@@ -6,7 +6,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.harsh.gymmanager.domain.model.AppLanguage
 import com.harsh.gymmanager.domain.model.AppSettings
@@ -16,7 +15,6 @@ import com.harsh.gymmanager.domain.model.MorningUpdate
 import com.harsh.gymmanager.domain.model.ThemeMode
 import com.harsh.gymmanager.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
-import kotlin.time.Instant
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import okio.Path.Companion.toPath
@@ -34,7 +32,6 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
         val gymLogo = stringPreferencesKey("gym_logo_path")
         val theme = stringPreferencesKey("theme")
         val language = stringPreferencesKey("language")
-        val lastBackupAt = longPreferencesKey("last_backup_at")
         val morningUpdateEnabled = booleanPreferencesKey("morning_update_enabled")
         val morningUpdateMinute = intPreferencesKey("morning_update_minute")
         val aiInsights = booleanPreferencesKey("home_ai_insights")
@@ -49,7 +46,6 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
             },
             theme = prefs[Keys.theme]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM,
             language = prefs[Keys.language]?.let { runCatching { AppLanguage.valueOf(it) }.getOrNull() } ?: AppLanguage.SYSTEM,
-            lastBackupAt = prefs[Keys.lastBackupAt]?.let(Instant::fromEpochMilliseconds),
             morningUpdate = MorningUpdate(
                 enabled = prefs[Keys.morningUpdateEnabled] ?: false,
                 minuteOfDay = prefs[Keys.morningUpdateMinute]
@@ -79,9 +75,6 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
         store.edit { it[Keys.language] = language.name }
     }
 
-    override suspend fun setLastBackupAt(at: Instant) {
-        store.edit { it[Keys.lastBackupAt] = at.toEpochMilliseconds() }
-    }
 
     override suspend fun setMorningUpdate(update: MorningUpdate) {
         store.edit {

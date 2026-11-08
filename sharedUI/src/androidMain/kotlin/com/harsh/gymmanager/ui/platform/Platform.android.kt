@@ -66,9 +66,6 @@ actual fun rememberTextFilePicker(onPicked: (name: String, text: String?) -> Uni
     }
 }
 
-/** Far above any real backup (photos are about 100 KB each); guards against picking a video. */
-private const val MAX_BACKUP_BYTES = 200 * 1024 * 1024
-
 @Composable
 actual fun rememberFileSaver(mimeType: String, onDone: (saved: Boolean) -> Unit): (fileName: String, bytes: ByteArray) -> Unit {
     val context = LocalContext.current
@@ -93,28 +90,6 @@ actual fun rememberFileSaver(mimeType: String, onDone: (saved: Boolean) -> Unit)
         pending = bytes
         launcher.launch(fileName)
     }
-}
-
-@Composable
-actual fun rememberBackupPicker(onPicked: (name: String, bytes: ByteArray?) -> Unit): () -> Unit {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val callback by rememberUpdatedState(onPicked)
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        scope.launch {
-            val resolver = context.contentResolver
-            val (name, bytes) = withContext(Dispatchers.IO) {
-                val name = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
-                    if (c.moveToFirst()) c.getString(0) else null
-                } ?: "backup.json"
-                name to runCatching { resolver.openInputStream(uri)?.use { readCapped(it, MAX_BACKUP_BYTES) } }.getOrNull()
-            }
-            callback(name, bytes)
-        }
-    }
-    // Drive and file managers label JSON inconsistently, so accept the usual stand-ins too.
-    return { launcher.launch(arrayOf("application/json", "application/octet-stream", "text/plain")) }
 }
 
 /** Reads at most [max] bytes; null if the file is bigger. */

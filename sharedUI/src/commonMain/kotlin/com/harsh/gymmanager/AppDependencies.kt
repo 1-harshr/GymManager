@@ -2,7 +2,6 @@ package com.harsh.gymmanager
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.harsh.gymmanager.domain.assistant.GymAssistant
-import com.harsh.gymmanager.domain.backup.BackupUseCases
 import com.harsh.gymmanager.domain.digest.MorningDigestUseCase
 import com.harsh.gymmanager.domain.insights.ObserveInsightsUseCase
 import com.harsh.gymmanager.domain.insights.WriteBriefUseCase
@@ -36,7 +35,6 @@ interface AppDependencies {
     val importMembers: ImportMembersUseCase
     val settingsUseCases: SettingsUseCases
     val messaging: MessagingUseCases
-    val backup: BackupUseCases
     val assistant: GymAssistant
     val morningDigest: MorningDigestUseCase
     val morningUpdates: MorningUpdateScheduler

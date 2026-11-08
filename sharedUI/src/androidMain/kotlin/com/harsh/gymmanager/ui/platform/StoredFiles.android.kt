@@ -20,9 +20,4 @@ class AndroidStoredFiles(private val context: Context) : StoredFiles {
         val dir = File(context.filesDir, folder).apply { mkdirs() }
         File(dir, fileName).apply { writeBytes(bytes) }.absolutePath
     }
-
-    override suspend fun deleteOthers(folder: String, keep: Set<String>) = withContext(Dispatchers.IO) {
-        File(context.filesDir, folder).listFiles()?.filter { it.absolutePath !in keep }?.forEach { it.delete() }
-        Unit
-    }
 }

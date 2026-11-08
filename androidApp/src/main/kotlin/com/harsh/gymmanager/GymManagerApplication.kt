@@ -38,7 +38,6 @@ class GymManagerApplication : Application() {
                 DefaultAppDependencies(
                     openDatabase = { buildGymDatabase(gymDatabaseBuilder(this, DEMO_DATABASE_NAME)) },
                     openSettings = { settingsStore },
-                    storedFiles = AndroidStoredFiles(this),
                     createMorningUpdates = { NoMorningUpdates },
                     onDeviceModel = model,
                     // Sample data must never message real people.

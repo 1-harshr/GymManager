@@ -4,7 +4,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.harsh.gymmanager.data.local.GymDatabase
 import com.harsh.gymmanager.data.repository.AttendanceRepositoryImpl
-import com.harsh.gymmanager.data.repository.BackupRepositoryImpl
 import com.harsh.gymmanager.data.repository.InboxRepositoryImpl
 import com.harsh.gymmanager.data.repository.UsageRepositoryImpl
 import com.harsh.gymmanager.domain.suggestions.SuggestionsUseCase
@@ -22,8 +21,6 @@ import com.harsh.gymmanager.domain.repository.MembershipRepository
 import com.harsh.gymmanager.domain.repository.PaymentRepository
 import com.harsh.gymmanager.domain.repository.PlanRepository
 import com.harsh.gymmanager.domain.assistant.GymAssistant
-import com.harsh.gymmanager.domain.backup.BackupUseCases
-import com.harsh.gymmanager.domain.backup.StoredFiles
 import com.harsh.gymmanager.domain.digest.MorningDigestUseCase
 import com.harsh.gymmanager.domain.insights.NoOnDeviceModel
 import com.harsh.gymmanager.domain.insights.ObserveInsightsUseCase
@@ -62,7 +59,6 @@ import kotlin.time.Clock
 class DefaultAppDependencies(
     openDatabase: () -> GymDatabase,
     openSettings: () -> DataStore<Preferences>,
-    private val storedFiles: StoredFiles,
     private val createMorningUpdates: (MorningDigestUseCase) -> MorningUpdateScheduler,
     private val onDeviceModel: OnDeviceModel = NoOnDeviceModel,
     private val sendsWhatsApp: Boolean = true,
@@ -101,9 +97,6 @@ class DefaultAppDependencies(
     override val importMembers by lazy { ImportMembersUseCase(memberRepository, clock, timeZone) }
     override val settingsUseCases by lazy { SettingsUseCases(settingsRepository) }
     override val observeDashboard by lazy { ObserveDashboardUseCase(memberRepository, paymentRepository, clock, timeZone) }
-    override val backup by lazy {
-        BackupUseCases(BackupRepositoryImpl(database.backupDao()), settingsRepository, storedFiles, clock, timeZone)
-    }
     override val messaging by lazy {
         MessagingUseCases(memberRepository, membershipRepository, settingsRepository, messageLogRepository, clock, timeZone)
     }

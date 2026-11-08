@@ -34,7 +34,6 @@ internal val iosDependencies: AppDependencies by lazy {
     DefaultAppDependencies(
         openDatabase = { buildGymDatabase(gymDatabaseBuilder()) },
         openSettings = { settingsStore },
-        storedFiles = IosStoredFiles(),
         createMorningUpdates = { IosMorningUpdates(it) },
         onDeviceModel = InstalledOnDeviceModel,
         // iOS can't send at a set time in the background; messages go out while the app is open.
@@ -55,7 +54,6 @@ private val demoMode by lazy {
             DefaultAppDependencies(
                 openDatabase = { buildGymDatabase(gymDatabaseBuilder(DEMO_DATABASE_NAME)) },
                 openSettings = { settingsStore },
-                storedFiles = IosStoredFiles(),
                 createMorningUpdates = { NoMorningUpdates },
                 onDeviceModel = InstalledOnDeviceModel,
                 // Sample data must never message real people.

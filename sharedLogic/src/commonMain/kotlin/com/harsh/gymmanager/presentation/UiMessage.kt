@@ -5,8 +5,6 @@ import com.harsh.gymmanager.domain.NoConnectionException
 import com.harsh.gymmanager.domain.OverpaymentException
 import com.harsh.gymmanager.domain.ValidationError
 import com.harsh.gymmanager.domain.ValidationException
-import com.harsh.gymmanager.domain.backup.BackupException
-import com.harsh.gymmanager.domain.backup.BackupProblem
 import com.harsh.gymmanager.domain.importing.ImportFileException
 import com.harsh.gymmanager.domain.importing.ImportFileProblem
 import com.harsh.gymmanager.domain.repository.GymException
@@ -59,11 +57,6 @@ sealed interface UiMessage {
     data class FileUnreadable(val fileName: String) : UiMessage
     data class BadImportFile(val problem: ImportFileProblem) : UiMessage
 
-    // Backup
-    data object BackupSaved : UiMessage
-    data object BackupRestored : UiMessage
-    data class BadBackup(val problem: BackupProblem) : UiMessage
-
     // Sign-in
     data object EnterPhone : UiMessage
     data object EnterCode : UiMessage
@@ -84,7 +77,6 @@ fun Throwable.toUiMessage(): UiMessage = when (this) {
     is NoConnectionException -> UiMessage.NoConnection
     is ValidationException -> UiMessage.Invalid(error)
     is ImportFileException -> UiMessage.BadImportFile(problem)
-    is BackupException -> UiMessage.BadBackup(problem)
     is SignInException -> UiMessage.SignInFailed(problem)
     is GymException -> UiMessage.GymFailed(problem)
     else -> UiMessage.SomethingWentWrong

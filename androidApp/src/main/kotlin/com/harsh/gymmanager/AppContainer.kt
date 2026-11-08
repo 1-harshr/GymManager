@@ -8,7 +8,6 @@ import com.harsh.gymmanager.data.remote.SupabaseBackend
 import com.harsh.gymmanager.data.local.gymDatabaseBuilder
 import com.harsh.gymmanager.domain.insights.OnDeviceModel
 import com.harsh.gymmanager.notifications.AndroidMorningUpdates
-import com.harsh.gymmanager.ui.platform.AndroidStoredFiles
 import com.harsh.gymmanager.whatsapp.AndroidWhatsAppScheduler
 
 /**
@@ -23,7 +22,6 @@ class AppContainer(
 ) : AppDependencies by DefaultAppDependencies(
     openDatabase = { buildGymDatabase(gymDatabaseBuilder(context.applicationContext)) },
     openSettings = settings,
-    storedFiles = AndroidStoredFiles(context.applicationContext),
     createMorningUpdates = { AndroidMorningUpdates(context.applicationContext) },
     onDeviceModel = onDeviceModel,
     createWhatsAppScheduler = { AndroidWhatsAppScheduler(context.applicationContext) },

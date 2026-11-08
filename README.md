@@ -55,7 +55,6 @@ and check-ins. What the gym takes in, the forecast and deleting records stay wit
   or record a payment
 - **Hindi and English**, with light and dark themes
 - **Demo mode** with a sample gym, for trying the app or showing it to someone
-- **Backup** of the gym's records to a file
 
 ### On the web
 The same gym in a browser, laid out for a desk screen with a sidebar and tables, and still usable on a phone.

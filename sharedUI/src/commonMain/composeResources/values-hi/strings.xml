@@ -211,9 +211,6 @@
     <string name="language_system">फ़ोन जैसी</string>
     <string name="language_english">English</string>
     <string name="language_hindi">हिन्दी</string>
-    <string name="section_data">डेटा</string>
-    <string name="data_title">सिर्फ़ इसी फ़ोन में सेव</string>
-    <string name="data_body">सारा डेटा इसी फ़ोन में रहता है। नियमित रूप से बैकअप फ़ाइल सेव करें, जैसे Google Drive में, ताकि फ़ोन खोने या खराब होने पर जिम का रिकॉर्ड न खोए।</string>
     <string name="section_notifications">सूचनाएँ</string>
     <string name="morning_update">सुबह की अपडेट</string>
     <string name="morning_update_body">हर सुबह: आज किसकी सदस्यता खत्म हो रही है, बकाया, और इस महीने कितना मिला।</string>
@@ -301,7 +298,6 @@
     <string name="demo_password">पासवर्ड</string>
     <string name="demo_wrong_password">गलत पासवर्ड</string>
     <string name="demo_failed">डेमो शुरू नहीं हो सका। फिर से कोशिश करें।</string>
-    <string name="backups_off_in_demo">डेमो मोड में बैकअप बंद है।</string>
     <string name="section_about">जानकारी</string>
     <string name="version">वर्ज़न %1$s</string>
     <string name="credits">musa_fir ने ❤️ से बनाया · कोई अधिकार सुरक्षित नहीं</string>
@@ -392,19 +388,6 @@
     <string name="length_days">दिन</string>
     <string name="sale_customised">इस बिक्री के लिए बदला गया। मेंबरशिप का नाम “%1$s” ही रहेगा।</string>
     <string name="reset_to_plan">प्लान जैसा करें</string>
-    <string name="last_backup">पिछला बैकअप: %1$s</string>
-    <string name="never_backed_up">अभी तक कोई बैकअप सेव नहीं हुआ</string>
-    <string name="back_up_now">अभी बैकअप लें</string>
-    <string name="backing_up">बैकअप तैयार हो रहा है…</string>
-    <string name="restore_backup">बैकअप से रीस्टोर करें</string>
-    <string name="restore_title">यह बैकअप रीस्टोर करें?</string>
-    <string name="restore_body">%1$s को %2$s के लिए सेव किया गया, इसमें %3$s, %4$s और %5$s हैं।\n\nइस फ़ोन का मौजूदा सारा डेटा इससे बदल जाएगा। इसे वापस नहीं किया जा सकता।</string>
-    <string name="restore_confirm">बदलें और रीस्टोर करें</string>
-    <string name="restoring">रीस्टोर हो रहा है…</string>
-    <string name="msg_backup_saved">बैकअप सेव हो गया</string>
-    <string name="msg_backup_restored">बैकअप रीस्टोर हो गया</string>
-    <string name="err_not_backup">यह फ़ाइल My Gym का बैकअप नहीं है</string>
-    <string name="err_backup_newer">यह बैकअप ऐप के नए वर्ज़न का है। ऐप अपडेट करके फिर कोशिश करें।</string>
     <plurals name="members_count">
         <item quantity="one">%1$d सदस्य</item>
         <item quantity="other">%1$d सदस्य</item>

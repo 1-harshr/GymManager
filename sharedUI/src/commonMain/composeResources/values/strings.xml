@@ -211,9 +211,6 @@
     <string name="language_system">Phone</string>
     <string name="language_english">English</string>
     <string name="language_hindi">हिन्दी</string>
-    <string name="section_data">Data</string>
-    <string name="data_title">Stored on this phone only</string>
-    <string name="data_body">Everything is stored on this phone. Save a backup file regularly, for example to Google Drive, so a lost or broken phone doesn’t lose the gym’s records.</string>
     <string name="section_notifications">Notifications</string>
     <string name="morning_update">Morning update</string>
     <string name="morning_update_body">Every morning: whose membership ends today, dues, and this month’s collection.</string>
@@ -301,7 +298,6 @@
     <string name="demo_password">Password</string>
     <string name="demo_wrong_password">Wrong password</string>
     <string name="demo_failed">Couldn’t start the demo. Try again.</string>
-    <string name="backups_off_in_demo">Backups are off in demo mode.</string>
     <string name="section_about">About</string>
     <string name="version">Version %1$s</string>
     <string name="credits">Created by musa_fir ❤️ · No rights reserved</string>
@@ -392,19 +388,6 @@
     <string name="length_days">Days</string>
     <string name="sale_customised">Changed for this sale. The membership is still called “%1$s”.</string>
     <string name="reset_to_plan">Reset to plan</string>
-    <string name="last_backup">Last backup: %1$s</string>
-    <string name="never_backed_up">No backup saved yet</string>
-    <string name="back_up_now">Back up now</string>
-    <string name="backing_up">Preparing backup…</string>
-    <string name="restore_backup">Restore from a backup</string>
-    <string name="restore_title">Restore this backup?</string>
-    <string name="restore_body">Saved on %1$s for %2$s, with %3$s, %4$s and %5$s.\n\nIt replaces everything on this phone now. This can’t be undone.</string>
-    <string name="restore_confirm">Replace and restore</string>
-    <string name="restoring">Restoring…</string>
-    <string name="msg_backup_saved">Backup saved</string>
-    <string name="msg_backup_restored">Backup restored</string>
-    <string name="err_not_backup">This file isn’t a My Gym backup</string>
-    <string name="err_backup_newer">This backup is from a newer version of the app. Update the app, then try again.</string>
     <plurals name="members_count">
         <item quantity="one">%1$d member</item>
         <item quantity="other">%1$d members</item>

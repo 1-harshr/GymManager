@@ -3,7 +3,6 @@ package com.harsh.gymmanager.ui.format
 import androidx.compose.runtime.Composable
 import com.harsh.gymmanager.domain.MembershipStatus
 import com.harsh.gymmanager.domain.ValidationError
-import com.harsh.gymmanager.domain.backup.BackupProblem
 import com.harsh.gymmanager.domain.importing.ImportFileProblem
 import com.harsh.gymmanager.domain.repository.GymProblem
 import com.harsh.gymmanager.domain.repository.SignInProblem
@@ -73,14 +72,6 @@ private fun UiMessage.text(): Text = when (this) {
         when (problem) {
             ImportFileProblem.EMPTY -> Res.string.err_file_empty
             ImportFileProblem.NO_NAME_COLUMN -> Res.string.err_no_name_column
-        },
-    )
-    UiMessage.BackupSaved -> Text.Plain(Res.string.msg_backup_saved)
-    UiMessage.BackupRestored -> Text.Plain(Res.string.msg_backup_restored)
-    is UiMessage.BadBackup -> Text.Plain(
-        when (problem) {
-            BackupProblem.NOT_A_BACKUP -> Res.string.err_not_backup
-            BackupProblem.FROM_NEWER_APP -> Res.string.err_backup_newer
         },
     )
     UiMessage.EnterPhone -> Text.Plain(Res.string.err_enter_phone)

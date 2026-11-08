@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 
-/** Stored in the app's private settings file next to the other settings. Backups don't copy these. */
+/** Stored in the app's private settings file next to the other settings. */
 class DataStoreWhatsAppSettings(private val store: DataStore<Preferences>) : WhatsAppSettingsRepository {
     private object Keys {
         val webhookUrl = stringPreferencesKey("wa_webhook_url")

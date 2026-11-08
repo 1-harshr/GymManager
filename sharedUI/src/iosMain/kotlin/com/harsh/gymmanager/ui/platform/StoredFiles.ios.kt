@@ -32,15 +32,6 @@ class IosStoredFiles : StoredFiles {
         check(bytes.toNSData().writeToFile(path, atomically = true)) { "Couldn't write $path" }
         path
     }
-
-    override suspend fun deleteOthers(folder: String, keep: Set<String>) = withContext(Dispatchers.IO) {
-        val dir = "${documentsDirectory()}/$folder"
-        val files = NSFileManager.defaultManager
-        files.contentsOfDirectoryAtPath(dir, error = null).orEmpty()
-            .map { "$dir/$it" }
-            .filter { it !in keep }
-            .forEach { files.removeItemAtPath(it, error = null) }
-    }
 }
 
 internal fun ByteArray.toNSData(): NSData =
