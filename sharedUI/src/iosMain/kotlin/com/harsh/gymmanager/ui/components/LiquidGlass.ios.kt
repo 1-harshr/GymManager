@@ -45,6 +45,7 @@ import platform.UIKit.UIButton
 import platform.UIKit.UIButtonConfiguration
 import platform.UIKit.UIButtonConfigurationCornerStyleCapsule
 import platform.UIKit.NSFontAttributeName
+import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIFontWeightMedium
 import platform.UIKit.UIColor
 import platform.UIKit.UIControlEventPrimaryActionTriggered
@@ -269,17 +270,27 @@ actual fun GlassActionBar(actions: List<BulkAction>, modifier: Modifier) {
             val stack = UIStackView().apply {
                 distribution = UIStackViewDistributionFillEqually
                 tag = STACK_TAG
+                translatesAutoresizingMaskIntoConstraints = false
             }
             UIVisualEffectView(effect = UIGlassEffect.effectWithStyle(UIGlassEffectStyle.UIGlassEffectStyleRegular).apply { interactive = true }).apply {
                 cornerConfiguration = UICornerConfiguration.capsuleConfiguration()
                 contentView.addSubview(stack)
+                // Pinned rather than given a frame: the bar is still zero-sized when it's first updated,
+                // and buttons laid out then all pile up at its leading edge.
+                NSLayoutConstraint.activateConstraints(
+                    listOf(
+                        stack.leadingAnchor.constraintEqualToAnchor(contentView.leadingAnchor),
+                        stack.trailingAnchor.constraintEqualToAnchor(contentView.trailingAnchor),
+                        stack.topAnchor.constraintEqualToAnchor(contentView.topAnchor),
+                        stack.bottomAnchor.constraintEqualToAnchor(contentView.bottomAnchor),
+                    ),
+                )
                 alpha = 0.0
             }
         },
         modifier = modifier.width(ActionBarItemWidth * actions.size).height(GlassCapsuleHeight),
         update = { bar ->
             val stack = bar.contentView.viewWithTag(STACK_TAG) as UIStackView
-            stack.setFrame(bar.bounds)
             stack.arrangedSubviews.forEach { (it as UIView).removeFromSuperview() }
             actions.forEachIndexed { index, action ->
                 val config = UIButtonConfiguration.plainButtonConfiguration()
