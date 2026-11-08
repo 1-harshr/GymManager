@@ -75,7 +75,7 @@ class AttendanceViewModel(private val attendance: AttendanceUseCases, members: M
             attendance.checkIn(member.memberId)
                 .onSuccess {
                     query.value = ""
-                    messageChannel.send(if (already) UiMessage.AlreadyCheckedIn(member.name) else UiMessage.CheckedIn(member.name, member.status, member.amountDue))
+                    messageChannel.send(if (already) UiMessage.AlreadyCheckedIn(member.name) else UiMessage.CheckedIn(member.name, member.status, member.amountDue, paused = member.pausedUntil != null))
                 }
                 .onFailure { messageChannel.send(it.toUiMessage()) }
         }

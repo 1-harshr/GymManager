@@ -7,6 +7,9 @@ import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.rememberUsageStats
 import com.harsh.gymmanager.ui.components.AmountChips
 import kotlinx.datetime.LocalDate
+import com.harsh.gymmanager.ui.LocalGymRepository
+import com.harsh.gymmanager.ui.format.formatDateRange
+import com.harsh.gymmanager.ui.format.formatDayMonth
 import com.harsh.gymmanager.ui.components.DateField
 import gymmanager.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
@@ -125,6 +128,9 @@ fun MemberDetailScreen(
     // Staff don't archive or delete; that's the owner's call.
     val isOwner = isOwnerOrNoAccount
     var confirm by remember { mutableStateOf<Confirm?>(null) }
+    var pausing by remember { mutableStateOf<Membership?>(null) }
+    // Pausing moves dates on the gym online; demo mode's sample gym doesn't offer it.
+    val canPause = LocalGymRepository.current != null
     val uriHandler = LocalUriHandler.current
     val offerWhatsApp = LocalWhatsApp.current
     val today = rememberToday()
@@ -200,8 +206,11 @@ fun MemberDetailScreen(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.lg)) {
                     Avatar(member.name, member.photoPath, Modifier.sharedElement(SharedKeys.memberPhoto(memberId)), size = 72.dp)
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+                        val runningPause = detail.memberships.firstNotNullOfOrNull { it.pauseOn(today)?.takeIf { p -> p.isRunning(today) } }
                         if (member.isArchived) {
                             Badge(stringResource(Res.string.archived), BadgeTone.Expired)
+                        } else if (runningPause != null) {
+                            Badge(stringResource(Res.string.paused_until, runningPause.resumesOn.formatDayMonth()), BadgeTone.Expiring)
                         } else {
                             Badge(statusLabel(detail.status, detail.latestEndDate, today), detail.status.tone())
                         }
@@ -263,6 +272,9 @@ fun MemberDetailScreen(
                     onDelete = if (isOwner) ({ confirm = Confirm.DeleteMembership(membership) }) else null,
                     onPaymentClick = if (isOwner) ({ payment -> confirm = Confirm.DeletePayment(payment) }) else null,
                     modifier = Modifier.screenGutter(),
+                    // Only a membership that hasn't ended yet, running or still to start.
+                    onPause = if (canPause && membership.endDate >= today) ({ pausing = membership }) else null,
+                    onResume = if (canPause) ({ vm.resumeMembership(membership.id) }) else null,
                 )
             }
         }
@@ -279,6 +291,18 @@ fun MemberDetailScreen(
             onNoteChange = vm::onPaymentNoteChange,
             onSubmit = vm::submitPayment,
             onDismiss = vm::dismissPaymentForm,
+        )
+    }
+
+    pausing?.let { membership ->
+        PauseSheet(
+            membership,
+            today,
+            onPause = { from, back ->
+                pausing = null
+                vm.pauseMembership(membership.id, from, back)
+            },
+            onDismiss = { pausing = null },
         )
     }
 
@@ -398,6 +422,48 @@ private fun VisitHeatmap(visits: List<CheckIn>, today: LocalDate, modifier: Modi
 
 private val HEATMAP_GAP = 3.dp
 private val HEATMAP_CELL = RoundedCornerShape(3.dp)
+
+/**
+ * When the member is away: from which day, and the day they're back. Shows where the membership will end
+ * now, since every paused day moves it out.
+ */
+@Composable
+private fun PauseSheet(membership: Membership, today: LocalDate, onPause: (from: LocalDate, back: LocalDate) -> Unit, onDismiss: () -> Unit) {
+    var from by remember { mutableStateOf(maxOf(today, membership.startDate)) }
+    var back by remember { mutableStateOf(from.plus(DEFAULT_PAUSE_DAYS, DateTimeUnit.DAY)) }
+    val days = from.daysUntil(back)
+    val valid = from >= membership.startDate && from <= membership.endDate && days > 0
+    MyGymBottomSheet(onDismiss) {
+        Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+            Text(stringResource(Res.string.pause_membership), style = MyGymTheme.typography.title)
+            Text(stringResource(Res.string.pause_sheet_body, membership.planName), style = MyGymTheme.typography.caption, color = MyGymTheme.colors.inkMuted)
+        }
+        DateField(
+            from,
+            { picked -> picked?.let { from = it; if (back <= it) back = it.plus(1, DateTimeUnit.DAY) } },
+            stringResource(Res.string.paused_from_label),
+        )
+        DateField(back, { picked -> picked?.let { back = it } }, stringResource(Res.string.back_on_label))
+        Text(
+            if (valid) {
+                stringResource(Res.string.pause_new_end, membership.endDate.plus(days, DateTimeUnit.DAY).formatFull(), membership.endDate.formatFull())
+            } else {
+                stringResource(Res.string.pause_invalid, formatDateRange(membership.startDate, membership.endDate))
+            },
+            style = MyGymTheme.typography.caption,
+            color = if (valid) MyGymTheme.colors.inkMuted else MyGymTheme.colors.statusDue,
+        )
+        MyGymButton(
+            if (valid) pluralStringResource(Res.plurals.pause_for_days, days, days) else stringResource(Res.string.pause_membership),
+            { onPause(from, back) },
+            Modifier.fillMaxWidth(),
+            enabled = valid,
+        )
+    }
+}
+
+/** What the pause sheet suggests: a fortnight away. */
+private const val DEFAULT_PAUSE_DAYS = 14
 
 @Composable
 private fun PaymentSheet(

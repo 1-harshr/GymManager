@@ -30,4 +30,13 @@ interface MembershipRepository {
 
     /** Also removes the membership's payments. */
     suspend fun deleteMembership(id: String)
+
+    /**
+     * Pauses the membership from [pausedFrom] until the member is back on [resumesOn], moving its end, and
+     * any renewal queued after it, out by those days.
+     */
+    suspend fun pauseMembership(id: String, pausedFrom: LocalDate, resumesOn: LocalDate)
+
+    /** Ends the membership's pause today, or cancels one still to come, giving back the days not used. */
+    suspend fun resumeMembership(id: String)
 }

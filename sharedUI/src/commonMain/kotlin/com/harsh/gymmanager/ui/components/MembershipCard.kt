@@ -31,6 +31,8 @@ import com.harsh.gymmanager.ui.theme.MyGymRadius
 import com.harsh.gymmanager.ui.theme.MyGymSpace
 import com.harsh.gymmanager.ui.theme.MyGymTheme
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.pluralStringResource
+import kotlinx.datetime.daysUntil
 
 /** One purchase or renewal: plan, dates, charged/paid/due, and its payments. */
 @Composable
@@ -43,11 +45,25 @@ fun MembershipCard(
     onDelete: (() -> Unit)?,
     onPaymentClick: ((Payment) -> Unit)?,
     modifier: Modifier = Modifier,
+    /** Null where pausing isn't offered, e.g. a finished membership or demo mode. */
+    onPause: (() -> Unit)? = null,
+    /** Ends the running pause, or cancels one still to come. */
+    onResume: (() -> Unit)? = null,
 ) {
     val colors = MyGymTheme.colors
     val typography = MyGymTheme.typography
     // A renewal that hasn't started yet has no status of its own.
     val status = if (membership.startDate > today) null else membershipStatus(membership.endDate, today, EXPIRING_SOON_DAYS)
+    val pause = membership.pauseOn(today)
+    val actions = listOfNotNull(
+        if (pause == null) onPause?.let { MenuAction(stringResource(Res.string.pause_membership), onClick = it) } else null,
+        if (pause != null) {
+            onResume?.let { MenuAction(stringResource(if (pause.isRunning(today)) Res.string.end_pause else Res.string.cancel_pause), onClick = it) }
+        } else {
+            null
+        },
+        onDelete?.let { MenuAction(stringResource(Res.string.delete_membership), destructive = true, onClick = it) },
+    )
     MyGymCard(modifier) {
         Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
             Column(Modifier.weight(1f)) {
@@ -55,19 +71,20 @@ fun MembershipCard(
                 val discount = if (membership.discount > 0) " · " + stringResource(Res.string.discount_off, formatRupees(membership.discount)) else ""
                 Text(formatDateRange(membership.startDate, membership.endDate) + discount, style = typography.caption, color = colors.inkMuted)
             }
-            if (status == null) {
-                Badge(stringResource(Res.string.starts_on, membership.startDate.formatDayMonth()), BadgeTone.Expired)
-            } else {
-                Badge(statusLabel(status, membership.endDate, today), status.tone())
+            when {
+                pause?.isRunning(today) == true -> Badge(stringResource(Res.string.paused_until, pause.resumesOn.formatDayMonth()), BadgeTone.Expiring)
+                status == null -> Badge(stringResource(Res.string.starts_on, membership.startDate.formatDayMonth()), BadgeTone.Expired)
+                else -> Badge(statusLabel(status, membership.endDate, today), status.tone())
             }
-            if (onDelete != null) {
+            if (actions.isNotEmpty()) {
                 MoreMenu(
-                    actions = listOf(MenuAction(stringResource(Res.string.delete_membership), destructive = true, onClick = onDelete)),
+                    actions = actions,
                     contentDescription = stringResource(Res.string.more_for, membership.planName),
                     container = colors.surface,
                 )
             }
         }
+        PauseNote(membership, today)
         Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm)) {
             MoneyFigure(stringResource(Res.string.charged), formatRupees(membership.amountCharged), Modifier.weight(1f))
             MoneyFigure(stringResource(Res.string.paid), formatRupees(membership.amountPaid), Modifier.weight(1f))
@@ -122,4 +139,23 @@ private fun PaidProgress(membership: Membership) {
     Box(Modifier.fillMaxWidth().height(6.dp).background(colors.surfaceSunken, MyGymRadius.pillShape)) {
         Box(Modifier.fillMaxWidth(fraction).fillMaxHeight().background(colors.ink, MyGymRadius.pillShape))
     }
+}
+
+/**
+ * A pause still to come, or how many paused days the dates already include, so a longer-than-usual
+ * membership explains itself. A running pause shows as the card's badge instead.
+ */
+@Composable
+private fun PauseNote(membership: Membership, today: LocalDate) {
+    val pause = membership.pauseOn(today)
+    val text = when {
+        pause != null && !pause.isRunning(today) ->
+            stringResource(Res.string.pause_upcoming, pause.pausedFrom.formatDayMonth(), pause.resumesOn.formatDayMonth())
+        pause == null && membership.pauses.isNotEmpty() -> {
+            val days = membership.pauses.sumOf { it.pausedFrom.daysUntil(it.resumesOn) }
+            pluralStringResource(Res.plurals.includes_paused_days, days, days)
+        }
+        else -> return
+    }
+    Text(text, style = MyGymTheme.typography.caption, color = MyGymTheme.colors.statusExpiring)
 }

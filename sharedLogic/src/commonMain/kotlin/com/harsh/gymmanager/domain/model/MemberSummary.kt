@@ -14,4 +14,6 @@ data class MemberSummary(
     /** Whole rupees still owed across all of the member's memberships. */
     val amountDue: Long,
     val status: MembershipStatus,
+    /** The day a paused member is back, while they're paused; null otherwise. */
+    val pausedUntil: LocalDate? = null,
 )

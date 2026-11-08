@@ -51,6 +51,8 @@ export interface MemberSummary {
   latest_end_date: string | null
   amount_due: number
   status: MemberStatus
+  /** The day a paused member is back, while they're paused. */
+  paused_until: string | null
 }
 
 export interface Payment {
@@ -75,6 +77,14 @@ export interface MembershipRecord {
   notes: string | null
   created_at: string
   payments: Payment[]
+  /** end_date already includes the days these add. */
+  membership_pauses: MembershipPause[]
+}
+
+/** A stretch the member is away: from paused_from until they're back on resumes_on. */
+export interface MembershipPause {
+  paused_from: string
+  resumes_on: string
 }
 
 export interface StaffMember {

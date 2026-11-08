@@ -26,6 +26,7 @@ import com.harsh.gymmanager.presentation.formatRupees
 import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.Avatar
 import com.harsh.gymmanager.ui.components.Badge
+import com.harsh.gymmanager.ui.components.MemberStatusBadge
 import com.harsh.gymmanager.ui.components.BadgeTone
 import com.harsh.gymmanager.ui.components.EmptyState
 import com.harsh.gymmanager.ui.components.MyGymIconButton
@@ -102,7 +103,7 @@ private fun QuietRow(item: QuietMember, onClick: () -> Unit, onSend: (() -> Unit
                 Text(member.name, style = MyGymTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(pluralStringResource(Res.plurals.last_came_days_ago, item.daysAway, item.daysAway), style = MyGymTheme.typography.body)
                 Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
-                    Badge(statusShortLabel(member.status, member.latestEndDate, today), member.status.tone())
+                    MemberStatusBadge(member, today)
                     if (member.amountDue > 0) Badge(formatRupees(member.amountDue), BadgeTone.Due)
                 }
                 sent?.let { Text(it, style = MyGymTheme.typography.caption, color = if (item.sentRecently) colors.statusActive else colors.inkMuted) }

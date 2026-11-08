@@ -4,7 +4,7 @@
  */
 import { addDays, daysBetween, endOfMonth, membershipEndDate, parseIso, shortDate, startOfMonth, addMonths, type IsoDate } from './dates'
 import { formatRupees } from './format'
-import type { MemberStatus, MemberSummary, MembershipRecord, Plan } from './types'
+import type { MemberStatus, MemberSummary, MembershipPause, MembershipRecord, Plan } from './types'
 
 export const EXPIRING_SOON_DAYS = 7
 export const OVERDUE_DAYS = 14
@@ -387,7 +387,8 @@ export interface QuietMember {
  */
 export function goneQuiet(members: MemberView[], lastVisits: Map<string, IsoDate>, today: IsoDate): QuietMember[] {
   return members
-    .filter((m) => !m.is_archived && (m.status === 'ACTIVE' || m.status === 'EXPIRING_SOON'))
+    // Paused members are away by arrangement, not gone quiet.
+    .filter((m) => !m.is_archived && (m.status === 'ACTIVE' || m.status === 'EXPIRING_SOON') && !m.paused_until)
     .flatMap((member) => {
       const lastVisit = lastVisits.get(member.member_id)
       if (!lastVisit) return []
@@ -395,6 +396,17 @@ export function goneQuiet(members: MemberView[], lastVisits: Map<string, IsoDate
       return daysAway >= GONE_QUIET_DAYS ? [{ member, lastVisit, daysAway }] : []
     })
     .sort((a, b) => a.daysAway - b.daysAway || byName(a.member, b.member))
+}
+
+// Pauses ------------------------------------------------------------------------------------------
+
+/** The membership's pause running on [today] or still to come, if any; a membership has at most one. */
+export function pauseOn(ms: Pick<MembershipRecord, 'membership_pauses'>, today: IsoDate): MembershipPause | null {
+  return ms.membership_pauses.find((p) => p.resumes_on > today) ?? null
+}
+
+export function pauseRunning(p: MembershipPause, today: IsoDate): boolean {
+  return today >= p.paused_from && today < p.resumes_on
 }
 
 // Inbox alerts ------------------------------------------------------------------------------------

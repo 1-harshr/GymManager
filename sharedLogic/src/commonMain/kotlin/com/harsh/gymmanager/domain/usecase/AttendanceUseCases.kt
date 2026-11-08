@@ -104,7 +104,8 @@ class AttendanceUseCases(
             val now = clock.now()
             val gymName = settings.gym?.name.orEmpty()
             members
-                .filter { it.status == MembershipStatus.ACTIVE || it.status == MembershipStatus.EXPIRING_SOON }
+                // Paused members are away by arrangement, not gone quiet.
+                .filter { (it.status == MembershipStatus.ACTIVE || it.status == MembershipStatus.EXPIRING_SOON) && it.pausedUntil == null }
                 .mapNotNull { member ->
                     val lastVisit = lastVisits[member.memberId] ?: return@mapNotNull null
                     val daysAway = lastVisit.daysUntil(today)

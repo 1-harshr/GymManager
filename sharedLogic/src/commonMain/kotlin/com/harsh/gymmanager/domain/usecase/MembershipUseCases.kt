@@ -89,10 +89,23 @@ class DeleteMembershipUseCase(private val repository: MembershipRepository) {
     suspend operator fun invoke(id: String): Result<Unit> = resultOf { repository.deleteMembership(id) }
 }
 
+/** While the member is away: the membership's end, and any renewal queued after it, move out by the paused days. */
+class PauseMembershipUseCase(private val repository: MembershipRepository) {
+    suspend operator fun invoke(id: String, pausedFrom: LocalDate, resumesOn: LocalDate): Result<Unit> =
+        resultOf { repository.pauseMembership(id, pausedFrom, resumesOn) }
+}
+
+/** Ends a pause today, or cancels one still to come, giving back the days not used. */
+class ResumeMembershipUseCase(private val repository: MembershipRepository) {
+    suspend operator fun invoke(id: String): Result<Unit> = resultOf { repository.resumeMembership(id) }
+}
+
 class MembershipUseCases(repository: MembershipRepository, clock: Clock, timeZone: TimeZone) {
     val observeMemberships = ObserveMembershipsUseCase(repository)
     val quoteMembership = QuoteMembershipUseCase(repository, clock, timeZone)
     val sellMembership = SellMembershipUseCase(repository, quoteMembership, clock, timeZone)
     val updateMembership = UpdateMembershipUseCase(repository)
     val deleteMembership = DeleteMembershipUseCase(repository)
+    val pauseMembership = PauseMembershipUseCase(repository)
+    val resumeMembership = ResumeMembershipUseCase(repository)
 }

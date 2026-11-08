@@ -102,7 +102,7 @@ fun MemberRow(
                 if (member.isArchived) {
                     Badge(stringResource(Res.string.archived), BadgeTone.Expired)
                 } else {
-                    Badge(statusShortLabel(member.status, member.latestEndDate, today), member.status.tone())
+                    MemberStatusBadge(member, today)
                 }
                 if (member.amountDue > 0) Badge(formatRupees(member.amountDue), BadgeTone.Due)
             }
@@ -174,7 +174,7 @@ fun MemberTile(
                 if (member.isArchived) {
                     Badge(stringResource(Res.string.archived), BadgeTone.Expired)
                 } else {
-                    Badge(statusShortLabel(member.status, member.latestEndDate, today), member.status.tone())
+                    MemberStatusBadge(member, today)
                 }
                 if (member.amountDue > 0) Badge(formatRupees(member.amountDue), BadgeTone.Due)
             }

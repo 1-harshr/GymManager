@@ -6,7 +6,7 @@ import kotlinx.datetime.LocalDate
 
 /**
  * One purchase or renewal. [startDate] and [endDate] are both inclusive.
- * [payments] is filled when reading; it is ignored when saving a membership.
+ * [payments] and [pauses] are filled when reading; they're ignored when saving a membership.
  */
 data class Membership(
     val id: String = "",
@@ -22,6 +22,8 @@ data class Membership(
     val discount: Long = 0,
     val notes: String? = null,
     val payments: List<Payment> = emptyList(),
+    /** Oldest first. [endDate] already includes the days they add. */
+    val pauses: List<MembershipPause> = emptyList(),
 ) {
     init {
         ensure(price >= 0, ValidationError.PRICE_NEGATIVE)
@@ -32,4 +34,12 @@ data class Membership(
     val amountCharged: Long get() = price - discount
     val amountPaid: Long get() = payments.sumOf { it.amount }
     val amountDue: Long get() = amountCharged - amountPaid
+
+    /** The pause running on [today] or still to come, if any; a membership has at most one. */
+    fun pauseOn(today: LocalDate): MembershipPause? = pauses.firstOrNull { it.resumesOn > today }
+}
+
+/** A stretch the member is away: from [pausedFrom] until they're back on [resumesOn]. */
+data class MembershipPause(val pausedFrom: LocalDate, val resumesOn: LocalDate) {
+    fun isRunning(today: LocalDate): Boolean = today >= pausedFrom && today < resumesOn
 }

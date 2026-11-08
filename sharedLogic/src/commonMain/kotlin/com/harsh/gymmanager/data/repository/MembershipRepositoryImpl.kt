@@ -54,4 +54,10 @@ class MembershipRepositoryImpl(
     }
 
     override suspend fun deleteMembership(id: String) = dao.deleteById(id.toLong())
+
+    // Demo mode's sample gym doesn't offer pausing; the screens don't show it there.
+    override suspend fun pauseMembership(id: String, pausedFrom: LocalDate, resumesOn: LocalDate) =
+        throw UnsupportedOperationException("Pausing needs the gym online")
+
+    override suspend fun resumeMembership(id: String) = throw UnsupportedOperationException("Pausing needs the gym online")
 }

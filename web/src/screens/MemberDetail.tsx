@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { Archive, MessageCircle, Pencil, Phone, RotateCcw, Trash2, UserCheck, UserX } from 'lucide-react'
+import { Archive, MessageCircle, Pause, Pencil, Phone, Play, RotateCcw, Trash2, UserCheck, UserX } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { addDays, age, daysBetween, fullDate, shortDate, shortMonthOf, startOfWeek, type IsoDate } from '@/lib/dates'
-import { charged, dateRange, due, GENDER_LABEL, MODE_LABEL, memberStatus, paid, reminderCandidates, statusLabel, statusTone, withStatus } from '@/lib/domain'
+import { charged, dateRange, due, GENDER_LABEL, MODE_LABEL, memberStatus, paid, pauseOn, pauseRunning, reminderCandidates, statusLabel, statusTone, withStatus } from '@/lib/domain'
 import { formatPhone, formatRupees, plural } from '@/lib/format'
 import type { Member, MembershipRecord, Payment } from '@/lib/types'
 import { receipt, reminder, welcome, whatsAppNumber } from '@/lib/whatsapp'
@@ -14,10 +14,10 @@ import { checkIn, checkInTime, MEMBER_HEATMAP_WEEKS, undoCheckIn, useMemberCheck
 import { explain } from '@/data/errors'
 import { PageHeader } from '@/components/Layout'
 import { Avatar } from '@/components/Media'
-import { Badge, Menu } from '@/components/bits'
+import { Badge, DateInput, Menu } from '@/components/bits'
 import { RecordPaymentSheet } from '@/components/RecordPayment'
 import { useOfferWhatsApp } from '@/components/WhatsApp'
-import { Button, Card, ConfirmSheet, EmptyState, IconButton, LinkButton, Skeleton, cx } from '@/components/ui'
+import { Button, Card, ConfirmSheet, EmptyState, Field, IconButton, LinkButton, Sheet, Skeleton, cx } from '@/components/ui'
 
 type Confirm =
   | { kind: 'member' }
@@ -36,6 +36,7 @@ export function MemberDetail() {
   const visits = useMemberCheckIns(id)
   const [paying, setPaying] = useState<MembershipRecord | null>(null)
   const [confirm, setConfirm] = useState<Confirm | null>(null)
+  const [pausing, setPausing] = useState<MembershipRecord | null>(null)
 
   const list = memberships.data ?? []
   const latestEnd = list.reduce<string | null>((max, m) => (!max || m.end_date > max ? m.end_date : max), null)
@@ -43,6 +44,7 @@ export function MemberDetail() {
   const totalDue = list.reduce((s, m) => s + due(m), 0)
   const owing = list.filter((m) => due(m) > 0)
   const oldestOwing = owing[owing.length - 1] ?? null
+  const runningPause = list.map((ms) => pauseOn(ms, today)).find((p) => p && pauseRunning(p, today)) ?? null
 
   const write = useWrite(async (action: () => PromiseLike<{ error: unknown }>) => {
     const { error } = await action()
@@ -52,7 +54,7 @@ export function MemberDetail() {
   const messages = useMemo(() => {
     const m = member.data
     if (!m) return []
-    const view = withStatus([{ member_id: m.id, name: m.name, phone: m.phone, photo_path: m.photo_path, is_archived: m.is_archived, latest_end_date: latestEnd, amount_due: totalDue, status: 'NONE' }], today)[0]
+    const view = withStatus([{ member_id: m.id, name: m.name, phone: m.phone, photo_path: m.photo_path, is_archived: m.is_archived, latest_end_date: latestEnd, amount_due: totalDue, status: 'NONE', paused_until: runningPause?.resumes_on ?? null }], today)[0]
     const remindable = reminderCandidates([view], today).length > 0
     return [remindable ? reminder({ ...view, id: m.id }, gym.gym.name, today) : null, list[0] ? receipt(m, gym.gym.name, list[0]) : null, welcome(m, gym.gym.name)]
   }, [member.data, list, latestEnd, totalDue, today, gym.gym.name])
@@ -119,7 +121,13 @@ export function MemberDetail() {
             <div className="flex items-center gap-4 p-6">
               <Avatar name={m.name} photoPath={m.photo_path} size={72} />
               <div className="min-w-0">
-                {m.is_archived ? <Badge tone="expired">Archived</Badge> : <Badge tone={statusTone(status)}>{statusLabel(status, latestEnd, today)}</Badge>}
+                {m.is_archived ? (
+                  <Badge tone="expired">Archived</Badge>
+                ) : runningPause ? (
+                  <Badge tone="expiring">Paused until {shortDate(runningPause.resumes_on, today)}</Badge>
+                ) : (
+                  <Badge tone={statusTone(status)}>{statusLabel(status, latestEnd, today)}</Badge>
+                )}
                 <p className="mt-2 text-caption text-muted">{!latestEnd ? 'No membership yet' : `${status === 'EXPIRED' ? 'Ended' : 'Ends'} ${fullDate(latestEnd)}`}</p>
               </div>
             </div>
@@ -159,8 +167,9 @@ export function MemberDetail() {
               today={today}
               busy={write.isPending}
               onCheckIn={() => {
-                const note =
-                  status === 'EXPIRED' ? ' · membership has ended' : status === 'NONE' ? ' · no membership yet' : totalDue > 0 ? ` · ${formatRupees(totalDue)} due` : ''
+                const note = runningPause
+                  ? ' · membership is paused'
+                  : status === 'EXPIRED' ? ' · membership has ended' : status === 'NONE' ? ' · no membership yet' : totalDue > 0 ? ` · ${formatRupees(totalDue)} due` : ''
                 run(() => checkIn(gym.gym.id, m.id).then(() => ({ error: null })), `${m.name} checked in${note}`)
               }}
               onUndo={(c) => run(() => undoCheckIn(c.id).then(() => ({ error: null })), `Check-in for ${m.name} undone`)}
@@ -182,6 +191,11 @@ export function MemberDetail() {
                     onPay={() => setPaying(ms)}
                     onDelete={() => setConfirm({ kind: 'membership', membership: ms })}
                     onDeletePayment={(p) => setConfirm({ kind: 'payment', payment: p })}
+                    // Only a membership that hasn't ended yet, running or still to start.
+                    onPause={ms.end_date >= today ? () => setPausing(ms) : undefined}
+                    onResume={() =>
+                      run(() => supabase.rpc('resume_membership', { membership_id: ms.id }), 'Pause ended')
+                    }
                   />
                 ))}
               </div>
@@ -193,6 +207,22 @@ export function MemberDetail() {
           )}
           </div>
           <RecordPaymentSheet member={m} membership={paying} onClose={() => setPaying(null)} />
+          {pausing ? (
+            <PauseSheet
+              key={pausing.id}
+              membership={pausing}
+              today={today}
+              busy={write.isPending}
+              onClose={() => setPausing(null)}
+              onPause={(from, back) =>
+                run(
+                  () => supabase.rpc('pause_membership', { membership_id: pausing.id, paused_from: from, resumes_on: back }),
+                  'Membership paused',
+                  () => setPausing(null),
+                )
+              }
+            />
+          ) : null}
         </div>
       )}
 
@@ -267,6 +297,8 @@ function MembershipCard({
   onPay,
   onDelete,
   onDeletePayment,
+  onPause,
+  onResume,
 }: {
   membership: MembershipRecord
   today: string
@@ -275,8 +307,18 @@ function MembershipCard({
   onPay: () => void
   onDelete: () => void
   onDeletePayment: (p: Payment) => void
+  /** Missing for a membership that has ended. */
+  onPause?: () => void
+  /** Ends the running pause, or cancels one still to come. */
+  onResume: () => void
 }) {
   const total = charged(ms)
+  const pause = pauseOn(ms, today)
+  const menu = [
+    ...(pause ? [{ label: pauseRunning(pause, today) ? 'End pause' : 'Cancel pause', icon: Play, onClick: onResume }] : onPause ? [{ label: 'Pause membership', icon: Pause, onClick: onPause }] : []),
+    ...(isOwner ? [{ label: 'Delete membership', icon: Trash2, destructive: true, onClick: onDelete }] : []),
+  ]
+  const pausedDays = ms.membership_pauses.reduce((sum, p) => sum + daysBetween(p.paused_from, p.resumes_on), 0)
   const got = paid(ms)
   const left = due(ms)
   const status = memberStatus(ms.end_date, today)
@@ -290,13 +332,22 @@ function MembershipCard({
             {ms.discount > 0 ? ` · ${formatRupees(ms.discount)} off` : ''}
           </p>
         </div>
-        {ms.start_date > today ? (
+        {pause && pauseRunning(pause, today) ? (
+          <Badge tone="expiring">Paused until {shortDate(pause.resumes_on, today)}</Badge>
+        ) : ms.start_date > today ? (
           <Badge tone="expired">Starts {shortDate(ms.start_date, today)}</Badge>
         ) : (
           <Badge tone={statusTone(status)}>{statusLabel(status, ms.end_date, today)}</Badge>
         )}
-        {isOwner ? <Menu label={`More for ${ms.plan_name}`} filled={false} items={[{ label: 'Delete membership', icon: Trash2, destructive: true, onClick: onDelete }]} /> : null}
+        {menu.length > 0 ? <Menu label={`More for ${ms.plan_name}`} filled={false} items={menu} /> : null}
       </div>
+      {pause && !pauseRunning(pause, today) ? (
+        <p className="mt-2 text-caption text-expiring">
+          Paused from {shortDate(pause.paused_from, today)}, back on {shortDate(pause.resumes_on, today)}
+        </p>
+      ) : !pause && pausedDays > 0 ? (
+        <p className="mt-2 text-caption text-expiring">Includes {plural(pausedDays, 'paused day', 'paused days')}</p>
+      ) : null}
       <div className="mt-4 grid grid-cols-3 gap-3">
         <Figure label="Charged" value={formatRupees(total)} />
         <Figure label="Paid" value={formatRupees(got)} />
@@ -414,5 +465,60 @@ function VisitHeatmap({ visits, today }: { visits: CheckIn[]; today: IsoDate }) 
       </div>
       <p className="mt-2 text-caption text-muted">{summary}</p>
     </div>
+  )
+}
+
+/** What the pause sheet suggests: a fortnight away. */
+const DEFAULT_PAUSE_DAYS = 14
+
+/**
+ * When the member is away: from which day, and the day they're back. Shows where the membership will end
+ * now, since every paused day moves it out.
+ */
+function PauseSheet({
+  membership: ms,
+  today,
+  busy,
+  onClose,
+  onPause,
+}: {
+  membership: MembershipRecord
+  today: IsoDate
+  busy: boolean
+  onClose: () => void
+  onPause: (from: IsoDate, back: IsoDate) => void
+}) {
+  const start = ms.start_date > today ? ms.start_date : today
+  const [from, setFrom] = useState(start)
+  const [back, setBack] = useState(addDays(start, DEFAULT_PAUSE_DAYS))
+  const days = daysBetween(from, back)
+  const valid = from >= ms.start_date && from <= ms.end_date && days > 0
+  return (
+    <Sheet
+      open
+      onClose={onClose}
+      busy={busy}
+      title="Pause membership"
+      footer={
+        <Button className="w-full" busy={busy} disabled={!valid} onClick={() => onPause(from, back)}>
+          {valid ? `Pause for ${plural(days, 'day', 'days')}` : 'Pause membership'}
+        </Button>
+      }
+    >
+      <p className="text-caption text-muted">{ms.plan_name} ends later by every day it’s paused.</p>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        <Field label="Paused from">
+          <DateInput value={from} min={ms.start_date} max={ms.end_date} onChange={(d) => { setFrom(d); if (back <= d) setBack(addDays(d, 1)) }} />
+        </Field>
+        <Field label="Back on">
+          <DateInput value={back} min={addDays(from, 1)} onChange={setBack} />
+        </Field>
+      </div>
+      <p className={cx('mt-4 text-caption', valid ? 'text-muted' : 'text-due')}>
+        {valid
+          ? `Now ends ${fullDate(addDays(ms.end_date, days))} instead of ${fullDate(ms.end_date)}`
+          : `Start the pause within ${dateRange(ms.start_date, ms.end_date)}, and pick a later back date.`}
+      </p>
+    </Sheet>
   )
 }

@@ -7,6 +7,7 @@ import com.harsh.gymmanager.domain.model.Gender
 import com.harsh.gymmanager.domain.model.Member
 import com.harsh.gymmanager.domain.model.MemberSummary
 import com.harsh.gymmanager.domain.model.Membership
+import com.harsh.gymmanager.domain.model.MembershipPause
 import com.harsh.gymmanager.domain.model.Payment
 import com.harsh.gymmanager.domain.model.PaymentMode
 import com.harsh.gymmanager.domain.model.PaymentRecord
@@ -64,6 +65,7 @@ internal data class MemberSummaryRow(
     @SerialName("is_archived") val isArchived: Boolean,
     @SerialName("latest_end_date") val latestEndDate: LocalDate? = null,
     @SerialName("amount_due") val amountDue: Long,
+    @SerialName("paused_until") val pausedUntil: LocalDate? = null,
 ) {
     /** Status is worked out on the phone, as for the phone's own records, so both agree on "today". */
     fun toDomain(today: LocalDate) = MemberSummary(
@@ -75,6 +77,7 @@ internal data class MemberSummaryRow(
         latestEndDate = latestEndDate,
         amountDue = amountDue,
         status = membershipStatus(latestEndDate, today, EXPIRING_SOON_DAYS),
+        pausedUntil = pausedUntil,
     )
 }
 
@@ -102,6 +105,7 @@ internal data class MembershipRow(
     val discount: Long,
     val notes: String? = null,
     val payments: List<PaymentRow> = emptyList(),
+    @SerialName("membership_pauses") val pauses: List<PauseRow> = emptyList(),
 ) {
     fun toDomain() = Membership(
         id = id,
@@ -114,8 +118,15 @@ internal data class MembershipRow(
         discount = discount,
         notes = notes,
         payments = payments.sortedBy { it.paidOn }.map { it.toDomain() },
+        pauses = pauses.sortedBy { it.pausedFrom }.map { MembershipPause(it.pausedFrom, it.resumesOn) },
     )
 }
+
+@Serializable
+internal data class PauseRow(
+    @SerialName("paused_from") val pausedFrom: LocalDate,
+    @SerialName("resumes_on") val resumesOn: LocalDate,
+)
 
 /** A payment with who paid and for what, for the payments lists. */
 @Serializable

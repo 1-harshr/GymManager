@@ -32,6 +32,7 @@ import com.harsh.gymmanager.ui.LocalSnackbar
 import com.harsh.gymmanager.ui.components.LoadingMark
 import com.harsh.gymmanager.ui.components.Avatar
 import com.harsh.gymmanager.ui.components.Badge
+import com.harsh.gymmanager.ui.components.MemberStatusBadge
 import com.harsh.gymmanager.ui.components.BadgeTone
 import com.harsh.gymmanager.ui.components.EmptyState
 import com.harsh.gymmanager.ui.components.MyGymCard
@@ -162,7 +163,7 @@ private fun MemberRow(
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
                 Text(member.name, style = MyGymTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
-                    Badge(statusShortLabel(member.status, member.latestEndDate, today), member.status.tone())
+                    MemberStatusBadge(member, today)
                     if (member.amountDue > 0) Badge(formatRupees(member.amountDue), BadgeTone.Due)
                 }
                 note?.let { Text(it, style = MyGymTheme.typography.caption, color = colors.inkMuted) }

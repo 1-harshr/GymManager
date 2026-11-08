@@ -30,6 +30,7 @@ import com.harsh.gymmanager.ui.components.MyGymButton
 import com.harsh.gymmanager.ui.components.MyGymIconButton
 import com.harsh.gymmanager.ui.components.Avatar
 import com.harsh.gymmanager.ui.components.Badge
+import com.harsh.gymmanager.ui.components.MemberStatusBadge
 import com.harsh.gymmanager.ui.components.BadgeTone
 import com.harsh.gymmanager.ui.components.ButtonKind
 import com.harsh.gymmanager.ui.components.EmptyState
@@ -140,7 +141,7 @@ private fun ReminderRow(item: ReminderItem, onClick: () -> Unit, onSend: (() -> 
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
                 Text(member.name, style = MyGymTheme.typography.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Row(horizontalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
-                    Badge(statusShortLabel(member.status, member.latestEndDate, today), member.status.tone())
+                    MemberStatusBadge(member, today)
                     if (member.amountDue > 0) Badge(formatRupees(member.amountDue), BadgeTone.Due)
                 }
                 note?.let {

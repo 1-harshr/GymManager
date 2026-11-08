@@ -753,4 +753,26 @@
     <string name="deleting_account">Deleting…</string>
     <string name="delete_account_check_failed">Couldn’t check your account</string>
     <string name="err_hand_over_first">Make someone else an owner first.</string>
+    <string name="pause_membership">Pause membership</string>
+    <string name="end_pause">End pause</string>
+    <string name="cancel_pause">Cancel pause</string>
+    <string name="paused">Paused</string>
+    <string name="paused_until">Paused until %1$s</string>
+    <string name="pause_upcoming">Paused from %1$s, back on %2$s</string>
+    <string name="pause_sheet_body">%1$s ends later by every day it’s paused.</string>
+    <string name="paused_from_label">Paused from</string>
+    <string name="back_on_label">Back on</string>
+    <string name="pause_new_end">Now ends %1$s instead of %2$s</string>
+    <string name="pause_invalid">Start the pause within %1$s, and pick a later back date.</string>
+    <string name="msg_membership_paused">Membership paused</string>
+    <string name="msg_membership_resumed">Pause ended</string>
+    <string name="msg_checked_in_paused">%1$s checked in. Their membership is paused.</string>
+    <plurals name="includes_paused_days">
+        <item quantity="one">Includes %1$d paused day</item>
+        <item quantity="other">Includes %1$d paused days</item>
+    </plurals>
+    <plurals name="pause_for_days">
+        <item quantity="one">Pause for %1$d day</item>
+        <item quantity="other">Pause for %1$d days</item>
+    </plurals>
 </resources>

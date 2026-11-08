@@ -85,9 +85,9 @@ describe('import', () => {
 
 describe('gone quiet', () => {
   const today = '2026-11-20'
-  const member = (id: string, end: string | null) => ({ member_id: id, name: id, phone: null, photo_path: null, is_archived: false, latest_end_date: end, amount_due: 0, status: 'NONE' as const })
+  const member = (id: string, end: string | null, pausedUntil: string | null = null) => ({ member_id: id, name: id, phone: null, photo_path: null, is_archived: false, latest_end_date: end, amount_due: 0, status: 'NONE' as const, paused_until: pausedUntil })
   const members = withStatus(
-    [member('away', '2026-12-31'), member('recent', '2026-12-31'), member('regular', '2026-12-31'), member('never', '2026-12-31'), member('lapsed', '2026-11-01')],
+    [member('away', '2026-12-31'), member('recent', '2026-12-31'), member('regular', '2026-12-31'), member('never', '2026-12-31'), member('lapsed', '2026-11-01'), member('paused', '2026-12-31', '2026-12-01')],
     today,
   )
   const lastVisits = new Map([
@@ -95,8 +95,9 @@ describe('gone quiet', () => {
     ['recent', '2026-11-06'],
     ['regular', '2026-11-17'],
     ['lapsed', '2026-10-01'],
+    ['paused', '2026-10-15'],
   ])
-  it('lists running members away two weeks or more, most recently gone first', () => {
+  it('lists running members away two weeks or more, most recently gone first, leaving out the paused', () => {
     expect(goneQuiet(members, lastVisits, today).map((q) => [q.member.member_id, q.daysAway])).toEqual([
       ['recent', 14],
       ['away', 30],

@@ -130,7 +130,11 @@ class MemberDetailViewModel(
             val message = attendance.checkIn(memberId).fold(
                 {
                     if (already) UiMessage.AlreadyCheckedIn(detail.member.name)
-                    else UiMessage.CheckedIn(detail.member.name, detail.status, detail.totalDue)
+                    else {
+                        val today = clock.todayIn(timeZone)
+                        val paused = detail.memberships.any { it.pauseOn(today)?.isRunning(today) == true }
+                        UiMessage.CheckedIn(detail.member.name, detail.status, detail.totalDue, paused)
+                    }
                 },
                 { it.toUiMessage() },
             )
@@ -148,6 +152,12 @@ class MemberDetailViewModel(
 
     fun deleteMembership(membershipId: String) =
         run(UiMessage.MembershipDeleted) { membershipUseCases.deleteMembership(membershipId) }
+
+    fun pauseMembership(membershipId: String, pausedFrom: LocalDate, resumesOn: LocalDate) =
+        run(UiMessage.MembershipPaused) { membershipUseCases.pauseMembership(membershipId, pausedFrom, resumesOn) }
+
+    fun resumeMembership(membershipId: String) =
+        run(UiMessage.MembershipResumed) { membershipUseCases.resumeMembership(membershipId) }
 
     fun archiveMember() = run(UiMessage.MemberArchived) { memberUseCases.archiveMember(memberId) }
 

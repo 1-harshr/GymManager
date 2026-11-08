@@ -28,7 +28,7 @@ internal class SupabaseMembershipRepository(
 
     /** Newest first, as the phone's own list orders them. */
     override fun observeMemberships(memberId: String): Flow<List<Membership>> = refresher.observe {
-        memberships.select(Columns.raw("*, payments(*)")) {
+        memberships.select(Columns.raw("*, payments(*), $PAUSES")) {
             filter { eq("member_id", memberId) }
             order("start_date", Order.DESCENDING)
         }.decodeList<MembershipRow>().map { it.toDomain() }
@@ -36,7 +36,7 @@ internal class SupabaseMembershipRepository(
 
     /** Every membership of members who aren't archived. */
     override fun observeAllMemberships(): Flow<List<Membership>> = refresher.observe {
-        memberships.select(Columns.raw("*, payments(*), members!inner(is_archived)")) {
+        memberships.select(Columns.raw("*, payments(*), $PAUSES, members!inner(is_archived)")) {
             filter { eq("members.is_archived", false) }
         }.decodeList<MembershipRow>().map { it.toDomain() }
     }
@@ -85,6 +85,23 @@ internal class SupabaseMembershipRepository(
         Unit
     }
 
+    override suspend fun pauseMembership(id: String, pausedFrom: LocalDate, resumesOn: LocalDate) = write {
+        supabase.postgrest.rpc(
+            "pause_membership",
+            buildJsonObject {
+                put("membership_id", id)
+                put("paused_from", pausedFrom.toString())
+                put("resumes_on", resumesOn.toString())
+            },
+        )
+        Unit
+    }
+
+    override suspend fun resumeMembership(id: String) = write {
+        supabase.postgrest.rpc("resume_membership", buildJsonObject { put("membership_id", id) })
+        Unit
+    }
+
     private suspend fun <T> write(block: suspend () -> T): T = remote(block).also { refresher.changed() }
 
     private fun Membership.toItem(payment: Payment?): JsonObject = buildJsonObject {
@@ -111,3 +128,5 @@ internal class SupabaseMembershipRepository(
     @Serializable
     private data class EndDateRow(@SerialName("end_date") val endDate: LocalDate)
 }
+
+private const val PAUSES = "membership_pauses(paused_from, resumes_on)"

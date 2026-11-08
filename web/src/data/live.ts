@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 
-const RECORD_TABLES = ['plans', 'members', 'memberships', 'payments', 'check_ins']
+const RECORD_TABLES = ['plans', 'members', 'memberships', 'payments', 'check_ins', 'membership_pauses']
 const GYM_TABLES = ['gyms', 'gym_staff']
 
 /**

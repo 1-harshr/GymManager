@@ -50,6 +50,7 @@ private fun UiMessage.text(): Text = when (this) {
     is UiMessage.PaymentRecorded -> Text.Plain(Res.string.msg_payment_recorded, listOf(formatRupees(amount)))
     UiMessage.PaymentDeleted -> Text.Plain(Res.string.msg_payment_deleted)
     is UiMessage.CheckedIn -> when {
+        paused -> Text.Plain(Res.string.msg_checked_in_paused, listOf(name))
         status == MembershipStatus.EXPIRED -> Text.Plain(Res.string.msg_checked_in_expired, listOf(name))
         status == MembershipStatus.NONE -> Text.Plain(Res.string.msg_checked_in_no_plan, listOf(name))
         amountDue > 0 -> Text.Plain(Res.string.msg_checked_in_due, listOf(name, formatRupees(amountDue)))
@@ -58,6 +59,8 @@ private fun UiMessage.text(): Text = when (this) {
     is UiMessage.AlreadyCheckedIn -> Text.Plain(Res.string.msg_already_checked_in, listOf(name))
     is UiMessage.CheckInUndone -> Text.Plain(Res.string.msg_check_in_undone, listOf(name))
     UiMessage.MembershipDeleted -> Text.Plain(Res.string.msg_membership_deleted)
+    UiMessage.MembershipPaused -> Text.Plain(Res.string.msg_membership_paused)
+    UiMessage.MembershipResumed -> Text.Plain(Res.string.msg_membership_resumed)
     UiMessage.MemberArchived -> Text.Plain(Res.string.msg_member_archived)
     UiMessage.MemberRestored -> Text.Plain(Res.string.msg_member_restored)
     UiMessage.PlanArchived -> Text.Plain(Res.string.msg_plan_archived)

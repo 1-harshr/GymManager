@@ -753,4 +753,26 @@
     <string name="deleting_account">मिटा रहे हैं…</string>
     <string name="delete_account_check_failed">आपका खाता जाँच नहीं पाए</string>
     <string name="err_hand_over_first">पहले किसी और को मालिक बनाएँ।</string>
+    <string name="pause_membership">मेंबरशिप रोकें</string>
+    <string name="end_pause">रोक हटाएँ</string>
+    <string name="cancel_pause">रोक रद्द करें</string>
+    <string name="paused">रुकी हुई</string>
+    <string name="paused_until">%1$s तक रुकी</string>
+    <string name="pause_upcoming">%1$s से रुकेगी, %2$s को वापस</string>
+    <string name="pause_sheet_body">%1$s जितने दिन रुकेगी, उतने दिन बाद ख़त्म होगी।</string>
+    <string name="paused_from_label">कब से रोकें</string>
+    <string name="back_on_label">वापसी की तारीख़</string>
+    <string name="pause_new_end">अब %2$s की जगह %1$s को ख़त्म होगी</string>
+    <string name="pause_invalid">रोक %1$s के बीच शुरू करें, और वापसी की तारीख़ बाद की चुनें।</string>
+    <string name="msg_membership_paused">मेंबरशिप रोक दी गई</string>
+    <string name="msg_membership_resumed">रोक हटा दी गई</string>
+    <string name="msg_checked_in_paused">%1$s की हाज़िरी लगी। उनकी मेंबरशिप रुकी हुई है।</string>
+    <plurals name="includes_paused_days">
+        <item quantity="one">इसमें %1$d दिन की रोक शामिल है</item>
+        <item quantity="other">इसमें %1$d दिन की रोक शामिल है</item>
+    </plurals>
+    <plurals name="pause_for_days">
+        <item quantity="one">%1$d दिन के लिए रोकें</item>
+        <item quantity="other">%1$d दिन के लिए रोकें</item>
+    </plurals>
 </resources>

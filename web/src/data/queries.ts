@@ -30,7 +30,7 @@ export function useToday(): IsoDate {
   return today
 }
 
-const SUMMARY = 'member_id, name, phone, photo_path, is_archived, latest_end_date, amount_due'
+const SUMMARY = 'member_id, name, phone, photo_path, is_archived, latest_end_date, amount_due, paused_until'
 
 /** Every member with their status for today; archived ones too, flagged. */
 export function useMemberSummaries() {
@@ -51,7 +51,7 @@ export function useMember(id: string | undefined) {
   })
 }
 
-const MEMBERSHIP = 'id, member_id, plan_id, plan_name, start_date, end_date, price, discount, notes, created_at, payments(id, membership_id, amount, mode, paid_on, note, created_at)'
+const MEMBERSHIP = 'id, member_id, plan_id, plan_name, start_date, end_date, price, discount, notes, created_at, payments(id, membership_id, amount, mode, paid_on, note, created_at), membership_pauses(paused_from, resumes_on)'
 
 function sortPayments<T extends MembershipRecord>(list: T[]): T[] {
   return list.map((m) => ({ ...m, payments: [...m.payments].sort((a, b) => a.paid_on.localeCompare(b.paid_on) || a.created_at.localeCompare(b.created_at)) }))

@@ -58,7 +58,7 @@ internal class LiveChanges(
     }
 
     private companion object {
-        val RECORD_TABLES = listOf("plans", "members", "memberships", "payments", "check_ins")
+        val RECORD_TABLES = listOf("plans", "members", "memberships", "payments", "check_ins", "membership_pauses")
 
         /** The gym's own details and its staff, which decide what the person sees and may do. */
         val GYM_TABLES = listOf("gyms", "gym_staff")

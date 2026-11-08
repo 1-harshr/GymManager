@@ -21,6 +21,7 @@ const MAX_MATCHES = 20
 
 /** What staff hear after a check-in: a warning when the plan has ended or money is owed. */
 function checkedInNote(m: MemberView): string {
+  if (m.paused_until) return `${m.name} checked in · membership is paused`
   if (m.status === 'EXPIRED') return `${m.name} checked in · membership has ended`
   if (m.status === 'NONE') return `${m.name} checked in · no membership yet`
   if (m.amount_due > 0) return `${m.name} checked in · ${formatRupees(m.amount_due)} due`

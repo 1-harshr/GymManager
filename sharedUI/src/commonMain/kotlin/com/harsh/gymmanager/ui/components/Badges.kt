@@ -17,6 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.harsh.gymmanager.domain.MembershipStatus
 import com.harsh.gymmanager.presentation.formatRupees
+import com.harsh.gymmanager.domain.model.MemberSummary
+import com.harsh.gymmanager.ui.format.statusShortLabel
+import kotlinx.datetime.LocalDate
 import com.harsh.gymmanager.ui.theme.MyGymRadius
 import com.harsh.gymmanager.ui.theme.MyGymTheme
 
@@ -52,6 +55,15 @@ fun Badge(text: String, tone: BadgeTone, modifier: Modifier = Modifier, showDot:
         Text(text, style = MyGymTheme.typography.caption.copy(fontWeight = MyGymTheme.typography.bodyStrong.fontWeight), color = ink, maxLines = 1)
     }
 }
+
+/** A member's state in a list row: "Paused" while they're away, otherwise their membership's status. */
+@Composable
+fun MemberStatusBadge(member: MemberSummary, today: LocalDate, modifier: Modifier = Modifier) =
+    if (member.pausedUntil != null) {
+        Badge(stringResource(Res.string.paused), BadgeTone.Expiring, modifier)
+    } else {
+        Badge(statusShortLabel(member.status, member.latestEndDate, today), member.status.tone(), modifier)
+    }
 
 @Composable
 fun DueBadge(amount: Long, modifier: Modifier = Modifier) = Badge(stringResource(Res.string.amount_due, formatRupees(amount)), BadgeTone.Due, modifier)

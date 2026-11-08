@@ -37,6 +37,8 @@ sealed interface UiMessage {
     data class PaymentRecorded(val amount: Long) : UiMessage
     data object PaymentDeleted : UiMessage
     data object MembershipDeleted : UiMessage
+    data object MembershipPaused : UiMessage
+    data object MembershipResumed : UiMessage
     data object MemberArchived : UiMessage
     data object MemberRestored : UiMessage
     data object PlanArchived : UiMessage
@@ -49,7 +51,7 @@ sealed interface UiMessage {
 
     // Attendance
     /** [status] and [amountDue] let the message warn when the membership has ended or money is owed. */
-    data class CheckedIn(val name: String, val status: MembershipStatus, val amountDue: Long) : UiMessage
+    data class CheckedIn(val name: String, val status: MembershipStatus, val amountDue: Long, val paused: Boolean = false) : UiMessage
     data class AlreadyCheckedIn(val name: String) : UiMessage
     data class CheckInUndone(val name: String) : UiMessage
 
