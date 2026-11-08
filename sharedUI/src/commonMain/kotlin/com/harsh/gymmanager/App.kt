@@ -70,6 +70,10 @@ import com.harsh.gymmanager.navigation.SettingsRoute
 import com.harsh.gymmanager.presentation.settings.SettingsViewModel
 import com.harsh.gymmanager.navigation.RemindersRoute
 import com.harsh.gymmanager.navigation.InboxRoute
+import com.harsh.gymmanager.navigation.AttendanceRoute
+import com.harsh.gymmanager.navigation.GoneQuietRoute
+import com.harsh.gymmanager.ui.screens.attendance.AttendanceScreen
+import com.harsh.gymmanager.ui.screens.attendance.GoneQuietScreen
 import com.harsh.gymmanager.ui.screens.inbox.InboxScreen
 import com.harsh.gymmanager.ui.screens.reminders.RemindersScreen
 import com.harsh.gymmanager.ui.messaging.WhatsAppSheet
@@ -353,6 +357,7 @@ private fun AppContent(
                                     onImportMembers = { nav.navigate(ImportMembersRoute) },
                                     onOpenReminders = { nav.navigate(RemindersRoute) },
                                     onOpenInbox = { nav.navigate(InboxRoute) },
+                                    onOpenAttendance = { nav.navigate(AttendanceRoute) },
                                     homeFeatures = settings.homeFeatures,
                                     membersAsGrid = settings.membersAsGrid,
                                     onMembersAsGridChange = settingsVm::onMembersAsGridChange,
@@ -452,6 +457,20 @@ private fun AppContent(
                         composable<RemindersRoute> {
                             Destination {
                                 RemindersScreen(onBack = { nav.popBackStack() }, onOpenMember = { nav.navigate(MemberDetailRoute(it)) })
+                            }
+                        }
+                        composable<AttendanceRoute> {
+                            Destination {
+                                AttendanceScreen(
+                                    onBack = { nav.popBackStack() },
+                                    onOpenMember = { nav.navigate(MemberDetailRoute(it)) },
+                                    onOpenGoneQuiet = { nav.navigate(GoneQuietRoute) },
+                                )
+                            }
+                        }
+                        composable<GoneQuietRoute> {
+                            Destination {
+                                GoneQuietScreen(onBack = { nav.popBackStack() }, onOpenMember = { nav.navigate(MemberDetailRoute(it)) })
                             }
                         }
                         composable<InboxRoute> {

@@ -1,15 +1,16 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { Archive, MessageCircle, Pencil, Phone, RotateCcw, Trash2, UserX } from 'lucide-react'
+import { Archive, MessageCircle, Pencil, Phone, RotateCcw, Trash2, UserCheck, UserX } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
-import { age, fullDate, shortDate } from '@/lib/dates'
+import { addDays, age, daysBetween, fullDate, shortDate, shortMonthOf, startOfWeek, type IsoDate } from '@/lib/dates'
 import { charged, dateRange, due, GENDER_LABEL, MODE_LABEL, memberStatus, paid, reminderCandidates, statusLabel, statusTone, withStatus } from '@/lib/domain'
 import { formatPhone, formatRupees, plural } from '@/lib/format'
 import type { Member, MembershipRecord, Payment } from '@/lib/types'
 import { receipt, reminder, welcome, whatsAppNumber } from '@/lib/whatsapp'
 import { useGym } from '@/data/session'
 import { useMember, useMemberships, useToday, useWrite } from '@/data/queries'
+import { checkIn, checkInTime, MEMBER_HEATMAP_WEEKS, undoCheckIn, useMemberCheckIns, type CheckIn } from '@/data/attendance'
 import { explain } from '@/data/errors'
 import { PageHeader } from '@/components/Layout'
 import { Avatar } from '@/components/Media'
@@ -32,6 +33,7 @@ export function MemberDetail() {
   const offer = useOfferWhatsApp()
   const member = useMember(id)
   const memberships = useMemberships(id)
+  const visits = useMemberCheckIns(id)
   const [paying, setPaying] = useState<MembershipRecord | null>(null)
   const [confirm, setConfirm] = useState<Confirm | null>(null)
 
@@ -151,6 +153,19 @@ export function MemberDetail() {
             )}
           </div>
 
+          {!m.is_archived && visits.data ? (
+            <AttendanceCard
+              visits={visits.data}
+              today={today}
+              busy={write.isPending}
+              onCheckIn={() => {
+                const note =
+                  status === 'EXPIRED' ? ' · membership has ended' : status === 'NONE' ? ' · no membership yet' : totalDue > 0 ? ` · ${formatRupees(totalDue)} due` : ''
+                run(() => checkIn(gym.gym.id, m.id).then(() => ({ error: null })), `${m.name} checked in${note}`)
+              }}
+              onUndo={(c) => run(() => undoCheckIn(c.id).then(() => ({ error: null })), `Check-in for ${m.name} undone`)}
+            />
+          ) : null}
           </div>
           <div>
           {list.length > 0 ? (
@@ -325,6 +340,79 @@ function Figure({ label, value, tone }: { label: string; value: string; tone?: '
     <div>
       <p className="text-caption text-muted">{label}</p>
       <p className={cx('text-body-strong tnum', tone === 'due' && 'text-due', tone === 'active' && 'text-active')}>{value}</p>
+    </div>
+  )
+}
+
+/** When they last came and how often this month, with today's check-in or the button to make it. */
+function AttendanceCard({ visits, today, busy, onCheckIn, onUndo }: { visits: CheckIn[]; today: IsoDate; busy: boolean; onCheckIn: () => void; onUndo: (c: CheckIn) => void }) {
+  const todays = visits.find((v) => v.checked_in_on === today)
+  const last = visits[0]?.checked_in_on
+  const away = last ? daysBetween(last, today) : 0
+  const thisMonth = visits.filter((v) => v.checked_in_on.slice(0, 7) === today.slice(0, 7)).length
+  return (
+    <Card className="p-5">
+      <div className="flex items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-label text-muted">Attendance</p>
+          <p className="mt-1 text-body-strong">
+            {!last ? 'No visits yet' : away === 0 ? 'Came in today' : away === 1 ? 'Last came yesterday' : `Last came ${plural(away, 'day', 'days')} ago`}
+          </p>
+          {last ? <p className="text-caption text-muted">{plural(thisMonth, 'visit', 'visits')} this month</p> : null}
+        </div>
+        {todays ? (
+          <div className="text-right">
+            <p className="text-caption text-active">Checked in at {checkInTime(todays)}</p>
+            <LinkButton disabled={busy} onClick={() => onUndo(todays)}>
+              Undo
+            </LinkButton>
+          </div>
+        ) : (
+          <Button size="sm" icon={UserCheck} busy={busy} onClick={onCheckIn}>
+            Check in
+          </Button>
+        )}
+      </div>
+      {last ? <VisitHeatmap visits={visits} today={today} /> : null}
+    </Card>
+  )
+}
+
+/**
+ * The last [MEMBER_HEATMAP_WEEKS] weeks as a grid, one column a week running Monday to Sunday, with
+ * each day they came filled in.
+ */
+function VisitHeatmap({ visits, today }: { visits: CheckIn[]; today: IsoDate }) {
+  const firstMonday = addDays(startOfWeek(today), -7 * (MEMBER_HEATMAP_WEEKS - 1))
+  const days = new Set(visits.map((v) => v.checked_in_on))
+  const shown = visits.filter((v) => v.checked_in_on >= firstMonday).length
+  const weeks = Array.from({ length: MEMBER_HEATMAP_WEEKS }, (_, w) => addDays(firstMonday, 7 * w))
+  const summary = `${plural(shown, 'visit', 'visits')} in the last ${MEMBER_HEATMAP_WEEKS} weeks`
+  return (
+    <div className="mt-4" role="img" aria-label={summary}>
+      <div className="grid max-w-sm gap-[3px]" style={{ gridTemplateColumns: `repeat(${MEMBER_HEATMAP_WEEKS}, minmax(0, 1fr))` }}>
+        {/* Each month is named over the week holding its first Monday. */}
+        {weeks.map((monday) => (
+          <p key={monday} className="overflow-visible whitespace-nowrap text-caption text-muted">
+            {Number(monday.slice(8)) <= 7 ? shortMonthOf(monday) : null}
+          </p>
+        ))}
+        {Array.from({ length: 7 }, (_, weekday) =>
+          weeks.map((monday) => {
+            const day = addDays(monday, weekday)
+            if (day > today) return <span key={day} />
+            const came = days.has(day)
+            return (
+              <span
+                key={day}
+                title={`${shortDate(day, today)}${came ? ' · came in' : ''}`}
+                className={cx('aspect-square rounded-[3px]', came ? 'bg-active' : 'bg-sunken')}
+              />
+            )
+          }),
+        )}
+      </div>
+      <p className="mt-2 text-caption text-muted">{summary}</p>
     </div>
   )
 }

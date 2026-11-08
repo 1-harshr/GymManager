@@ -104,6 +104,7 @@ fun WhatsAppSheet(prompt: WhatsAppPrompt, onSelect: (Int) -> Unit, onSent: () ->
                         MessageKind.WELCOME -> Res.string.wa_title_welcome
                         MessageKind.RECEIPT -> Res.string.wa_title_receipt
                         MessageKind.REMINDER -> Res.string.wa_title_reminder
+                        MessageKind.MISS_YOU -> Res.string.wa_title_miss_you
                     }
                 ),
                 style = MyGymTheme.typography.title,

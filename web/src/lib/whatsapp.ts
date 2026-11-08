@@ -4,7 +4,7 @@ import { formatRupees } from './format'
 import { charged, firstName, normalizeIndianPhone, paid, MODE_LABEL } from './domain'
 import type { MemberStatus, MembershipRecord, Payment } from './types'
 
-export type MessageKind = 'WELCOME' | 'RECEIPT' | 'REMINDER'
+export type MessageKind = 'WELCOME' | 'RECEIPT' | 'REMINDER' | 'MISS_YOU'
 
 export interface Message {
   kind: MessageKind
@@ -15,11 +15,12 @@ export interface Message {
   text: string
 }
 
-export const KIND_LABEL: Record<MessageKind, string> = { WELCOME: 'Welcome', RECEIPT: 'Receipt', REMINDER: 'Reminder' }
+export const KIND_LABEL: Record<MessageKind, string> = { WELCOME: 'Welcome', RECEIPT: 'Receipt', REMINDER: 'Reminder', MISS_YOU: 'We miss you' }
 export const KIND_TITLE: Record<MessageKind, string> = {
   WELCOME: 'Send a welcome on WhatsApp?',
   RECEIPT: 'Send the receipt on WhatsApp?',
   REMINDER: 'Send a reminder on WhatsApp?',
+  MISS_YOU: 'Send a “we miss you” on WhatsApp?',
 }
 
 export function whatsAppNumber(phone: string | null | undefined): string | null {
@@ -96,6 +97,19 @@ export function reminder(
       ? `${renewal}\n\nPending balance: ${formatRupees(member.amount_due)}`
       : renewal
   return { kind: 'REMINDER', memberId: member.id, memberName: member.name, number, text }
+}
+
+/** For a member who has stopped coming. */
+export function missYou(member: Who, gymName: string): Message | null {
+  const number = whatsAppNumber(member.phone)
+  if (!number) return null
+  return {
+    kind: 'MISS_YOU',
+    memberId: member.id,
+    memberName: member.name,
+    number,
+    text: `Hi ${firstName(member.name)}, we haven’t seen you at ${gymName} for a while! 💪\nHope all is well. Drop in soon and keep your progress going.`,
+  }
 }
 
 export function waLink(message: Message): string {

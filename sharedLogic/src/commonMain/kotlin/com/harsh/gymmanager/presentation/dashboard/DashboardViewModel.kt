@@ -28,6 +28,8 @@ data class DashboardUiState(
     val insights: GymInsights? = null,
     /** Unread alerts in the bell's inbox. */
     val unreadAlerts: Int = 0,
+    /** Members checked in today. */
+    val checkedInToday: Int = 0,
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -37,21 +39,25 @@ class DashboardViewModel(
     recentPayments: () -> Flow<List<PaymentRecord>> = { flowOf(emptyList()) },
     insights: () -> Flow<GymInsights?> = { flowOf(null) },
     unreadAlerts: () -> Flow<Int> = { flowOf(0) },
+    checkedInToday: () -> Flow<Int> = { flowOf(0) },
 ) : ViewModel() {
     private val refreshes = MutableStateFlow(0)
 
     val state: StateFlow<DashboardUiState> = refreshes
         .flatMapLatest {
-            combine(observeDashboard(), remindersToSend(), recentPayments(), insights(), unreadAlerts()) { dashboard, reminders, payments, insights, unread ->
-                DashboardUiState(
-                    isLoading = false,
-                    dashboard = dashboard,
-                    remindersToSend = reminders,
-                    recentPayments = payments,
-                    insights = insights,
-                    unreadAlerts = unread,
-                )
-            }
+            combine(
+                combine(observeDashboard(), remindersToSend(), recentPayments(), insights(), unreadAlerts()) { dashboard, reminders, payments, insights, unread ->
+                    DashboardUiState(
+                        isLoading = false,
+                        dashboard = dashboard,
+                        remindersToSend = reminders,
+                        recentPayments = payments,
+                        insights = insights,
+                        unreadAlerts = unread,
+                    )
+                },
+                checkedInToday(),
+            ) { state, checkedIn -> state.copy(checkedInToday = checkedIn) }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
 

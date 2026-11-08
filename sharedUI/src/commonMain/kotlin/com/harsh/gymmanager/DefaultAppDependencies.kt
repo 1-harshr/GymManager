@@ -3,6 +3,7 @@ package com.harsh.gymmanager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.harsh.gymmanager.data.local.GymDatabase
+import com.harsh.gymmanager.data.repository.AttendanceRepositoryImpl
 import com.harsh.gymmanager.data.repository.BackupRepositoryImpl
 import com.harsh.gymmanager.data.repository.InboxRepositoryImpl
 import com.harsh.gymmanager.data.repository.UsageRepositoryImpl
@@ -13,6 +14,7 @@ import com.harsh.gymmanager.data.repository.MessageLogRepositoryImpl
 import com.harsh.gymmanager.data.repository.PaymentRepositoryImpl
 import com.harsh.gymmanager.data.repository.PlanRepositoryImpl
 import com.harsh.gymmanager.data.settings.DataStoreSettingsRepository
+import com.harsh.gymmanager.domain.repository.AttendanceRepository
 import com.harsh.gymmanager.domain.repository.SettingsRepository
 import com.harsh.gymmanager.data.remote.RemoteGymData
 import com.harsh.gymmanager.domain.repository.MemberRepository
@@ -27,6 +29,7 @@ import com.harsh.gymmanager.domain.insights.NoOnDeviceModel
 import com.harsh.gymmanager.domain.insights.ObserveInsightsUseCase
 import com.harsh.gymmanager.domain.insights.OnDeviceModel
 import com.harsh.gymmanager.domain.insights.WriteBriefUseCase
+import com.harsh.gymmanager.domain.usecase.AttendanceUseCases
 import com.harsh.gymmanager.domain.usecase.InboxUseCases
 import com.harsh.gymmanager.domain.messaging.MessagingUseCases
 import com.harsh.gymmanager.domain.usecase.BulkRenewUseCase
@@ -78,6 +81,7 @@ class DefaultAppDependencies(
     private val planRepository: PlanRepository by lazy { remote?.plans ?: PlanRepositoryImpl(database.planDao(), clock) }
     private val membershipRepository: MembershipRepository by lazy { remote?.memberships ?: MembershipRepositoryImpl(database.membershipDao(), clock) }
     private val paymentRepository: PaymentRepository by lazy { remote?.payments ?: PaymentRepositoryImpl(database.paymentDao(), clock) }
+    private val attendanceRepository: AttendanceRepository by lazy { remote?.attendance ?: AttendanceRepositoryImpl(database.checkInDao(), clock, timeZone) }
     private val messageLogRepository by lazy { MessageLogRepositoryImpl(database.messageLogDao(), clock) }
     // DataStore allows one instance per file.
     private val settingsStore by lazy { openSettings() }
@@ -87,6 +91,9 @@ class DefaultAppDependencies(
     override val planUseCases by lazy { PlanUseCases(planRepository) }
     override val membershipUseCases by lazy { MembershipUseCases(membershipRepository, clock, timeZone) }
     override val paymentUseCases by lazy { PaymentUseCases(paymentRepository, clock, timeZone) }
+    override val attendance by lazy {
+        AttendanceUseCases(attendanceRepository, memberRepository, settingsRepository, messageLogRepository, clock, timeZone)
+    }
     override val observeMemberDetail by lazy {
         ObserveMemberDetailUseCase(memberRepository, membershipRepository, clock, timeZone)
     }

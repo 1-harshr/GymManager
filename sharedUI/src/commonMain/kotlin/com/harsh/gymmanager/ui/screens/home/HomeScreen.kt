@@ -57,6 +57,7 @@ fun HomeScreen(
     onOpenSettings: () -> Unit,
     onOpenReminders: () -> Unit,
     onOpenInbox: () -> Unit,
+    onOpenAttendance: () -> Unit,
     features: HomeFeatures,
 ) {
     val today = rememberToday()
@@ -101,6 +102,7 @@ fun HomeScreen(
                     StatTile(stringResource(Res.string.stat_expired), board.expiredCount.toString(), BadgeTone.Expired, Modifier.weight(1f))
                     StatTile(stringResource(Res.string.stat_dues, board.membersWithDuesCount), formatRupees(board.totalDue), BadgeTone.Due, Modifier.weight(1f))
                 }
+                AttendanceTile(state.checkedInToday, onOpenAttendance)
                 if (state.remindersToSend > 0) RemindersTile(state.remindersToSend, onOpenReminders)
             }
         }
@@ -128,6 +130,24 @@ private fun BellButton(unread: Int, onClick: () -> Unit) {
             else -> null
         },
     )
+}
+
+/** Leads to today's attendance, where members are checked in. */
+@Composable
+private fun AttendanceTile(count: Int, onClick: () -> Unit) {
+    val colors = MyGymTheme.colors
+    MyGymCard(onClick = onClick) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
+            Box(Modifier.size(MyGymSize.iconButton).background(colors.surfaceSunken, MyGymRadius.pillShape), contentAlignment = Alignment.Center) {
+                Icon(MyGymIcons.UserCheck, contentDescription = null, tint = colors.ink, modifier = Modifier.size(20.dp))
+            }
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(Res.string.here_today), style = MyGymTheme.typography.bodyStrong)
+                Text(pluralStringResource(Res.plurals.checked_in_count, count, count), style = MyGymTheme.typography.caption, color = colors.inkMuted)
+            }
+            Icon(MyGymIcons.ChevronRight, contentDescription = null, tint = colors.inkMuted, modifier = Modifier.size(20.dp))
+        }
+    }
 }
 
 /** Leads to the WhatsApp reminder run; shown only while someone is due one. */

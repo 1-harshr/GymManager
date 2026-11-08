@@ -1,6 +1,7 @@
 package com.harsh.gymmanager.ui.format
 
 import androidx.compose.runtime.Composable
+import com.harsh.gymmanager.domain.MembershipStatus
 import com.harsh.gymmanager.domain.ValidationError
 import com.harsh.gymmanager.domain.backup.BackupProblem
 import com.harsh.gymmanager.domain.importing.ImportFileProblem
@@ -49,6 +50,14 @@ private fun UiMessage.text(): Text = when (this) {
     is UiMessage.AmountPaidTooHigh -> Text.Plain(Res.string.err_amount_paid_too_high, listOf(formatRupees(max)))
     is UiMessage.PaymentRecorded -> Text.Plain(Res.string.msg_payment_recorded, listOf(formatRupees(amount)))
     UiMessage.PaymentDeleted -> Text.Plain(Res.string.msg_payment_deleted)
+    is UiMessage.CheckedIn -> when {
+        status == MembershipStatus.EXPIRED -> Text.Plain(Res.string.msg_checked_in_expired, listOf(name))
+        status == MembershipStatus.NONE -> Text.Plain(Res.string.msg_checked_in_no_plan, listOf(name))
+        amountDue > 0 -> Text.Plain(Res.string.msg_checked_in_due, listOf(name, formatRupees(amountDue)))
+        else -> Text.Plain(Res.string.msg_checked_in, listOf(name))
+    }
+    is UiMessage.AlreadyCheckedIn -> Text.Plain(Res.string.msg_already_checked_in, listOf(name))
+    is UiMessage.CheckInUndone -> Text.Plain(Res.string.msg_check_in_undone, listOf(name))
     UiMessage.MembershipDeleted -> Text.Plain(Res.string.msg_membership_deleted)
     UiMessage.MemberArchived -> Text.Plain(Res.string.msg_member_archived)
     UiMessage.MemberRestored -> Text.Plain(Res.string.msg_member_restored)

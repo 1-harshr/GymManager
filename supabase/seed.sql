@@ -152,6 +152,25 @@ select pg_temp.seed_gym(
   ]'
 );
 
+-- A month of check-ins at Iron Temple: members come most days their membership runs, checked in by
+-- the staff member around the morning rush. Rohan Verma and Arjun Singh stopped coming over two weeks
+-- ago, so the gone-quiet list has someone on it.
+insert into public.check_ins (gym_id, member_id, checked_in_on, checked_in_at, created_by)
+select distinct on (m.id, d.day)
+  m.gym_id, m.id, d.day,
+  (d.day + time '06:00' + (abs(hashtext(m.name)) % 240) * interval '1 minute') at time zone 'Asia/Kolkata',
+  'a1000000-0000-4000-8000-000000000002'
+from public.members m
+join public.memberships ms on ms.member_id = m.id
+cross join lateral (
+  select g::date as day
+  from generate_series(greatest(ms.start_date, (now() at time zone 'Asia/Kolkata')::date - 30),
+                       least(ms.end_date, (now() at time zone 'Asia/Kolkata')::date), interval '1 day') g
+) d
+where m.gym_id = 'a0000000-0000-4000-8000-00000000000a'
+  and abs(hashtext(m.name || d.day::text)) % 7 < 5
+  and d.day <= (now() at time zone 'Asia/Kolkata')::date - case m.name when 'Rohan Verma' then 16 when 'Arjun Singh' then 15 else 0 end;
+
 -- A smaller second gym, to check one gym never sees another's data.
 select pg_temp.seed_gym(
   'b0000000-0000-4000-8000-00000000000b',

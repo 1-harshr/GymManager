@@ -75,6 +75,7 @@ class MessageSenderTest {
             MemberMessage.Reminder("1", "Ravi", "91", "My Gym", MembershipStatus.EXPIRING_SOON, LocalDate(2026, 11, 8), 0),
             MemberMessage.Reminder("1", "Ravi", "91", "My Gym", MembershipStatus.EXPIRED, LocalDate(2026, 11, 1), 0),
             MemberMessage.Reminder("1", "Ravi", "91", "My Gym", MembershipStatus.ACTIVE, null, 300),
+            MemberMessage.MissYou("1", "Ravi", "91", "My Gym", LocalDate(2026, 10, 20)),
         )
         val used = messages.map { message ->
             val template = gymTemplate(message)

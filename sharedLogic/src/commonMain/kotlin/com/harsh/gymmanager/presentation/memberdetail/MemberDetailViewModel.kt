@@ -3,6 +3,8 @@ package com.harsh.gymmanager.presentation.memberdetail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.harsh.gymmanager.domain.model.PaymentMode
+import com.harsh.gymmanager.domain.usecase.AttendanceUseCases
+import com.harsh.gymmanager.domain.usecase.MemberAttendance
 import com.harsh.gymmanager.domain.usecase.MemberDetail
 import com.harsh.gymmanager.domain.usecase.MemberUseCases
 import com.harsh.gymmanager.domain.usecase.MembershipUseCases
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -44,6 +47,8 @@ data class MemberDetailUiState(
     /** Null once loaded means the member no longer exists. */
     val detail: MemberDetail? = null,
     val paymentForm: PaymentForm? = null,
+    /** Null where attendance isn't shown. */
+    val attendance: MemberAttendance? = null,
 )
 
 sealed interface MemberDetailEvent {
@@ -62,14 +67,15 @@ class MemberDetailViewModel(
     private val paymentUseCases: PaymentUseCases,
     private val clock: Clock = Clock.System,
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
+    private val attendance: AttendanceUseCases? = null,
 ) : ViewModel() {
     private val paymentForm = MutableStateFlow<PaymentForm?>(null)
     private val eventChannel = Channel<MemberDetailEvent>(Channel.BUFFERED)
     val events: Flow<MemberDetailEvent> = eventChannel.receiveAsFlow()
 
     val state: StateFlow<MemberDetailUiState> =
-        combine(observeMemberDetail(memberId), paymentForm) { detail, form ->
-            MemberDetailUiState(isLoading = false, detail = detail, paymentForm = form)
+        combine(observeMemberDetail(memberId), paymentForm, attendance?.observeMember(memberId) ?: flowOf(null)) { detail, form, visits ->
+            MemberDetailUiState(isLoading = false, detail = detail, paymentForm = form, attendance = visits)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MemberDetailUiState())
 
     /** Opens the payment sheet pre-filled with what is still owed. */
@@ -113,6 +119,29 @@ class MemberDetailViewModel(
                 }
                 .onFailure { e -> paymentForm.update { it?.copy(isSaving = false, error = e.toUiMessage()) } }
         }
+    }
+
+    /** Checks the member in for today; doing it twice is harmless. */
+    fun checkIn() {
+        val attendance = attendance ?: return
+        val detail = state.value.detail ?: return
+        val already = state.value.attendance?.today != null
+        viewModelScope.launch {
+            val message = attendance.checkIn(memberId).fold(
+                {
+                    if (already) UiMessage.AlreadyCheckedIn(detail.member.name)
+                    else UiMessage.CheckedIn(detail.member.name, detail.status, detail.totalDue)
+                },
+                { it.toUiMessage() },
+            )
+            eventChannel.send(MemberDetailEvent.ShowMessage(message))
+        }
+    }
+
+    fun undoCheckIn(checkInId: String) {
+        val attendance = attendance ?: return
+        val name = state.value.detail?.member?.name.orEmpty()
+        run(UiMessage.CheckInUndone(name)) { attendance.undoCheckIn(checkInId) }
     }
 
     fun deletePayment(paymentId: String) = run(UiMessage.PaymentDeleted) { paymentUseCases.deletePayment(paymentId) }

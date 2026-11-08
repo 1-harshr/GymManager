@@ -66,6 +66,7 @@ object MyGymIcons {
     val ChevronRight by lazy { lucide("ChevronRight", "m9 18 6-6-6-6") }
     val ChevronLeft by lazy { lucide("ChevronLeft", "m15 18-6-6 6-6") }
     val Check by lazy { lucide("Check", "M20 6 9 17l-5-5") }
+    val UserCheck by lazy { lucide("UserCheck", "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", circle(9f, 7f, 4f), "m16 11 2 2 4-4") }
     val LayoutGrid by lazy {
         lucide(
             "LayoutGrid",

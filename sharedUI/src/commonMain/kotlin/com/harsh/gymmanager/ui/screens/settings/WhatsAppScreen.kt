@@ -322,6 +322,7 @@ internal suspend fun autoSentText(kind: MessageKind, memberName: String): String
             MessageKind.WELCOME -> Res.string.wa_auto_sent_welcome
             MessageKind.RECEIPT -> Res.string.wa_auto_sent_receipt
             MessageKind.REMINDER -> Res.string.wa_auto_sent_reminder
+            MessageKind.MISS_YOU -> Res.string.wa_auto_sent_miss_you
         },
         first,
     )

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
-import { Bell, ChevronLeft, Home, LogOut, Menu as MenuIcon, MessageCircle, Plus, Search, Settings, Tag, UserCog, Users, WifiOff, X, type LucideIcon } from 'lucide-react'
+import { Bell, ChevronLeft, Home, LogOut, Menu as MenuIcon, MessageCircle, Plus, Search, Settings, Tag, UserCheck, UserCog, Users, WifiOff, X, type LucideIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { formatPhone } from '@/lib/format'
 import { useGym } from '@/data/session'
@@ -49,6 +49,7 @@ export function Layout() {
   const main: NavItem[] = [
     { to: '/', label: 'Dashboard', icon: Home, end: true },
     { to: '/members', label: 'Members', icon: Users },
+    { to: '/attendance', label: 'Attendance', icon: UserCheck },
     { to: '/plans', label: 'Plans', icon: Tag },
   ]
   const more: NavItem[] = [

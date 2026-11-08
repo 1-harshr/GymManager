@@ -20,6 +20,7 @@ import { GymProfile } from '@/screens/GymProfile'
 import { Staff } from '@/screens/Staff'
 import { Inbox } from '@/screens/Inbox'
 import { Reminders } from '@/screens/Reminders'
+import { Attendance } from '@/screens/Attendance'
 import { BulkRenew } from '@/screens/BulkRenew'
 import { SellMembership } from '@/screens/SellMembership'
 
@@ -40,6 +41,7 @@ const router = createBrowserRouter([
       { path: '/plans', element: <Plans /> },
       { path: '/inbox', element: <Inbox /> },
       { path: '/reminders', element: <Reminders /> },
+      { path: '/attendance', element: <Attendance /> },
       { path: '/settings', element: <Settings /> },
       { path: '/settings/gym', element: <GymProfile /> },
       { path: '/settings/staff', element: <Staff /> },

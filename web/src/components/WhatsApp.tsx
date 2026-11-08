@@ -2,7 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from 'react'
 import { MessageCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatPhone } from '@/lib/format'
-import { getPref, setPref, reminderLogKey } from '@/lib/prefs'
+import { getPref, setPref, missYouLogKey, reminderLogKey } from '@/lib/prefs'
 import { KIND_LABEL, KIND_TITLE, waLink, type Message, type MessageKind } from '@/lib/whatsapp'
 import { useGym } from '@/data/session'
 import { Button, Sheet, Segmented } from './ui'
@@ -57,7 +57,7 @@ function WhatsAppSheet({ messages, onClose }: { messages: Message[]; onClose: ()
               icon={MessageCircle}
               onClick={() => {
                 if (!openLink(waLink(message))) window.location.href = waLink(message)
-                if (message.kind === 'REMINDER') logReminder(membership.gym.id, message.memberId)
+                logSent(membership.gym.id, message)
                 close()
               }}
             >
@@ -73,10 +73,12 @@ function WhatsAppSheet({ messages, onClose }: { messages: Message[]; onClose: ()
   )
 }
 
-/** Opening the link counts as sent, as on the phone. */
-export function logReminder(gymId: string, memberId: string) {
-  const log = getPref<Record<string, number>>(reminderLogKey(gymId), {})
-  setPref(reminderLogKey(gymId), { ...log, [memberId]: Date.now() })
+/** Opening the link counts as sent, as on the phone. Reminders and "we miss you"s are logged for their cooldowns. */
+function logSent(gymId: string, message: Message) {
+  const key = message.kind === 'REMINDER' ? reminderLogKey(gymId) : message.kind === 'MISS_YOU' ? missYouLogKey(gymId) : null
+  if (!key) return
+  const log = getPref<Record<string, number>>(key, {})
+  setPref(key, { ...log, [message.memberId]: Date.now() })
 }
 
 /** Sends one straight away, without the sheet (the reminders run). */
@@ -85,7 +87,7 @@ export function openWhatsApp(message: Message, gymId: string) {
     toast('Couldn’t open WhatsApp')
     return false
   }
-  if (message.kind === 'REMINDER') logReminder(gymId, message.memberId)
+  logSent(gymId, message)
   return true
 }
 

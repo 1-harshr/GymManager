@@ -104,6 +104,7 @@ fun MainScreen(
     onImportMembers: () -> Unit,
     onOpenReminders: () -> Unit,
     onOpenInbox: () -> Unit,
+    onOpenAttendance: () -> Unit,
     homeFeatures: HomeFeatures,
     membersAsGrid: Boolean,
     onMembersAsGridChange: (Boolean) -> Unit,
@@ -117,6 +118,7 @@ fun MainScreen(
             recentPayments = { deps.paymentUseCases.observePayments.recent(RECENT_PAYMENTS) },
             insights = { deps.insights() },
             unreadAlerts = deps.inbox::observeUnreadCount,
+            checkedInToday = deps.attendance::observeTodayCount,
         )
     }
     val membersVm = viewModel { MembersViewModel(deps.memberUseCases) }
@@ -187,6 +189,7 @@ fun MainScreen(
                     onOpenSettings = onOpenSettings,
                     onOpenReminders = onOpenReminders,
                     onOpenInbox = onOpenInbox,
+                    onOpenAttendance = onOpenAttendance,
                     features = homeFeatures,
                 )
                 MEMBERS -> MembersScreen(

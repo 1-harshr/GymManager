@@ -698,4 +698,60 @@
     <string name="msg_staff_removed">Removed from the gym</string>
     <string name="msg_role_changed">Role changed</string>
     <string name="unreachable_banner">Can’t reach the gym online. Showing what was last loaded.</string>
+
+    <!-- Attendance -->
+    <string name="attendance">Attendance</string>
+    <string name="here_today">Here today</string>
+    <string name="check_in">Check in</string>
+    <string name="check_in_member">Check in %1$s</string>
+    <string name="checked_in_at">Checked in at %1$s</string>
+    <string name="in_today">In today</string>
+    <string name="undo">Undo</string>
+    <string name="undo_check_in_for">Undo check-in for %1$s</string>
+    <string name="check_in_search">Find a member to check in</string>
+    <string name="attendance_empty_title">No one in yet</string>
+    <string name="attendance_empty_body">Search above to check members in as they arrive.</string>
+    <string name="came_in_today">Came in today</string>
+    <string name="last_came_yesterday">Last came yesterday</string>
+    <string name="no_visits_yet">No visits yet</string>
+    <string name="gone_quiet">Gone quiet</string>
+    <string name="gone_quiet_subtitle">Running plan, but no visit in 2 weeks</string>
+    <string name="gone_quiet_empty_title">Everyone’s coming in</string>
+    <string name="gone_quiet_empty_body">Members with a running plan who stop coming for 2 weeks show up here.</string>
+    <string name="nudged_today">Messaged today</string>
+    <string name="nudged_yesterday">Messaged yesterday</string>
+    <string name="msg_checked_in">%1$s checked in</string>
+    <string name="msg_checked_in_expired">%1$s checked in · membership has ended</string>
+    <string name="msg_checked_in_no_plan">%1$s checked in · no membership yet</string>
+    <string name="msg_checked_in_due">%1$s checked in · %2$s due</string>
+    <string name="msg_already_checked_in">%1$s is already checked in today</string>
+    <string name="msg_check_in_undone">Check-in for %1$s undone</string>
+    <string name="wa_miss_you">Hi %1$s, we haven’t seen you at %2$s for a while! 💪\nHope all is well. Drop in soon and keep your progress going.</string>
+    <string name="wa_kind_miss_you">We miss you</string>
+    <string name="wa_title_miss_you">Send a “we miss you” on WhatsApp?</string>
+    <string name="wa_auto_sent_miss_you">Message sent to %1$s on WhatsApp</string>
+    <plurals name="checked_in_count">
+        <item quantity="one">%1$d member checked in</item>
+        <item quantity="other">%1$d members checked in</item>
+    </plurals>
+    <plurals name="gone_quiet_count">
+        <item quantity="one">%1$d member hasn’t come in for 2 weeks</item>
+        <item quantity="other">%1$d members haven’t come in for 2 weeks</item>
+    </plurals>
+    <plurals name="last_came_days_ago">
+        <item quantity="one">Last came %1$d day ago</item>
+        <item quantity="other">Last came %1$d days ago</item>
+    </plurals>
+    <plurals name="visits_this_month">
+        <item quantity="one">%1$d visit this month</item>
+        <item quantity="other">%1$d visits this month</item>
+    </plurals>
+    <plurals name="visits_last_weeks">
+        <item quantity="one">%1$d visit in the last %2$d weeks</item>
+        <item quantity="other">%1$d visits in the last %2$d weeks</item>
+    </plurals>
+    <plurals name="nudged_days_ago">
+        <item quantity="one">Messaged %1$d day ago</item>
+        <item quantity="other">Messaged %1$d days ago</item>
+    </plurals>
 </resources>

@@ -56,3 +56,8 @@ export function applyTheme(theme: Theme) {
 export function reminderLogKey(gymId: string) {
   return `reminders-sent:${gymId}`
 }
+
+/** When each member was last sent a "we miss you" from this browser, per gym. */
+export function missYouLogKey(gymId: string) {
+  return `miss-you-sent:${gymId}`
+}

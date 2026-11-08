@@ -23,6 +23,8 @@ data class AutoSend(
         MessageKind.WELCOME -> welcome
         MessageKind.RECEIPT -> receipts
         MessageKind.REMINDER -> reminders
+        // Only ever sent by hand, from the gone-quiet list.
+        MessageKind.MISS_YOU -> false
     }
 
     companion object {

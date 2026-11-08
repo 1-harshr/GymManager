@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { ArrowRight, ArrowUpRight, MessageCircle, Receipt, Sparkles, TrendingDown, TrendingUp } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, MessageCircle, Receipt, Sparkles, TrendingDown, TrendingUp, UserCheck } from 'lucide-react'
 import { useGym } from '@/data/session'
 import { useAllMemberships, useDailyRevenue, useMemberSummaries, useRecentPayments, useToday } from '@/data/queries'
 import { useReminders } from '@/data/reminders'
+import { useCheckIns } from '@/data/attendance'
 import { addDays, addMonths, daysBetween, endOfMonth, longDate, monthOf, relativeDay, shortDate, startOfMonth } from '@/lib/dates'
 import { brief, dashboard, insights, MODE_LABEL, type Insights, type Pace, type Tone } from '@/lib/domain'
 import { formatRupees, plural } from '@/lib/format'
@@ -29,6 +30,7 @@ export function Home() {
   const daily = useDailyRevenue(today)
   const recent = useRecentPayments(8)
   const reminders = useReminders()
+  const here = useCheckIns(today).data?.length ?? 0
   const navigate = useNavigate()
 
   const stats = useMemo(() => (members.data ? dashboard(members.data) : null), [members.data])
@@ -44,11 +46,16 @@ export function Home() {
         title={`${greeting()}${firstName ? `, ${firstName}` : ''}`}
         subtitle={`${longDate(today)} · ${membership.gym.name}`}
         actions={
-          reminders.toSend > 0 ? (
-            <Button kind="secondary" size="sm" icon={MessageCircle} onClick={() => navigate('/reminders')}>
-              {plural(reminders.toSend, 'reminder', 'reminders')} to send
+          <>
+            <Button kind="secondary" size="sm" icon={UserCheck} onClick={() => navigate('/attendance')}>
+              {here} here today
             </Button>
-          ) : null
+            {reminders.toSend > 0 ? (
+              <Button kind="secondary" size="sm" icon={MessageCircle} onClick={() => navigate('/reminders')}>
+                {plural(reminders.toSend, 'reminder', 'reminders')} to send
+              </Button>
+            ) : null}
+          </>
         }
       />
       {!stats || !ins ? (

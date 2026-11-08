@@ -60,6 +60,17 @@ sealed interface MemberMessage {
     ) : MemberMessage {
         override val kind get() = MessageKind.REMINDER
     }
+
+    /** For a member who has stopped coming: [lastVisit] was their latest check-in. */
+    data class MissYou(
+        override val memberId: String,
+        override val memberName: String,
+        override val whatsAppNumber: String,
+        override val gymName: String,
+        val lastVisit: LocalDate,
+    ) : MemberMessage {
+        override val kind get() = MessageKind.MISS_YOU
+    }
 }
 
 /** An Indian mobile number in the form WhatsApp links need, or null if [phone] isn't one. */

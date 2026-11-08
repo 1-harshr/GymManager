@@ -17,6 +17,7 @@ fun MemberMessage.text(): String = when (this) {
     is MemberMessage.Welcome -> stringResource(Res.string.wa_welcome, firstName(memberName), gymName)
     is MemberMessage.Receipt -> receiptText()
     is MemberMessage.Reminder -> reminderText()
+    is MemberMessage.MissYou -> stringResource(Res.string.wa_miss_you, firstName(memberName), gymName)
 }
 
 @Composable
@@ -25,6 +26,7 @@ fun MessageKind.label(): String = stringResource(
         MessageKind.WELCOME -> Res.string.wa_kind_welcome
         MessageKind.RECEIPT -> Res.string.wa_kind_receipt
         MessageKind.REMINDER -> Res.string.wa_kind_reminder
+        MessageKind.MISS_YOU -> Res.string.wa_kind_miss_you
     }
 )
 

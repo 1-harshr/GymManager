@@ -1,6 +1,7 @@
 package com.harsh.gymmanager.data.remote
 
 import com.harsh.gymmanager.domain.backup.StoredFiles
+import com.harsh.gymmanager.domain.repository.AttendanceRepository
 import com.harsh.gymmanager.domain.repository.AuthRepository
 import com.harsh.gymmanager.domain.repository.SettingsRepository
 import com.harsh.gymmanager.domain.repository.GymRepository
@@ -47,6 +48,7 @@ class SupabaseBackend(scope: CoroutineScope, files: StoredFiles) {
         plans = SupabasePlanRepository(client, refresher, gate),
         memberships = SupabaseMembershipRepository(client, refresher),
         payments = SupabasePaymentRepository(client, refresher, gate),
+        attendance = SupabaseAttendanceRepository(client, refresher, gate),
         usage = SupabaseUsageRepository(client),
     )
 
@@ -86,6 +88,7 @@ class RemoteGymData(
     val plans: PlanRepository,
     val memberships: MembershipRepository,
     val payments: PaymentRepository,
+    val attendance: AttendanceRepository,
     val usage: UsageRepository,
 )
 

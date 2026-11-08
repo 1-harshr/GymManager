@@ -698,4 +698,60 @@
     <string name="msg_staff_removed">जिम से हटा दिया</string>
     <string name="msg_role_changed">भूमिका बदल दी</string>
     <string name="unreachable_banner">ऑनलाइन जिम तक नहीं पहुँच पा रहे। आख़िरी बार लोड हुई जानकारी दिख रही है।</string>
+
+    <!-- Attendance -->
+    <string name="attendance">हाज़िरी</string>
+    <string name="here_today">आज आए</string>
+    <string name="check_in">हाज़िरी लगाएँ</string>
+    <string name="check_in_member">%1$s की हाज़िरी लगाएँ</string>
+    <string name="checked_in_at">%1$s पर हाज़िरी लगी</string>
+    <string name="in_today">आज आ चुके</string>
+    <string name="undo">वापस लें</string>
+    <string name="undo_check_in_for">%1$s की हाज़िरी वापस लें</string>
+    <string name="check_in_search">हाज़िरी के लिए सदस्य खोजें</string>
+    <string name="attendance_empty_title">अभी तक कोई नहीं आया</string>
+    <string name="attendance_empty_body">सदस्य आएँ तो ऊपर खोजकर उनकी हाज़िरी लगाएँ।</string>
+    <string name="came_in_today">आज आए</string>
+    <string name="last_came_yesterday">कल आए थे</string>
+    <string name="no_visits_yet">अभी तक कोई हाज़िरी नहीं</string>
+    <string name="gone_quiet">आना बंद</string>
+    <string name="gone_quiet_subtitle">प्लान चालू है, पर 2 हफ़्ते से नहीं आए</string>
+    <string name="gone_quiet_empty_title">सब आ रहे हैं</string>
+    <string name="gone_quiet_empty_body">चालू प्लान वाले जो सदस्य 2 हफ़्ते तक न आएँ, वे यहाँ दिखेंगे।</string>
+    <string name="nudged_today">आज संदेश भेजा</string>
+    <string name="nudged_yesterday">कल संदेश भेजा</string>
+    <string name="msg_checked_in">%1$s की हाज़िरी लगी</string>
+    <string name="msg_checked_in_expired">%1$s की हाज़िरी लगी · मेंबरशिप खत्म हो चुकी है</string>
+    <string name="msg_checked_in_no_plan">%1$s की हाज़िरी लगी · अभी कोई मेंबरशिप नहीं</string>
+    <string name="msg_checked_in_due">%1$s की हाज़िरी लगी · %2$s बाकी</string>
+    <string name="msg_already_checked_in">%1$s की आज की हाज़िरी पहले से लगी है</string>
+    <string name="msg_check_in_undone">%1$s की हाज़िरी हटाई गई</string>
+    <string name="wa_miss_you">नमस्ते %1$s, काफ़ी दिनों से आप %2$s नहीं आए! 💪\nउम्मीद है सब ठीक है। जल्द आइए और अपनी प्रोग्रेस जारी रखिए।</string>
+    <string name="wa_kind_miss_you">आपकी याद आई</string>
+    <string name="wa_title_miss_you">WhatsApp पर “आपकी याद आई” संदेश भेजें?</string>
+    <string name="wa_auto_sent_miss_you">%1$s को WhatsApp पर संदेश भेजा</string>
+    <plurals name="checked_in_count">
+        <item quantity="one">%1$d सदस्य आया</item>
+        <item quantity="other">%1$d सदस्य आए</item>
+    </plurals>
+    <plurals name="gone_quiet_count">
+        <item quantity="one">%1$d सदस्य 2 हफ़्ते से नहीं आया</item>
+        <item quantity="other">%1$d सदस्य 2 हफ़्ते से नहीं आए</item>
+    </plurals>
+    <plurals name="last_came_days_ago">
+        <item quantity="one">%1$d दिन पहले आए थे</item>
+        <item quantity="other">%1$d दिन पहले आए थे</item>
+    </plurals>
+    <plurals name="visits_this_month">
+        <item quantity="one">इस महीने %1$d बार आए</item>
+        <item quantity="other">इस महीने %1$d बार आए</item>
+    </plurals>
+    <plurals name="visits_last_weeks">
+        <item quantity="one">पिछले %2$d हफ़्तों में %1$d बार आए</item>
+        <item quantity="other">पिछले %2$d हफ़्तों में %1$d बार आए</item>
+    </plurals>
+    <plurals name="nudged_days_ago">
+        <item quantity="one">%1$d दिन पहले संदेश भेजा</item>
+        <item quantity="other">%1$d दिन पहले संदेश भेजा</item>
+    </plurals>
 </resources>

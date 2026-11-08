@@ -13,6 +13,9 @@ export const WINDOW_DAYS = 30
 export const ATTENTION_DUE_DAYS = 7
 export const REMIND_EXPIRED_FOR_DAYS = 30
 export const REMINDER_COOLDOWN_MS = 3 * 24 * 60 * 60 * 1000
+/** A member with a running plan who hasn't come in this many days has gone quiet. */
+export const GONE_QUIET_DAYS = 14
+export const MISS_YOU_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000
 
 /** NONE before any membership; expiring from today to 7 days out (8 calendar days). */
 export function memberStatus(latestEnd: IsoDate | null, today: IsoDate): MemberStatus {
@@ -368,6 +371,30 @@ export function reminderCandidates(members: MemberView[], today: IsoDate): Membe
       const byEnd = group(a) === 1 ? eb.localeCompare(ea) : ea.localeCompare(eb)
       return byEnd || byName(a, b)
     })
+}
+
+// Attendance --------------------------------------------------------------------------------------
+
+export interface QuietMember {
+  member: MemberView
+  lastVisit: IsoDate
+  daysAway: number
+}
+
+/**
+ * Members with a running plan whose latest visit was GONE_QUIET_DAYS or more ago, most recently gone
+ * first. Members who never checked in are left out, so starting to take attendance doesn't flag everyone.
+ */
+export function goneQuiet(members: MemberView[], lastVisits: Map<string, IsoDate>, today: IsoDate): QuietMember[] {
+  return members
+    .filter((m) => !m.is_archived && (m.status === 'ACTIVE' || m.status === 'EXPIRING_SOON'))
+    .flatMap((member) => {
+      const lastVisit = lastVisits.get(member.member_id)
+      if (!lastVisit) return []
+      const daysAway = daysBetween(lastVisit, today)
+      return daysAway >= GONE_QUIET_DAYS ? [{ member, lastVisit, daysAway }] : []
+    })
+    .sort((a, b) => a.daysAway - b.daysAway || byName(a.member, b.member))
 }
 
 // Inbox alerts ------------------------------------------------------------------------------------

@@ -31,10 +31,12 @@ import gymmanager.sharedui.generated.resources.status_no_plan
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.daysUntil
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
+import kotlin.time.Instant
 
 /** Month and weekday names for one language; digits stay Latin in both, as Indian apps write them. */
 private class DateNames(val shortMonths: List<String>, val longMonths: List<String>, val weekdays: List<String>)
@@ -67,6 +69,10 @@ fun LocalDate.formatDayMonth(): String = "$day ${names.shortMonths[month.ordinal
 /** "Thursday, 5 November". */
 @Composable @ReadOnlyComposable
 fun LocalDate.formatWeekday(): String = "${names.weekdays[dayOfWeek.ordinal]}, $day ${names.longMonths[month.ordinal]}"
+
+/** "Nov". */
+@Composable @ReadOnlyComposable
+fun LocalDate.shortMonthName(): String = names.shortMonths[month.ordinal]
 
 /** "November". */
 @Composable @ReadOnlyComposable
@@ -143,6 +149,13 @@ fun statusShortLabel(status: MembershipStatus, endDate: LocalDate?, today: Local
         else -> pluralStringResource(Res.plurals.days_left, days, days)
     }
     else -> statusLabel(status, endDate, today)
+}
+
+/** "7:05 AM" on the phone's clock. */
+fun Instant.formatTime(): String {
+    val time = toLocalDateTime(TimeZone.currentSystemDefault()).time
+    val hour = (time.hour + 11) % 12 + 1
+    return "$hour:${time.minute.toString().padStart(2, '0')} ${if (time.hour < 12) "AM" else "PM"}"
 }
 
 fun initials(name: String): String =

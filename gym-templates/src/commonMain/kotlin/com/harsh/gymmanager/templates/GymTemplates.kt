@@ -44,6 +44,14 @@ val gymTemplates = listOf(
         body = "Hi {{1}}, a balance of {{2}} is due on your membership at {{3}}. Please clear it on your next visit. Thank you!",
         bodyExample = listOf("Ravi", "₹500", "My Gym"),
     ),
+    // Meta counts a nudge to come back as marketing, not utility.
+    TemplateDefinition(
+        name = "gym_miss_you",
+        languageCode = "en",
+        category = TemplateCategory.MARKETING,
+        body = "Hi {{1}}, we haven't seen you at {{2}} for a while. Hope all is well! Drop in soon and keep your streak going.",
+        bodyExample = listOf("Ravi", "My Gym"),
+    ),
 )
 
 fun gymTemplateDefinition(name: String, languageCode: String): TemplateDefinition? =

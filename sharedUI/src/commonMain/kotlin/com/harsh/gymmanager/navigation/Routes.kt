@@ -41,6 +41,14 @@ data object GymProfileRoute
 @Serializable
 data object RemindersRoute
 
+/** Who's in today, and checking members in. */
+@Serializable
+data object AttendanceRoute
+
+/** Members with a running plan who've stopped coming. */
+@Serializable
+data object GoneQuietRoute
+
 /** The bell's alerts. */
 @Serializable
 data object InboxRoute

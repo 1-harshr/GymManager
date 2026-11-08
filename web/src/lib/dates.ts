@@ -38,6 +38,11 @@ export function daysBetween(from: IsoDate, to: IsoDate): number {
   return Math.round((parseIso(to).getTime() - parseIso(from).getTime()) / DAY_MS)
 }
 
+/** The Monday on or before [date]. */
+export function startOfWeek(date: IsoDate): IsoDate {
+  return addDays(date, -((parseIso(date).getUTCDay() + 6) % 7))
+}
+
 export function startOfMonth(date: IsoDate): IsoDate {
   return date.slice(0, 8) + '01'
 }
@@ -56,6 +61,7 @@ const dayMonth = fmt({ day: 'numeric', month: 'short' })
 const dayMonthYear = fmt({ day: 'numeric', month: 'short', year: 'numeric' })
 const longDay = fmt({ weekday: 'long', day: 'numeric', month: 'long' })
 const monthName = fmt({ month: 'long' })
+const shortMonthName = fmt({ month: 'short' })
 
 /** "16 Nov", with the year only when it isn't this year's. */
 export function shortDate(date: IsoDate, today: IsoDate): string {
@@ -73,6 +79,11 @@ export function longDate(date: IsoDate): string {
 
 export function monthOf(date: IsoDate): string {
   return monthName.format(parseIso(date))
+}
+
+/** "Nov". */
+export function shortMonthOf(date: IsoDate): string {
+  return shortMonthName.format(parseIso(date))
 }
 
 /** "Today", "Yesterday", or "4 Nov". */

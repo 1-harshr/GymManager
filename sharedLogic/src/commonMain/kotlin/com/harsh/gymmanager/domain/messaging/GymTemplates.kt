@@ -15,6 +15,7 @@ import kotlinx.datetime.LocalDate
  * - `gym_membership_ending`: first name, gym, end date
  * - `gym_membership_ended`: first name, gym, end date
  * - `gym_payment_due`: first name, amount due, gym
+ * - `gym_miss_you`: first name, gym
  *
  * A renewal reminder doesn't mention dues; the link message does both in one.
  */
@@ -47,6 +48,7 @@ fun gymTemplate(message: MemberMessage): Template {
                 else -> Template("gym_payment_due", "en", listOf(name, formatRupees(message.amountDue), gym))
             }
         }
+        is MemberMessage.MissYou -> Template("gym_miss_you", "en", listOf(name, gym))
     }
 }
 

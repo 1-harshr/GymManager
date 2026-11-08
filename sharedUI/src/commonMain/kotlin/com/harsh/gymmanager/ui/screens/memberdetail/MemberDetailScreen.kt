@@ -70,6 +70,23 @@ import com.harsh.gymmanager.ui.components.SegmentedControl
 import com.harsh.gymmanager.ui.components.tone
 import com.harsh.gymmanager.ui.format.asString
 import com.harsh.gymmanager.ui.format.formatFull
+import com.harsh.gymmanager.ui.format.formatTime
+import com.harsh.gymmanager.ui.components.GhostButton
+import com.harsh.gymmanager.domain.usecase.MemberAttendance
+import kotlinx.datetime.daysUntil
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.harsh.gymmanager.domain.model.CheckIn
+import com.harsh.gymmanager.domain.usecase.MEMBER_HEATMAP_WEEKS
+import com.harsh.gymmanager.ui.format.shortMonthName
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import com.harsh.gymmanager.ui.format.resolve
 import com.harsh.gymmanager.ui.format.formatPhone
 import com.harsh.gymmanager.ui.format.label
@@ -98,7 +115,10 @@ fun MemberDetailScreen(
     val deps = LocalAppDependencies.current
     val snackbar = LocalSnackbar.current
     val vm = viewModel(key = "member-$memberId") {
-        MemberDetailViewModel(memberId, deps.observeMemberDetail, deps.memberUseCases, deps.membershipUseCases, deps.paymentUseCases)
+        MemberDetailViewModel(
+            memberId, deps.observeMemberDetail, deps.memberUseCases, deps.membershipUseCases, deps.paymentUseCases,
+            attendance = deps.attendance,
+        )
     }
     val state by vm.state.collectAsStateWithLifecycle()
     // Staff don't archive or delete; that's the owner's call.
@@ -224,6 +244,10 @@ fun MemberDetailScreen(
                 }
             }
         }
+        val attendance = state.attendance
+        if (attendance != null && !member.isArchived) {
+            item { AttendanceCard(attendance, today, onCheckIn = vm::checkIn, onUndo = vm::undoCheckIn, modifier = Modifier.screenGutter()) }
+        }
         if (detail.memberships.isNotEmpty()) {
             item { SectionHeader(stringResource(Res.string.history), Modifier.screenGutter().padding(top = MyGymSpace.md)) }
             items(detail.memberships, key = { it.id }) { membership ->
@@ -279,6 +303,97 @@ fun MemberDetailScreen(
         null -> Unit
     }
 }
+
+/** When the member last came and how often this month, with today's check-in or the button to make it. */
+@Composable
+private fun AttendanceCard(
+    attendance: MemberAttendance,
+    today: LocalDate,
+    onCheckIn: () -> Unit,
+    onUndo: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = MyGymTheme.colors
+    val lastVisit = attendance.lastVisit
+    MyGymCard(modifier) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+                Text(stringResource(Res.string.attendance), style = MyGymTheme.typography.label, color = colors.inkMuted)
+                Text(
+                    when {
+                        lastVisit == null -> stringResource(Res.string.no_visits_yet)
+                        lastVisit == today -> stringResource(Res.string.came_in_today)
+                        lastVisit.daysUntil(today) == 1 -> stringResource(Res.string.last_came_yesterday)
+                        else -> lastVisit.daysUntil(today).let { pluralStringResource(Res.plurals.last_came_days_ago, it, it) }
+                    },
+                    style = MyGymTheme.typography.bodyStrong,
+                )
+                if (lastVisit != null) {
+                    Text(
+                        pluralStringResource(Res.plurals.visits_this_month, attendance.visitsThisMonth, attendance.visitsThisMonth),
+                        style = MyGymTheme.typography.caption,
+                        color = colors.inkMuted,
+                    )
+                }
+            }
+            val checkIn = attendance.today
+            if (checkIn == null) {
+                MyGymButton(stringResource(Res.string.check_in), onCheckIn, icon = MyGymIcons.UserCheck)
+            } else {
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(stringResource(Res.string.checked_in_at, checkIn.at.formatTime()), style = MyGymTheme.typography.caption, color = colors.statusActive)
+                    GhostButton(stringResource(Res.string.undo), { onUndo(checkIn.id) })
+                }
+            }
+        }
+        if (lastVisit != null) VisitHeatmap(attendance.recent, today)
+    }
+}
+
+/**
+ * The last [MEMBER_HEATMAP_WEEKS] weeks as a grid, one column a week running Monday to Sunday,
+ * with each day they came filled in.
+ */
+@Composable
+private fun VisitHeatmap(visits: List<CheckIn>, today: LocalDate, modifier: Modifier = Modifier) {
+    val colors = MyGymTheme.colors
+    val firstMonday = today.minus(today.dayOfWeek.ordinal, DateTimeUnit.DAY).minus(MEMBER_HEATMAP_WEEKS - 1, DateTimeUnit.WEEK)
+    val days = remember(visits) { visits.mapTo(HashSet()) { it.date } }
+    val shown = days.count { it >= firstMonday }
+    val summary = pluralStringResource(Res.plurals.visits_last_weeks, shown, shown, MEMBER_HEATMAP_WEEKS)
+    Column(modifier.fillMaxWidth().semantics(mergeDescendants = true) { contentDescription = summary }, verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(HEATMAP_GAP)) {
+            repeat(MEMBER_HEATMAP_WEEKS) { week ->
+                val monday = firstMonday.plus(week, DateTimeUnit.WEEK)
+                // Each month is named over the week holding its first Monday.
+                Box(Modifier.weight(1f)) {
+                    if (monday.day <= 7) {
+                        Text(monday.shortMonthName(), style = MyGymTheme.typography.caption, color = colors.inkMuted, maxLines = 1, softWrap = false)
+                    }
+                }
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(HEATMAP_GAP)) {
+            repeat(MEMBER_HEATMAP_WEEKS) { week ->
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(HEATMAP_GAP)) {
+                    repeat(7) { weekday ->
+                        val day = firstMonday.plus(week * 7 + weekday, DateTimeUnit.DAY)
+                        val cell = Modifier.fillMaxWidth().aspectRatio(1f)
+                        if (day > today) {
+                            Spacer(cell)
+                        } else {
+                            Box(cell.clip(HEATMAP_CELL).background(if (day in days) colors.statusActive else colors.surfaceSunken))
+                        }
+                    }
+                }
+            }
+        }
+        Text(summary, style = MyGymTheme.typography.caption, color = colors.inkMuted)
+    }
+}
+
+private val HEATMAP_GAP = 3.dp
+private val HEATMAP_CELL = RoundedCornerShape(3.dp)
 
 @Composable
 private fun PaymentSheet(

@@ -1,5 +1,6 @@
 package com.harsh.gymmanager.presentation
 
+import com.harsh.gymmanager.domain.MembershipStatus
 import com.harsh.gymmanager.domain.NoConnectionException
 import com.harsh.gymmanager.domain.OverpaymentException
 import com.harsh.gymmanager.domain.ValidationError
@@ -47,6 +48,12 @@ sealed interface UiMessage {
     data class MembersDeleted(val count: Int) : UiMessage
     data class PlansArchived(val count: Int) : UiMessage
     data class PlansRestored(val count: Int) : UiMessage
+
+    // Attendance
+    /** [status] and [amountDue] let the message warn when the membership has ended or money is owed. */
+    data class CheckedIn(val name: String, val status: MembershipStatus, val amountDue: Long) : UiMessage
+    data class AlreadyCheckedIn(val name: String) : UiMessage
+    data class CheckInUndone(val name: String) : UiMessage
 
     // Import
     data class FileUnreadable(val fileName: String) : UiMessage

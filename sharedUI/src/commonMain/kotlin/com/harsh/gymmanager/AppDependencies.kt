@@ -7,6 +7,7 @@ import com.harsh.gymmanager.domain.digest.MorningDigestUseCase
 import com.harsh.gymmanager.domain.insights.ObserveInsightsUseCase
 import com.harsh.gymmanager.domain.insights.WriteBriefUseCase
 import com.harsh.gymmanager.domain.suggestions.SuggestionsUseCase
+import com.harsh.gymmanager.domain.usecase.AttendanceUseCases
 import com.harsh.gymmanager.domain.usecase.InboxUseCases
 import com.harsh.gymmanager.domain.messaging.MessagingUseCases
 import com.harsh.gymmanager.domain.usecase.BulkRenewUseCase
@@ -28,6 +29,7 @@ interface AppDependencies {
     val planUseCases: PlanUseCases
     val membershipUseCases: MembershipUseCases
     val paymentUseCases: PaymentUseCases
+    val attendance: AttendanceUseCases
     val observeDashboard: ObserveDashboardUseCase
     val observeMemberDetail: ObserveMemberDetailUseCase
     val bulkRenew: BulkRenewUseCase

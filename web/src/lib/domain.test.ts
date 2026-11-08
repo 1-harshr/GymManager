@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { membershipEndDate } from './dates'
-import { amountSuggestions, EMPTY_USAGE, memberStatus, normalizeIndianPhone, pace, renewalStartDate, statusShortLabel } from './domain'
+import { amountSuggestions, EMPTY_USAGE, goneQuiet, memberStatus, withStatus, normalizeIndianPhone, pace, renewalStartDate, statusShortLabel } from './domain'
 import { parseDate, parseMembersCsv } from './csv'
 import { formatRupees } from './format'
 
@@ -80,5 +80,26 @@ describe('import', () => {
     expect(r.members.map((m) => m.name)).toEqual(['Ravi'])
     expect(r.issues.map((i) => i.kind)).toEqual(['DUPLICATE_PHONE', 'DUPLICATE_PHONE'])
     expect(r.members[0]).toMatchObject({ phone: '9876543210', gender: 'MALE', joined_on: '2026-11-07' })
+  })
+})
+
+describe('gone quiet', () => {
+  const today = '2026-11-20'
+  const member = (id: string, end: string | null) => ({ member_id: id, name: id, phone: null, photo_path: null, is_archived: false, latest_end_date: end, amount_due: 0, status: 'NONE' as const })
+  const members = withStatus(
+    [member('away', '2026-12-31'), member('recent', '2026-12-31'), member('regular', '2026-12-31'), member('never', '2026-12-31'), member('lapsed', '2026-11-01')],
+    today,
+  )
+  const lastVisits = new Map([
+    ['away', '2026-10-21'],
+    ['recent', '2026-11-06'],
+    ['regular', '2026-11-17'],
+    ['lapsed', '2026-10-01'],
+  ])
+  it('lists running members away two weeks or more, most recently gone first', () => {
+    expect(goneQuiet(members, lastVisits, today).map((q) => [q.member.member_id, q.daysAway])).toEqual([
+      ['recent', 14],
+      ['away', 30],
+    ])
   })
 })
