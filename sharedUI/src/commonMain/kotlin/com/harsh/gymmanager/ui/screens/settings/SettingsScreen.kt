@@ -1,5 +1,7 @@
 package com.harsh.gymmanager.ui.screens.settings
 
+import androidx.compose.ui.platform.LocalUriHandler
+import com.harsh.gymmanager.ui.WEB_APP_URL
 import org.jetbrains.compose.resources.StringResource
 import com.harsh.gymmanager.ui.components.MyGymTextField
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -175,6 +177,14 @@ fun SettingsScreen(
             SectionHeader(stringResource(Res.string.section_about), Modifier.padding(top = MyGymSpace.md))
             MyGymCard {
                 Text(stringResource(Res.string.version, "1.0"), style = typography.body)
+            }
+            val uriHandler = LocalUriHandler.current
+            MyGymCard(onClick = { uriHandler.openUri(WEB_APP_URL) }) {
+                Column(verticalArrangement = Arrangement.spacedBy(MyGymSpace.xs)) {
+                    Text(stringResource(Res.string.web_app_title), style = typography.bodyStrong)
+                    Text(stringResource(Res.string.web_app_body), style = typography.body, color = colors.inkMuted)
+                }
+                MyGymButton(stringResource(Res.string.open_web_app), { uriHandler.openUri(WEB_APP_URL) }, Modifier.fillMaxWidth(), kind = ButtonKind.Secondary)
             }
             Text(
                 stringResource(Res.string.credits),

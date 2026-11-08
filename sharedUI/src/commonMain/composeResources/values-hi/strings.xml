@@ -775,4 +775,8 @@
         <item quantity="one">%1$d दिन के लिए रोकें</item>
         <item quantity="other">%1$d दिन के लिए रोकें</item>
     </plurals>
+    <string name="web_app_also">वेब पर भी:</string>
+    <string name="web_app_title">वेब पर My Gym</string>
+    <string name="web_app_body">ब्राउज़र में वही जिम, लैपटॉप या रिसेप्शन के कंप्यूटर के लिए। उसी नंबर से साइन इन करें।</string>
+    <string name="open_web_app">वेब पर खोलें</string>
 </resources>

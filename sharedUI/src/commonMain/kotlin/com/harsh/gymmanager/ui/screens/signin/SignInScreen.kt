@@ -1,5 +1,8 @@
 package com.harsh.gymmanager.ui.screens.signin
 
+import androidx.compose.ui.platform.LocalUriHandler
+import com.harsh.gymmanager.ui.WEB_APP_LABEL
+import com.harsh.gymmanager.ui.WEB_APP_URL
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -169,6 +172,13 @@ private fun PhoneStep(state: SignInUiState, vm: SignInViewModel, onTryDemo: (() 
                 style = typography.caption,
                 color = if (error != null) colors.statusDue else colors.inkMuted,
             )
+            Spacer(Modifier.height(MyGymSpace.xl))
+            // So people know the gym also opens on a laptop or the front-desk computer.
+            val uriHandler = LocalUriHandler.current
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(Res.string.web_app_also), style = typography.body, color = colors.inkMuted)
+                GhostButton(WEB_APP_LABEL, { uriHandler.openUri(WEB_APP_URL) })
+            }
         }
         Column(
             Modifier.fillMaxWidth().screenGutter().navigationBarsPadding().padding(vertical = MyGymSpace.md),
