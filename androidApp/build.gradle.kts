@@ -11,7 +11,7 @@ plugins {
  * The version people see, as major.minor.patch. Play needs a versionCode that goes up with every upload,
  * so it's worked out from the name (1.2.3 becomes 10203): bump the name and the code follows.
  */
-val appVersion = "1.0.0"
+val appVersion = "1.0.1"
 val appVersionCode = appVersion.split(".").map(String::toInt).let { (major, minor, patch) ->
     major * 10_000 + minor * 100 + patch
 }
