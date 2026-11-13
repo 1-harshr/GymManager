@@ -590,7 +590,8 @@
     <string name="signin_hero_paid">Paid today</string>
     <string name="signin_hero_paid_amount">₹2,500</string>
     <string name="signin_hero_paid_who">Aarav M. · 3 months</string>
-    <string name="signin_hero_renews">Renews in 3 days</string>
+    <string name="signin_hero_reminder">Sent on WhatsApp</string>
+    <string name="signin_hero_renews">Reminder: renews in 3 days</string>
     <string name="signin_hero_renews_who">Priya K.</string>
     <string name="signin_hero_active">142 active members</string>
     <string name="signin_consent_lead">By continuing, you agree to the</string>

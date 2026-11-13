@@ -207,7 +207,7 @@ private fun FinePrint() {
 }
 
 /**
- * The clay top half: the brand, a glimpse of the app at work (a payment in, a renewal coming up, the
+ * The clay top half: the brand, a glimpse of the app at work (a payment in, a WhatsApp reminder out, the
  * member count) and the promise. It's clay in both themes, like the launcher icon it follows on from.
  */
 @Composable
@@ -260,9 +260,10 @@ private fun HeroCards(modifier: Modifier = Modifier) {
         HeroCard(
             Modifier.align(Alignment.BottomEnd).padding(bottom = MyGymSpace.lg).rotate(3f),
         ) {
-            StatusLine(stringResource(Res.string.signin_hero_renews), light.statusExpiring, light.statusExpiringSoft)
+            StatusLine(stringResource(Res.string.signin_hero_reminder), light.statusActive, light.statusActiveSoft)
             Spacer(Modifier.height(MyGymSpace.sm))
             Text(stringResource(Res.string.signin_hero_renews_who), style = typography.title, color = light.ink)
+            Text(stringResource(Res.string.signin_hero_renews), style = typography.caption, color = light.inkMuted)
         }
         Row(
             Modifier.align(Alignment.TopEnd).rotate(2f)

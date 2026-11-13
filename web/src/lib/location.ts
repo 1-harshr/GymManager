@@ -16,3 +16,6 @@ export function appUrl(): string {
 
 /** The Android app's Play Store listing. */
 export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.harsh.gymmanager'
+
+/** A QR code of the Play Store listing (public/play-qr.svg), for getting from a laptop to a phone. */
+export const PLAY_QR_URL = BASE + 'play-qr.svg'

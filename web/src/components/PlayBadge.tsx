@@ -18,6 +18,8 @@ function PlayMark({ className }: { className?: string }) {
  * [small] is the compact one for under a form.
  */
 export function PlayBadge({ small, className }: { small?: boolean; className?: string }) {
+  // An iPhone can't install it, so the badge would only be a dead end there.
+  if (isIOS()) return null
   return (
     <a
       href={PLAY_STORE_URL}
@@ -37,4 +39,9 @@ export function PlayBadge({ small, className }: { small?: boolean; className?: s
       </span>
     </a>
   )
+}
+
+/** iPhones and iPads, including iPads that report themselves as a Mac. */
+export function isIOS(): boolean {
+  return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes('Macintosh') && navigator.maxTouchPoints > 1)
 }

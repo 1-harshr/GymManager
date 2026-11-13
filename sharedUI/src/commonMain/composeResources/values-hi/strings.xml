@@ -604,7 +604,8 @@
     <string name="signin_hero_paid">आज भुगतान हुआ</string>
     <string name="signin_hero_paid_amount">₹2,500</string>
     <string name="signin_hero_paid_who">आरव एम. · 3 महीने</string>
-    <string name="signin_hero_renews">3 दिन में नवीनीकरण</string>
+    <string name="signin_hero_reminder">WhatsApp पर भेजा गया</string>
+    <string name="signin_hero_renews">3 दिन में नवीनीकरण का रिमाइंडर</string>
     <string name="signin_hero_renews_who">प्रिया के.</string>
     <string name="signin_hero_active">142 सक्रिय सदस्य</string>
     <string name="signin_consent_lead">जारी रखकर, आप</string>

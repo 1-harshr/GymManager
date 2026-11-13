@@ -5,8 +5,8 @@ import { formatPhone, localDigits } from '@/lib/format'
 import { Button, IconButton, LinkButton, cx } from '@/components/ui'
 import { BrandMark } from '@/components/Brand'
 import { GoogleG } from '@/components/GoogleG'
-import { PlayBadge } from '@/components/PlayBadge'
-import { appPath, appUrl, PRIVACY_URL } from '@/lib/location'
+import { isIOS, PlayBadge } from '@/components/PlayBadge'
+import { appPath, appUrl, PLAY_QR_URL, PRIVACY_URL } from '@/lib/location'
 
 const CODE_DIGITS = 6
 const RESEND_WAIT = 30
@@ -290,7 +290,18 @@ function BrandPanel() {
       <div className="mt-auto max-w-md">
         <p className="font-display text-[64px] font-bold leading-[60px]">Renewals, dues and members. Sorted.</p>
         <p className="mt-4 text-[17px] leading-6 text-white/80">The same gym on the web, your phone and your staff’s, updated the moment anyone records a payment.</p>
-        <PlayBadge className="mt-8" />
+        {/* A laptop can't install the app, so the code takes it straight to the phone in their pocket. */}
+        {isIOS() ? null : (
+          <div className="mt-8 flex items-center gap-4">
+            <div className="rounded-[14px] bg-white p-2.5 shadow-xl shadow-black/20">
+              <img src={PLAY_QR_URL} alt="" className="size-[84px]" />
+            </div>
+            <div className="flex flex-col items-start gap-2">
+              <p className="text-[15px] leading-5 text-white/80">Scan to get it on your phone</p>
+              <PlayBadge />
+            </div>
+          </div>
+        )}
       </div>
       <div className="pointer-events-none absolute right-12 top-32 w-[380px] rotate-[-6deg] space-y-3 xl:right-20">
         {[
