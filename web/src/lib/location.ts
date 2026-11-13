@@ -13,3 +13,6 @@ export const PRIVACY_URL = BASE + 'privacy.html'
 export function appUrl(): string {
   return window.location.origin + BASE
 }
+
+/** The Android app's Play Store listing. */
+export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.harsh.gymmanager'

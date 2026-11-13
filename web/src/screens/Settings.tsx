@@ -8,6 +8,7 @@ import { applyTheme, usePref, type Theme } from '@/lib/prefs'
 import { useGym } from '@/data/session'
 import { PageHeader } from '@/components/Layout'
 import { GymLogo } from '@/components/Media'
+import { PlayBadge } from '@/components/PlayBadge'
 import { SegmentedTrack, SwitchRow } from '@/components/bits'
 import { Button, Card } from '@/components/ui'
 
@@ -104,6 +105,9 @@ export function Settings() {
           <a href={PRIVACY_URL} className="mt-2 inline-block px-1 text-caption underline underline-offset-2">
             Privacy policy and terms
           </a>
+          <div className="mt-4">
+            <PlayBadge small />
+          </div>
         </Section>
       </div>
     </div>
