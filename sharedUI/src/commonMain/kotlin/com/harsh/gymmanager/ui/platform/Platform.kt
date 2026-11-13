@@ -48,9 +48,12 @@ expect fun appVersion(): String
 /** Whether the daily WhatsApp reminders can go out at their time with the app closed (Android), or only once it's opened (iOS). */
 expect val sendsRemindersInBackground: Boolean
 
-/** Makes the status and navigation bar icons readable on the app's own light or dark background. */
+/**
+ * Makes the status and navigation bar icons readable on the app's own light or dark background.
+ * [darkStatusBar] is for a screen whose top is dark even in the light theme, like sign-in's clay hero.
+ */
 @Composable
-expect fun SystemBarsFor(darkTheme: Boolean)
+expect fun SystemBarsFor(darkTheme: Boolean, darkStatusBar: Boolean = darkTheme)
 
 /**
  * Returns a function that asks to show notifications, then calls [onResult] with whether they are

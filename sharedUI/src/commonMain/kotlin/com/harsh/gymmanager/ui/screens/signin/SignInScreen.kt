@@ -2,7 +2,6 @@ package com.harsh.gymmanager.ui.screens.signin
 
 import androidx.compose.ui.platform.LocalUriHandler
 import com.harsh.gymmanager.ui.PRIVACY_URL
-import com.harsh.gymmanager.ui.WEB_APP_LABEL
 import com.harsh.gymmanager.ui.WEB_APP_URL
 import com.harsh.gymmanager.data.remote.SignInConfig
 import androidx.compose.animation.AnimatedContent
@@ -29,21 +28,22 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -63,6 +63,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -70,12 +72,18 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
@@ -100,6 +108,7 @@ import com.harsh.gymmanager.ui.format.asString
 import com.harsh.gymmanager.ui.icons.MyGymIcons
 import com.harsh.gymmanager.ui.motion.MyGymMotion
 import com.harsh.gymmanager.ui.screens.settings.DemoPasswordSheet
+import com.harsh.gymmanager.ui.theme.MyGymLightColors
 import com.harsh.gymmanager.ui.theme.MyGymRadius
 import com.harsh.gymmanager.ui.theme.MyGymSpace
 import com.harsh.gymmanager.ui.theme.MyGymTheme
@@ -145,52 +154,151 @@ private fun PhoneStep(state: SignInUiState, vm: SignInViewModel, onTryDemo: (() 
     val identity = rememberIdentitySignIn()
     // Phone sign-in is off for this release, but a build with no other way in keeps it.
     val offersPhone = SignInConfig.PHONE || identity.providers.isEmpty()
-    Column(Modifier.fillMaxSize()) {
-        Column(
-            Modifier.weight(1f).verticalScroll(rememberScrollState()).statusBarsPadding().screenGutter()
-                .padding(top = MyGymSpace.xl, bottom = MyGymSpace.lg),
-        ) {
-            BrandMark()
-            Spacer(Modifier.height(MyGymSpace.xxl + MyGymSpace.lg))
-            Text(stringResource(Res.string.signin_title), style = typography.headline)
-            Spacer(Modifier.height(MyGymSpace.sm))
-            Text(stringResource(Res.string.signin_subtitle), style = typography.body, color = colors.inkMuted)
-            Spacer(Modifier.height(MyGymSpace.xxl))
-            if (identity.providers.isNotEmpty()) {
-                IdentityButtons(identity, state, vm)
-                if (offersPhone) OrPhone()
-            }
-            if (offersPhone) PhoneEntry(state, vm)
-            Spacer(Modifier.height(MyGymSpace.xl))
-            // So people know the gym also opens on a laptop or the front-desk computer.
-            val uriHandler = LocalUriHandler.current
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(Res.string.web_app_also), style = typography.body, color = colors.inkMuted)
-                GhostButton(WEB_APP_LABEL, { uriHandler.openUri(WEB_APP_URL) })
-            }
+    Column(Modifier.fillMaxSize().background(BrandClay)) {
+        // The hero takes whatever the sheet doesn't need, and scrolls if the keyboard squeezes it.
+        BoxWithConstraints(Modifier.weight(1f)) {
+            val room = maxHeight
+            Column(Modifier.verticalScroll(rememberScrollState())) { Hero(onTryDemo, Modifier.heightIn(min = room)) }
         }
         Column(
-            Modifier.fillMaxWidth().screenGutter().navigationBarsPadding().padding(vertical = MyGymSpace.md),
+            Modifier.fillMaxWidth().background(colors.surface, MyGymRadius.sheetShape).screenGutter()
+                .navigationBarsPadding().padding(top = MyGymSpace.xl, bottom = MyGymSpace.sm),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (offersPhone) {
-                MyGymButton(
-                    stringResource(if (state.isBusy) Res.string.signin_sending else Res.string.signin_send_code),
-                    vm::sendCode,
-                    Modifier.fillMaxWidth(),
-                    enabled = state.isPhoneComplete && !state.isBusy,
-                )
-            }
-            // While typing, the keyboard needs the room more than the demo does.
-            if (onTryDemo != null && WindowInsets.ime.getBottom(LocalDensity.current) == 0) {
-                Row(Modifier.padding(top = MyGymSpace.sm), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(Res.string.signin_just_looking), style = typography.body, color = colors.inkMuted)
-                    GhostButton(stringResource(Res.string.signin_try_demo), onTryDemo)
+            Column(Modifier.fillMaxWidth()) {
+                if (identity.providers.isNotEmpty()) {
+                    IdentityButtons(identity, state, vm)
+                    if (offersPhone) OrPhone()
+                }
+                if (offersPhone) {
+                    PhoneEntry(state, vm)
+                    Spacer(Modifier.height(MyGymSpace.lg))
+                    MyGymButton(
+                        stringResource(if (state.isBusy) Res.string.signin_sending else Res.string.signin_send_code),
+                        vm::sendCode,
+                        Modifier.fillMaxWidth(),
+                        enabled = state.isPhoneComplete && !state.isBusy,
+                    )
                 }
             }
-            val uriHandler = LocalUriHandler.current
-            GhostButton(stringResource(Res.string.privacy_policy), { uriHandler.openUri(PRIVACY_URL) }, color = colors.inkMuted)
+            Spacer(Modifier.height(MyGymSpace.md))
+            FinePrint()
         }
+    }
+}
+
+/** "By continuing, you agree to the privacy policy and terms. You can also use it on the web." with both links inline. */
+@Composable
+private fun FinePrint() {
+    val colors = MyGymTheme.colors
+    val links = TextLinkStyles(SpanStyle(color = colors.ink, textDecoration = TextDecoration.Underline))
+    val lead = stringResource(Res.string.signin_consent_lead)
+    val privacy = stringResource(Res.string.signin_consent_link)
+    val webLead = stringResource(Res.string.signin_web_lead)
+    val web = stringResource(Res.string.signin_web_link)
+    val text = buildAnnotatedString {
+        append("$lead ")
+        withLink(LinkAnnotation.Url(PRIVACY_URL, links)) { append(privacy) }
+        append(". $webLead ")
+        withLink(LinkAnnotation.Url(WEB_APP_URL, links)) { append(web) }
+        append(".")
+    }
+    Text(text, Modifier.fillMaxWidth(), style = MyGymTheme.typography.caption, color = colors.inkMuted, textAlign = TextAlign.Center)
+}
+
+/**
+ * The clay top half: the brand, a glimpse of the app at work (a payment in, a renewal coming up, the
+ * member count) and the promise. It's clay in both themes, like the launcher icon it follows on from.
+ */
+@Composable
+private fun Hero(onTryDemo: (() -> Unit)?, modifier: Modifier = Modifier) {
+    val typography = MyGymTheme.typography
+    Column(
+        modifier.fillMaxWidth().statusBarsPadding().screenGutter().padding(top = MyGymSpace.lg, bottom = MyGymSpace.xl),
+        verticalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            BrandMark(onClay = true)
+            Spacer(Modifier.weight(1f))
+            // Tucked in the corner for anyone just looking; the sheet below is for gyms signing in.
+            if (onTryDemo != null) {
+                Surface(onClick = onTryDemo, shape = MyGymRadius.pillShape, color = Color.Transparent, contentColor = Color.White.copy(alpha = 0.85f)) {
+                    Text(
+                        stringResource(Res.string.signin_try_demo),
+                        Modifier.padding(horizontal = MyGymSpace.sm, vertical = MyGymSpace.sm),
+                        style = MyGymTheme.typography.caption,
+                    )
+                }
+            }
+        }
+        HeroCards(Modifier.fillMaxWidth().padding(vertical = MyGymSpace.xl))
+        Column {
+            Text(stringResource(Res.string.signin_title), style = typography.headline, color = Color.White)
+            Spacer(Modifier.height(MyGymSpace.sm))
+            Text(stringResource(Res.string.signin_subtitle), style = typography.body, color = Color.White.copy(alpha = 0.82f))
+        }
+    }
+}
+
+/**
+ * Two cards and a pill, set at slight angles like they've been dealt onto the table. They're a picture,
+ * not data, so screen readers skip them; their colours stay light-theme because they sit on clay.
+ */
+@Composable
+private fun HeroCards(modifier: Modifier = Modifier) {
+    val light = MyGymLightColors
+    val typography = MyGymTheme.typography
+    Box(modifier.height(176.dp).clearAndSetSemantics {}) {
+        HeroCard(
+            Modifier.align(Alignment.TopStart).padding(top = MyGymSpace.sm).rotate(-4f),
+        ) {
+            StatusLine(stringResource(Res.string.signin_hero_paid), light.statusActive, light.statusActiveSoft)
+            Spacer(Modifier.height(MyGymSpace.sm))
+            Text(stringResource(Res.string.signin_hero_paid_amount), style = typography.stat, color = light.ink)
+            Text(stringResource(Res.string.signin_hero_paid_who), style = typography.caption, color = light.inkMuted)
+        }
+        HeroCard(
+            Modifier.align(Alignment.BottomEnd).padding(bottom = MyGymSpace.lg).rotate(3f),
+        ) {
+            StatusLine(stringResource(Res.string.signin_hero_renews), light.statusExpiring, light.statusExpiringSoft)
+            Spacer(Modifier.height(MyGymSpace.sm))
+            Text(stringResource(Res.string.signin_hero_renews_who), style = typography.title, color = light.ink)
+        }
+        Row(
+            Modifier.align(Alignment.TopEnd).rotate(2f)
+                .background(Color.White.copy(alpha = 0.16f), MyGymRadius.pillShape)
+                .border(1.dp, Color.White.copy(alpha = 0.28f), MyGymRadius.pillShape)
+                .padding(horizontal = MyGymSpace.md, vertical = MyGymSpace.sm),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MyGymSpace.sm),
+        ) {
+            Box(Modifier.size(8.dp).background(Color.White, CircleShape))
+            Text(stringResource(Res.string.signin_hero_active), style = typography.caption, color = Color.White)
+        }
+    }
+}
+
+@Composable
+private fun HeroCard(modifier: Modifier, content: @Composable () -> Unit) {
+    Column(
+        modifier
+            .width(196.dp)
+            .shadow(16.dp, MyGymRadius.cardShape, ambientColor = Color.Black, spotColor = Color.Black)
+            .background(Color.White, MyGymRadius.cardShape)
+            .padding(MyGymSpace.lg),
+    ) { content() }
+}
+
+/** A dot and a word in a soft pill, as the member list marks a status. */
+@Composable
+private fun StatusLine(text: String, color: Color, soft: Color) {
+    Row(
+        Modifier.background(soft, MyGymRadius.pillShape).padding(horizontal = MyGymSpace.sm, vertical = MyGymSpace.xs),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Box(Modifier.size(6.dp).background(color, CircleShape))
+        Text(text, style = MyGymTheme.typography.label, color = color)
     }
 }
 
@@ -279,13 +387,21 @@ private fun OrPhone() {
 private fun CodeStep(state: SignInUiState, vm: SignInViewModel) {
     val colors = MyGymTheme.colors
     val typography = MyGymTheme.typography
-    Column(Modifier.fillMaxSize()) {
-        Row(Modifier.statusBarsPadding().padding(horizontal = MyGymSpace.gutter, vertical = MyGymSpace.md)) {
-            MyGymIconButton(MyGymIcons.ChevronLeft, stringResource(Res.string.signin_change_number), vm::changeNumber)
+    Column(Modifier.fillMaxSize().background(colors.surface)) {
+        // A band of the hero's clay carries over, so the code reads as the next card of the same screen.
+        Row(Modifier.fillMaxWidth().background(BrandClay).statusBarsPadding().padding(horizontal = MyGymSpace.gutter, vertical = MyGymSpace.md)) {
+            MyGymIconButton(
+                MyGymIcons.ChevronLeft,
+                stringResource(Res.string.signin_change_number),
+                vm::changeNumber,
+                container = Color.White.copy(alpha = 0.16f),
+                content = Color.White,
+            )
         }
         Column(
-            Modifier.weight(1f).verticalScroll(rememberScrollState()).screenGutter()
-                .padding(top = MyGymSpace.lg, bottom = MyGymSpace.lg),
+            Modifier.weight(1f).background(BrandClay).background(colors.surface, MyGymRadius.sheetShape)
+                .verticalScroll(rememberScrollState()).screenGutter()
+                .padding(top = MyGymSpace.xl, bottom = MyGymSpace.lg),
         ) {
             Text(stringResource(Res.string.signin_code_title), style = typography.headline)
             Spacer(Modifier.height(MyGymSpace.sm))
@@ -337,14 +453,22 @@ private fun CodeStep(state: SignInUiState, vm: SignInViewModel) {
     }
 }
 
-/** The launch screen's clay tile and dumbbell, so the splash hands over to a screen that's clearly the same app. */
+/**
+ * The launch screen's clay tile and dumbbell, so the splash hands over to a screen that's clearly the same app.
+ * [onClay] swaps it to a white tile and name for sitting on the clay hero.
+ */
 @Composable
-internal fun BrandMark() {
+internal fun BrandMark(onClay: Boolean = false) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MyGymSpace.md)) {
-        Box(Modifier.size(48.dp).background(BrandClay, RoundedCornerShape(11.dp)), contentAlignment = Alignment.Center) {
-            Icon(MyGymIcons.Dumbbell, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
+        val tile = if (onClay) Color.White else BrandClay
+        Box(Modifier.size(48.dp).background(tile, RoundedCornerShape(11.dp)), contentAlignment = Alignment.Center) {
+            Icon(MyGymIcons.Dumbbell, contentDescription = null, tint = if (onClay) BrandClay else Color.White, modifier = Modifier.size(28.dp))
         }
-        Text(stringResource(Res.string.app_name), style = MyGymTheme.typography.screenTitle)
+        Text(
+            stringResource(Res.string.app_name),
+            style = MyGymTheme.typography.screenTitle,
+            color = if (onClay) Color.White else MyGymTheme.colors.ink,
+        )
     }
 }
 

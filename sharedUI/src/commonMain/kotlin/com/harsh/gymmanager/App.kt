@@ -228,8 +228,9 @@ fun App(
     val authState = auth?.authState?.collectAsStateWithLifecycle()?.value
     val membership = gyms?.membership?.collectAsStateWithLifecycle()?.value
     val inGym = authState is AuthState.SignedIn && membership is MembershipState.Member
-    // The demo banner is clay and the can't-reach banner ink, so the status bar icons go light on them.
-    SystemBarsFor(dark || inDemo || (inGym && unreachable))
+    // The demo banner and the sign-in hero are clay and the can't-reach banner ink, so the status bar icons go light on them.
+    val darkTop = inDemo || (inGym && unreachable) || authState is AuthState.SignedOut
+    SystemBarsFor(dark || inDemo || (inGym && unreachable), darkStatusBar = dark || darkTop)
     // Hold the launch screen until both the settings and any saved sign-in are read, so neither screen flashes.
     val gymKnown = authState !is AuthState.SignedIn || membership !is MembershipState.Loading
     if (settings != null && authState !is AuthState.Loading && gymKnown) LaunchedEffect(Unit) { onReady() }

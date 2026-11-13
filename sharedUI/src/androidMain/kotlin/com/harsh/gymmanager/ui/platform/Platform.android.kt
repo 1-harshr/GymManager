@@ -176,13 +176,13 @@ actual fun appVersion(): String {
 actual val rebuildUiOnLanguageChange: Boolean = false
 
 @Composable
-actual fun SystemBarsFor(darkTheme: Boolean) {
+actual fun SystemBarsFor(darkTheme: Boolean, darkStatusBar: Boolean) {
     val view = LocalView.current
     if (view.isInEditMode) return
     SideEffect {
         val window = (view.context as? Activity)?.window ?: return@SideEffect
         WindowCompat.getInsetsController(window, view).apply {
-            isAppearanceLightStatusBars = !darkTheme
+            isAppearanceLightStatusBars = !darkStatusBar
             isAppearanceLightNavigationBars = !darkTheme
         }
     }

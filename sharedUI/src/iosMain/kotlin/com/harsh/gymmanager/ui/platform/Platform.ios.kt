@@ -161,11 +161,11 @@ actual val rebuildUiOnLanguageChange: Boolean = true
 
 /** Needs UIViewControllerBasedStatusBarAppearance = NO in Info.plist. */
 @Composable
-actual fun SystemBarsFor(darkTheme: Boolean) {
+actual fun SystemBarsFor(darkTheme: Boolean, darkStatusBar: Boolean) {
     SideEffect {
         @Suppress("DEPRECATION")
         UIApplication.sharedApplication.setStatusBarStyle(
-            if (darkTheme) UIStatusBarStyleLightContent else UIStatusBarStyleDarkContent,
+            if (darkStatusBar) UIStatusBarStyleLightContent else UIStatusBarStyleDarkContent,
             animated = true,
         )
     }
